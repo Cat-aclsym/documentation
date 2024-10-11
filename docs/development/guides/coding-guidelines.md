@@ -10,7 +10,7 @@ description: GDScript coding guideline
 
 ## Script Structure
 
-All scripts must adhere to the following structure:
+All scripts must adhere to the following structure :
 
 1. [Header](#header)
 2. [class_name + extends](#class_name-extends)
@@ -60,6 +60,7 @@ extends Node2d
 | Experimental | `@experimental`<br></br>`@experimental: This method is incomplete.` |
 
 - Use `@tutorial` tag to redirect to external documentation
+
 ### Signals
 
 - **Signal Declarations:** Use `snake_case` for signal names.
@@ -329,52 +330,6 @@ func _ready() -> void:
     new_script.test_func()
 ```
 - **Default parameters values are never allowed in functions** 
-
----
-
-## Snippets
-
-### VSCode
-To create new snippet :
-1. `Ctrl + Shift + P`
-2. Snippets: Configure snippets
-3. gdscript.json
-4. Copy past snippets 
-
-- **Trace log :** 
-```json
-{
-    "Trace Log": {
-        "prefix": "trace",
-        "body": [
-            "Log.trace(Log.Level.${1|DEBUG,INFO,WARN,ERROR,FATAL|}, \"$2\");"
-        ],
-        "description": "Insert a trace log with selectable log level"
-    }
-}
-```
-- **Base gdscript :** 
-```json
-{
-    "Base gdscript": {
-        "prefix": "gdscript",
-        "body": [
-            "# core\n\n",
-            "# public\n\n",
-            "# private\n\n",
-            "# signal\n\n",
-            "# event\n\n",
-            "# setget\n\n"
-        ],
-        "description": "Base structure for gdscript file"
-    }
-}
-```
-
----
-
-## External resources
-- **Cheat sheet** : https://godot.community/topic/78/gdscript-cheatsheet/2
 
 ---
 
