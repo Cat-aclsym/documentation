@@ -8,7 +8,7 @@ description: GDScript coding guideline
 
 ---
 
-# Script Structure
+## Script Structure
 
 All scripts must adhere to the following structure:
 
@@ -30,7 +30,7 @@ All scripts must adhere to the following structure:
 10. [Private Functions](#function-ordering-and-naming)
 11. [Signal Callbacks](#function-ordering-and-naming)
 
-## Header
+### Header
 
 - **Every** file must start with the following header:
 - Example :
@@ -60,7 +60,7 @@ extends Node2d
 | Experimental | `@experimental`<br></br>`@experimental: This method is incomplete.` |
 
 - Use `@tutorial` tag to redirect to external documentation
-## Signals
+### Signals
 
 - **Signal Declarations:** Use `snake_case` for signal names.
   - Example:
@@ -68,7 +68,7 @@ extends Node2d
 signal my_signal
 ```
 
-## Enums
+### Enums
 
 - **Naming Conventions:**
   - Enums should be named using `PascalCase`.
@@ -83,7 +83,7 @@ enum MyEnum {
 }
 ```
 
-## Constants
+### Constants
 
 - **Naming Conventions:**
   - Constants should be named in `ALL_CAPS`, with underscores (`_`) separating words.
@@ -92,7 +92,7 @@ enum MyEnum {
 const MAX_HEALTH: int = 100
 ```
 
-## Variables
+### Variables
 
 - **Naming Conventions:**
   - Public variables should be in `snake_case`.
@@ -116,7 +116,7 @@ var _redundant_type: Vector2 = Vector2(0, 1)  # Avoid
 @export_enum("Option1", "Option2") var my_enum_var: String
 ```
 
-## Function Ordering and Naming
+### Function Ordering and Naming
 
 - **Function Order:**
   1. Core functions in order:
@@ -154,7 +154,7 @@ func _on_Player_died() -> void:
     print("Player has died.")
 ```
 
-## Function Parameters and Return Types
+### Function Parameters and Return Types
 
 - **Always specify return types and parameter types.**
 - **Underscore for Unused Parameters:**
@@ -178,7 +178,7 @@ func get_player_if_ready() -> Variant:
 
 ---
 
-# Documentation
+## Documentation
 
 - In gdscript `##` is used for documentation and `#` for comments
 - Documentation must precede a var or a function declaration to have any effect
@@ -240,7 +240,7 @@ class Inner:
 
 ---
 
-# Code Practices
+## Code Practices
 
 - **Ternary Operators:**
   - Ternary operators are acceptable but must remain easy to read.
@@ -332,9 +332,9 @@ func _ready() -> void:
 
 ---
 
-# Snippets
+## Snippets
 
-## VSCode
+### VSCode
 To create new snippet :
 1. `Ctrl + Shift + P`
 2. Snippets: Configure snippets
@@ -373,12 +373,12 @@ To create new snippet :
 
 ---
 
-# External resources
+## External resources
 - **Cheat sheet** : https://godot.community/topic/78/gdscript-cheatsheet/2
 
 ---
 
-# TODO
+## TODO
 
 1. **Log and Error Handling:**
    - Guidelines on handling errors, including the use of `assert`, and custom error messages.
