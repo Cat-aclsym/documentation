@@ -14,7 +14,9 @@ Sous Gitflow, les développeurs créent une branche de fonctionnalité et retard
 
 Ce workflow définit des rôles spécifiques pour chaque branche et comment elles doivent interagir.
 
-> Si vous souhaitez utiliser un autre outil que git cli, demmerdez vous, merci
+:::warning
+Si vous souhaitez utiliser un autre outil que git cli, demmerdez vous, merci
+:::
 
 ---
 

@@ -14,8 +14,7 @@ Bienvenue dans la documentation de **CAT'ACLYSM**. Ce tableau de bord vous donne
 - [Guide d'installation](./introduction/installation.md)
 - [Directives de codage](./development/guides/coding-guidelines.md)
 - [Workflow Git](./git-workflow.md)
-- [Design Patterns](./development/design-patterns/singleton.md)
-- [Extraits de code](./development/guides/snippets.md)
+- [Snippets](./development/guides/snippets.md)
 
 ## Pour bien commencer
 

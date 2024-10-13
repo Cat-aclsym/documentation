@@ -37,9 +37,9 @@ All scripts must adhere to the following structure :
 ```python
 ## © [2024] A7 Studio. All rights reserved. Trademark.
 ```
-- The header must be specialized if it is for an important script, such as interface (e.g `ilevel.gd`)
+- The header must be specialized if it is for an important script, such as interface (e.g `ilevel.gd`) otherwise it can be exempted.
 - Example:
-```gdscipt
+```python
 class_name ILevel
 extends Node2d
 ## Interface for level class. All levels node inherit for this node.
