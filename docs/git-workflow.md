@@ -14,10 +14,6 @@ Sous Gitflow, les développeurs créent une branche de fonctionnalité et retard
 
 Ce workflow définit des rôles spécifiques pour chaque branche et comment elles doivent interagir.
 
-:::warning
-Si vous souhaitez utiliser un autre outil que git cli, demmerdez vous, merci
-:::
-
 ---
 
 ## Branches principales : develop et main
@@ -25,7 +21,6 @@ Si vous souhaitez utiliser un autre outil que git cli, demmerdez vous, merci
 Gitflow utilise deux branches principales pour gérer l'historique du projet :
 - La branche `main` stocke l'historique des versions officielles.
 - La branche `develop` est utilisée pour intégrer les nouvelles fonctionnalités.
-
 
 ## Branches de fonctionnalité (feature branches)
 
