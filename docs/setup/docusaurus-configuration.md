@@ -6,7 +6,7 @@ description: Configuration git
 
 # Configuration Docusaurus
 
-Cette article decris comment installer, tester, modifier et deployer la documentation [Docusaurus](https://docusaurus.io/).
+Cet article décrit comment installer, tester, modifier et deployer la documentation [Docusaurus](https://docusaurus.io/).
 
 ---
 
