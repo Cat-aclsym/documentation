@@ -6,7 +6,7 @@ description: Configuration git
 
 # Configuration Docusaurus
 
-Cet article décrit comment installer, tester, modifier et deployer la documentation [Docusaurus](https://docusaurus.io/).
+Cet article décrit comment installer, tester, et deployer la documentation [Docusaurus](https://docusaurus.io/).
 
 ---
 
@@ -30,10 +30,6 @@ cd ./documentation
 npm run start
 ```
 
-
-## Edition
-
-
 ## Deploiement
 
 ### bash
@@ -50,6 +46,20 @@ cmd /C "set "GIT_USER=<GITHUB_USERNAME>" && yarn deploy"
 ```powershell
 cmd /C 'set "GIT_USER=<GITHUB_USERNAME>" && yarn deploy'
 ```
+
+
+## Workflow
+
+1. Mettre a jour la doc : `git pull --rebase`
+2. Modifier / Ajouter des pages
+3. [Tester](https://cat-aclsym.github.io/documentation/docs/setup/docusaurus-configuration#test) les modifications
+4. Pousser les mises a jour
+```bash
+git add .
+git commit -m "..."
+git push origin main
+```
+5. [Deployer doc](https://cat-aclsym.github.io/documentation/docs/setup/docusaurus-configuration#deploiement)
 
 
 ## Liens utiles
