@@ -129,12 +129,12 @@ func get_enemy_by_id(id: int) -> IEnemy:
     - La fonction est critique
 - Utilisez les balises suivantes pour documenter votre code :
 
-| Nom          | Exemple                                                                                                                    |
-|--------------|----------------------------------------------------------------------------------------------------------------------------|
-| [Référence]  | Link to the class `[ILevel]`, the method `[method ILevel.thing]`.<br>The image `[img width=32]res://local-file.png[/img]`. |
-| Obsolète     | `@deprecated`<br>`@deprecated: Use [member another] instead.`                                                              |
-| Expérimental | `@experimental`<br>`@experimental: This method is incomplete.`                                                             |
-| Tutoriel     | `@tutorial: https://example.com/tutorial`<br>`@tutorial(Tutorial 2): https://example.com/tutorial_2`                       |                                       
+| Nom          | Exemple                                                                                                                     |
+|--------------|-----------------------------------------------------------------------------------------------------------------------------|
+| [Référence]  | Link to the class `[ILevel]`, the method `[method ILevel.thing]`.<br/>The image `[img width=32]res://local-file.png[/img]`. |
+| Obsolète     | `@deprecated`<br/>`@deprecated: Use [member another] instead.`                                                              |
+| Expérimental | `@experimental`<br/>`@experimental: This method is incomplete.`                                                             |
+| Tutoriel     | `@tutorial: https://example.com/tutorial`<br/>`@tutorial(Tutorial 2): https://example.com/tutorial_2`                       |                                       
 
 Consultez la documentation complète sur les commentaires de la [documentation GDScript](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_documentation_comments.html).
 

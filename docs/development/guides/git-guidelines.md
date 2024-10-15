@@ -10,7 +10,7 @@ description: Guidelines for using Git
 
 - Les messages de commits sont en anglais, au présent, doivent être courts et concis.
 
-**type(scope): subject<br><br>closes**
+**type(scope): subject<br/><br/>closes**
 
 * **type**: type de commit
 * **scope**: la scope affectée par ce commit 1 à 2 mots, peut contenir un espace
