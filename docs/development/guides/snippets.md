@@ -6,7 +6,7 @@ description: Documentation dashboard
 
 # Snippets
 
-<Tabs>
+
 ## VSCode
 
 **Pour créer un nouveau snippet :**
@@ -128,4 +128,3 @@ Code:
 
 # setget
 ```
-</Tabs>
