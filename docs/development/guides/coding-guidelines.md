@@ -8,31 +8,32 @@ description: GDScript coding guideline
 
 ---
 
-## Script Structure
+## Structure d'un script
 
-All scripts must adhere to the following structure :
+Tous les scripts doivent respecter la structure suivante :
 
 1. [Header](#header)
-2. [class_name + extends](#class_name-extends)
+2. class_name + extends
 3. [Enums](#enums)
-4. [Constants](#constants)
-5. [Exported Variables](#variables)
-6. [Public Variables](#variables)
-7. [Private Variables](#variables)
-8. [Core Functions](#function-ordering)
-9. [Public Functions (class methods)](#function-ordering-and-naming)
-10. [Private Functions](#function-ordering-and-naming)
-11. [Signal Callbacks](#function-ordering-and-naming)
+4. [Constantes](#constants)
+5. [Variables Exportées](#variables)
+6. [Variables Publiques](#variables)
+7. [Variables Privées](#variables)
+8. [Fonctions Intégrées](#function-ordering)
+9. [Fonctions Publiques](#function-ordering)
+10. [Fonctions Privées](#function-ordering)
+11. [Fonctions de callback](#function-ordering)
 
 ### Header
 
-- **Every** file must start with the following header:
+- **Chaque** fichier doit commencer par l'en-tête suivant :
 - Example :
 ```python
 ## © [2024] A7 Studio. All rights reserved. Trademark.
 ```
-- The header must be specialized if it is for an important script, such as interface (e.g `ilevel.gd`) otherwise it can be exempted.
-- Example:
+- Le header doit être détaillé s'il s'agit d'un script important, tel qu'une interface (par exemple `ilevel.gd`), sinon il peut être simple.
+
+Exemple:
 ```python
 ## © [2024] A7 Studio. All rights reserved. Trademark.
 
@@ -48,33 +49,33 @@ extends Node2d
 ## @experimental
 ```
 
-You can use tags `@tutorial` to redirect to external documentation, `@experimental` to indicate that the script is still in development or `@deprecated` to indicate that the script is no longer used.
-Check out the full documentation of how to write documentation [here](#documentation).
+Vous pouvez utiliser les balises `@tutorial` pour rediriger vers une documentation externe, `@experimental` pour indiquer que le script est toujours en développement ou `@deprecated` pour indiquer que le script n'est plus utilisé.
+Consultez la documentation complète sur la façon de rédiger de la documentation [ici](#documentation).
 
 ### Function Ordering
 
-1. Core functions in order:
-    1. `_init()` - Constructor
-    2. `_enter_tree()` - Called when the node enters the scene tree
-    3. `_ready()` - Called when the node is added to the scene tree
-    4. `_process(delta: float)` - Called every frame
-    5. `_physics_process(delta: float)` - Called every physics frame
-    6. `_draw()` - Called every frame only in 2D nodes
-2. Public functions (class methods)
-3. Private functions
-4. Signal callbacks
+1. Fonctions de base dans l'ordre suivant :
+    1. `_init()`: Constructeur
+    2. `_enter_tree()`: Appelé lorsque le nœud entre dans l'arborescence de la scène
+    3. `_ready()`: Appelé lorsque le nœud est ajouté à l'arborescence de la scène
+    4. `_process(delta: float)`: Appelé chaque image
+    5. `_physics_process(delta: float)`: Appelé chaque image physique
+    6. `_draw()`: Appelé chaque image uniquement dans les nœuds 2D
+2. Fonctions publiques (méthodes de classe)
+3. Fonctions privées
+4. Callbacks de signaux
 
-> **Tip:** Adding comments such as `#core`, `#public`, `#private`, `#signal` between each section can improve readability if you have a lot of functions.
+> **Astuce :** L'ajout de commentaires tels que `#core`, `#public`, `#private`, `#signal` entre chaque section peut améliorer la lisibilité si vous avez beaucoup de fonctions.
 
-## Type Annotations
+## Annotations de Typage
 
-We always type our variables and functions.
-This makes the code easier to read and understand and helps catch bugs early.
-Use `assert` to ensure correct usage by future developers.
+- **Toujours spécifier les types de retour et les types de paramètres.**
+- Cela rend le code plus facile à lire et à comprendre et permet de détecter les bogues plus tôt.
+- Utilisez `assert` pour garantir une utilisation correcte de la fonction.
 
 ### Variables
 
-Prefer writing explicit type for numbers as one statement can be misleading.
+Préférez écrire du typage explicites pour les nombres, car les nombres entiers sont inférés en tant que `int` mais ce principe est souvent oublié.
 
 - Example:
 ```python
@@ -85,13 +86,12 @@ var _implicit_type := Vector2(0, 1)  # Preferred
 var _redundant_type: Vector2 = Vector2(0, 1)  # Avoid
 ```
 
-### Function Parameters and Return Types
+### Paramètres de fonction et types de retour
 
-- **Always specify return types and parameter types.**
+- **Spécifiez toujours les types de retour et les types de paramètres.**
+- Évitez d'utiliser le type `Variant` sauf si cela est absolument nécessaire. Documentez toujours ce que la fonction renvoie lors de l'utilisation de « Variant ».
 
-- **Avoiding `Variant`:**
-  - Avoid using the `Variant` type unless absolutely necessary. Always document what the function returns when using `Variant`.
-  - Example:
+Exemple:
 ```python
 ## Returns [code]Player[/code] or [code]null[/code]
 func get_player_if_ready() -> Variant:
@@ -104,11 +104,12 @@ func get_player_if_ready() -> Variant:
 
 ## Documentation
 
-- In gdscript `##` is used for the documentation and `#` for comments.
-- Documentation must precede a var or a function declaration to have any effect.
-- If documenting a script, it should be placed below `class_name X extends Y`.
-- **All public functions must be documented**, following the Godot documentation recommendations: https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_documentation_comments.html
-- Example:
+- En gdscript l'opérateur `##` est utilisé pour la documentation et `#` pour les commentaires.
+- La documentation doit précéder une déclaration de variable ou de fonction pour avoir un effet.
+- Si vous documentez un script, il doit être en dessous de `class_name X extends Y`.
+- **Toutes les fonctions publiques doivent être documentées**, en suivant les recommandations de la documentation Godot : https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_documentation_comments.html
+
+Exemple:
 ```python
 ## Attempts to retrieve an enemy instance by its ID.
 ##
@@ -123,22 +124,21 @@ func get_enemy_by_id(id: int) -> IEnemy:
 
 ```
 
-- **Private functions documentation can be omitted**, except if:
-    - The function can fail (ideally, no function should fail).
-    - The function can throw exceptions.
-    - The function is critical
-- Use the following tags to document your code:
+-**La documentation des fonctions privées peut être omise**, sauf si :
+    - La fonction peut échouer (idéalement, aucune fonction ne devrait échouer).
+    - La fonction est critique
+- Utilisez les balises suivantes pour documenter votre code :
 
-| Name         | Description                                                                                                                |
+| Nom          | Exemple                                                                                                                    |
 |--------------|----------------------------------------------------------------------------------------------------------------------------|
-| [Reference]  | Link to the class `[ILevel]`, the method `[method ILevel.thing]`.<br>The image `[img width=32]res://local-file.png[/img]`. |
-| Deprecated   | `@deprecated`<br>`@deprecated: Use [member another] instead.`                                                              |
-| Experimental | `@experimental`<br>`@experimental: This method is incomplete.`                                                             |
-| Tutorial     | `@tutorial: https://example.com/tutorial`<br>`@tutorial(Tutorial 2): https://example.com/tutorial_2`                       |                                       
+| [Référence]  | Link to the class `[ILevel]`, the method `[method ILevel.thing]`.<br>The image `[img width=32]res://local-file.png[/img]`. |
+| Obsolète     | `@deprecated`<br>`@deprecated: Use [member another] instead.`                                                              |
+| Expérimental | `@experimental`<br>`@experimental: This method is incomplete.`                                                             |
+| Tutoriel     | `@tutorial: https://example.com/tutorial`<br>`@tutorial(Tutorial 2): https://example.com/tutorial_2`                       |                                       
 
-Check out full documentation on [GDScript documentation comments](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_documentation_comments.html).
+Consultez la documentation complète sur les commentaires de la [documentation GDScript](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_documentation_comments.html).
 
-- Example:
+Exemple:
 ```python
 ## The description of the variable.
 ## @deprecated: Use [member other_var] instead.
@@ -167,23 +167,25 @@ class Inner:
 
 ---
 
-## Code Practices
+## Pratiques du code
 
-- **Ternary Operators:**
-  - Ternary operators are acceptable but must remain easy to read.
-  - Example:
+- **Opérateurs ternaires :**
+  - Les opérateurs ternaires sont acceptables mais doivent rester faciles à lire.
+
+Exemple:
 ```python
 return 1 if condition else 2
 ```
-  - No nested ternary operators are allowed because they make the code harder to read, consider using conditions.
-  - Example:
+- Les opérateurs ternaires imbriqués ne sont pas autorisés car ils rendent le code plus difficile à lire, préférez utiliser des `if` pour les cas complexes.
+
+Example:
 ```python
 return 1 if condition1 else (2 if condition2 else 3)  # Not allowed
 ```
-- **Avoid Deep Nesting**
-    - **Minimize Indentation Levels:** Deep nesting makes code harder to read and maintain. Instead of using multiple nested `if` statements, use guard clauses or early returns to keep the code flat and readable.
-    - **Use early returns to avoid unnecessary nesting:**
-- Instead of writing:
+- **Évitez les indentations profondes**
+    - **Minimisez le niveau d'indentation:** L'indentation profonde rend le code plus difficile à lire et à maintenir. Au lieu d'utiliser plusieurs instructions `if` imbriquées, utilisez des conditions préventives ou des retours anticipés pour garder le code plat et lisible.
+    - **Utilisez des retours anticipés pour éviter une imbrication inutile :**
+- Au lieu d'écrire:
 ```python
 if condition:
     # some deeply nested logic
@@ -192,7 +194,7 @@ if condition:
         if yet_another_condition:
             # even deeper logic
 ```
-- Refactor using guard clauses:
+- Refactoriser à l'aide de retours anticipés:
 ```python
 if not condition:
     return
@@ -206,21 +208,21 @@ if not yet_another_condition:
 # Logic here is now cleaner and avoids deep indentation
 ```
 
-- **Limiting Global Variables:**
-  - Only use global variables when necessary.
-  - Always verify a global variable before accessing it as it may not be initialized.
+- **Limiter les variables globales :**
+  - N'utilisez des variables globales que lorsque cela est nécessaire.
+  - Vérifiez toujours une variable globale avant d'y accéder, car elle peut ne pas être initialisée.
 
-Example:
+Exemple:
 ```python
 if Global.player != null:
     Global.player.do_something()
 ```
 
-- **Static Variables and Functions:**
-  - Use static variables and functions when the same data or logic is shared across all instances of a class and depends only on the class itself.
-  - Use the `static` keyword to define static variables and functions.
+- **Variables et fonctions statiques :**
+  - Utilisez des variables et des fonctions statiques lorsque les mêmes données ou logiques sont partagées entre toutes les instances d'une classe et dépendent uniquement de la classe elle-même.
+  - Utilisez le mot-clé `static` pour définir des variables et des fonctions statiques.
 
-Example:
+Exemple:
 ```python
 static var _instance_count: int = 0
 
@@ -231,11 +233,11 @@ func _ready() -> void:
 	_instance_count += 1
 ```
 
-- **Signal Connections:**
-  - Prefer connecting signals from code rather than using the Godot UI to easily find connected signals.
-  - Always use functions to connect signals instead of writing connection logic directly in core functions like `_ready`.
+- **Connexions des signaux :**
+  - Préférez connecter les signaux à partir du code plutôt que d'utiliser l'interface utilisateur Godot pour trouver facilement les signaux connectés.
+  - Utilisez toujours des fonctions pour connecter des signaux au lieu d'écrire la logique de connexion directement dans les fonctions principales comme `_ready`.
 
-Example:
+Exemple:
 ```python
 func _ready() -> void:
     _connect_signals()
@@ -244,9 +246,8 @@ func _connect_signals() -> void:
     connect("my_signal", _on_MyNode_my_signal)
 ```
 
-- **Functions:**
-  - A function must do **one thing**.
-  - Use `assert(condition, error_message)` to ensure correct usage by future developers, it will raise an error if the condition is not met.
+- **Fonctions :**
+  - Utilisez `assert(condition, error_message)` pour garantir une utilisation correcte par les futurs développeurs, cela générera une erreur si la condition n'est pas remplie.
 
 Example:
 ```python
@@ -255,18 +256,18 @@ func square_root(number: float) -> float:
     return sqrt(number)
 ```
 
-- **Default parameters values are never allowed in functions** 
+- **Les valeurs des paramètres par défaut ne sont jamais autorisées dans les fonctions** 
 
 ---
 
-## Naming Conventions
+## Conventions de nommage
 
-### Files
+### Fichiers
 
-- Use `snake_case` for script names, scenes and folders.
-- Use `PascalCase` for class names.
+- Utilisez `snake_case` pour les noms de scripts, les scènes et les dossiers.
+- Utilisez `PascalCase` pour les noms de classe.
 
-Example:
+Exemple:
 ```bash
 my_script.gd
 my_scene.tscn
@@ -282,22 +283,22 @@ class_name MyScript
 extends Node
 ```
 
-### Signals
+### Signaux
 
-- Use `snake_case` for signal names and their parameters.
+- Utilisez `snake_case` pour les noms de signaux et leurs paramètres.
 
-Example:
+Exemple:
 ```python
 signal my_signal
 
 signal player_killed(enemy: Node)
 ```
 
-### Enums
+### Énumérations
 
-- Enums should be named using `PascalCase`.
-- Enum values should be in `ALL_CAPS`.
-- Include a trailing comma for multiline enum declarations.
+- Les énumérations doivent être nommées en utilisant `PascalCase`.
+- Les valeurs d'énumération doivent être nommées en `ALL_CAPS`.
+- Incluez une virgule de fin pour les déclarations d'énumération multiligne.
 
 Example:
 ```python
@@ -308,9 +309,9 @@ enum MyEnum {
 }
 ```
 
-### Constants
+### Constantes
 
-- Constants should be named in `ALL_CAPS`, with underscores (`_`) separating words.
+- Les constantes doivent être nommées en `ALL_CAPS`.
 
 Example:
 ```python
@@ -319,11 +320,11 @@ const MAX_HEALTH: int = 100
 
 ### Variables
 
-- Public variables should be in `snake_case`.
-- Private variables should start with an underscore (`_`) and follow `snake_case`.
-- If unsure whether a variable should be private or public, **make it private** and change it later if needed.
+- Les variables publiques doivent être en `snake_case`.
+- Les variables privées doivent commencer par un trait de soulignement (`_`) et être en `snake_case`.
+- Si vous ne savez pas si une variable doit être privée ou publique, **rendez-la privée** et modifiez-la plus tard si nécessaire.
 
-Example:
+Exemple:
 ```python
 var public_var: int = 10
 var _private_var: int
@@ -331,7 +332,7 @@ var _implicit_type := Vector2(0, 1)  # Preferred
 var _redundant_type: Vector2 = Vector2(0, 1)  # Avoid
 ```
 
-- Use the `@export` keyword for exported variables, and name them in `snake_case`.
+- Utilisez le mot-clé `@export` pour les variables exportées et nommez-les dans `snake_case`.
 
 Exemple:
 ```python
@@ -341,11 +342,9 @@ Exemple:
 
 ### Functions
 
-- Use `snake_case` for function names.
-- Private functions should start with an underscore (`_`).
-- **Always** specify the function return type, even for core functions.
-- **Always** specify the parameter types.
-- Prefix parameters with an underscore (`_`) if they are not used within the function (but avoid these cases).
+- Utilisez `snake_case` pour les noms de fonctions.
+- Les fonctions privées doivent commencer par un trait de soulignement (`_`).
+- Préfixez les paramètres avec un trait de soulignement (`_`) s'ils ne sont pas utilisés dans la fonction (mais évitez ces cas).
 
 Example:
 ```python
@@ -359,57 +358,57 @@ func _process(_delta: float) -> void:
     pass
 ```
 
-- Name signal callback functions in the format `_on_<NodeName>_<signal_name>()`.
+- Nommez les fonctions de rappel de signal au format `_on_<NomDeNœud>_<nom_de_signal>()`.
 
-Example:
+Exemple:
 ```python
 func _on_Player_died() -> void:
     print("Player has died.")
 ```
 
-## Resources Management
+## Gestion des ressources
 
-- **Resource Paths:**
-  - Use `res://` for all resource paths.
-  - Avoid using absolute paths.
+- **Chemins de ressources :**
+  - Utilisez `res://` pour tous les chemins de ressources.
+  - Évitez d'utiliser des chemins absolus.
+
+Exemple:
+```python
+var texture = preload("res://textures/my_texture.png")
+```
+
+- **Chargement des ressources :**
+  - Utilisez `preload` pour charger les ressources.
+  - Précharger les ressources au début du script.
 
 Example:
 ```python
 var texture = preload("res://textures/my_texture.png")
 ```
 
-- **Resource Loading:**
-  - Use `preload` to load resources.
-  - Preload resources at the start of the script.
+Évitez le chargement dynamique des ressources dans les fonctions, car cela peut entraîner des problèmes de performances.
+Évitez de modifier la ressource d'un nœud au moment de l'exécution (ex : images, sons, etc.), cela peut provoquer des fuites de mémoire.
 
-Example:
-```python
-var texture = preload("res://textures/my_texture.png")
-```
+- **Nouvelles ressources :**
+  - Optimisez les images dans un outil comme [TinyPNG](https://tinypng.com/) avant de les importer dans Godot, préférez utiliser les formats WebP ou SVG.
+  - Le support SVG est limité, essayez-les toujours sur [ThorVG](https://www.thorvg.org/viewer) avant de les importer dans Godot car il utilise le même moteur.
+  - Utilisez le mode de texture `Nearest` pour les sprites avec des sprites pixel art.
 
-Avoid dynamic loading of resources in functions as it can cause performance issues.
-Avoid changing the resource of a node at runtime (ex: images, sounds, etc.), as it can cause memory leaks.
+## Directives Git
 
-- **New resources:**
-  - Optimize images in a tool like [TinyPNG](https://tinypng.com/) before importing them into Godot, prefer using WebP or SVG formats.
-  - SVG support is limited, always try them on [ThorVG](https://www.thorvg.org/viewer) before importing them into Godot as it uses the same engine.
-  - Use `Nearest` texture mode for sprites with pixel art sprites.
+Suivez les [Git Guidelines](git-guidelines.md) pour le contrôle de version.
+Consultez la documentation sur [Gitflow Workflow](git-workflow.md) pour savoir comment créer des branches et gérer votre code.
 
-## Git Guidelines
+## À FAIRE
 
-Follow the [Git Guidelines](git-guidelines.md) for version control.
-Check out the documentation on [Gitflow Workflow](git-workflow.md) for how to create branches and manage your code.
+1. **Gestion des journaux et des erreurs :**
+   - Lignes directrices sur la gestion des erreurs, y compris l'utilisation de « assert » et des messages d'erreur personnalisés.
 
-## TODO
+2. **Test :**
+   - Meilleures pratiques pour l'écriture de code testable, de tests unitaires et de tests d'intégration dans Godot.
 
-1. **Log and Error Handling:**
-   - Guidelines on handling errors, including the use of `assert`, and custom error messages.
+3. **Optimisation des performances :**
+   - Conseils sur l'écriture de code GDScript efficace, les outils de profilage et les pièges courants en matière de performances.
 
-2. **Testing:**
-   - Best practices for writing testable code, unit tests, and integration tests in Godot.
-
-3. **Performance Optimization:**
-   - Tips on writing efficient GDScript code, profiling tools, and common performance pitfalls.
-
-4. **Team Collaboration:**
-   - Guidelines for collaborating with other developers, including code reviews, pair programming, and shared coding standards.
+4. **Collaboration en équipe :**
+   - Lignes directrices pour la collaboration avec d'autres développeurs, y compris les révisions de code, la programmation en binôme et les normes de codage partagées.
