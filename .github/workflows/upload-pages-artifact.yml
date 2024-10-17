@@ -1,10 +1,12 @@
-# This is a basic workflow that is manually triggered
-
 name: Deploy Docusaurus
 on:
   push:
     branches:
     - main
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   deploy:
