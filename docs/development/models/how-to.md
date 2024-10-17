@@ -25,7 +25,7 @@ description: Description of [name] model
 
 ## Structure
 
-![Model diagram](/assets/[name].drawio.svg)
+![Model diagram](/models/[name].drawio.svg)
 ```
 
 ## Diagramme

@@ -11,7 +11,7 @@ Vous pouvez retrouver le code source du logger dans `res://scripts/log/`.
 
 ## Model
 
-![logger model](/assets/logger.drawio.svg)
+![logger model](/models/logger.drawio.svg)
 
 
 ## Utilisation

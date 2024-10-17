@@ -45,4 +45,4 @@ Dans l'ordre :
 
 ## Structure
 
-![Example banner](/assets/level_model.svg)
+![Example banner](/models/level.drawio.svg)
