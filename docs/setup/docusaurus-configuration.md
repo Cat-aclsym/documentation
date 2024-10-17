@@ -32,6 +32,12 @@ npm run start
 
 ## Deploiement
 
+:::warning Deprecated
+Le deploiement manuel n'est plus necessaire.
+
+Pousser une modification sur la branche `main` provoque le deploiement automatiquement via une action github.
+:::
+
 ### bash
 ```bash
 GIT_USER=<GITHUB_USERNAME> yarn deploy
@@ -59,7 +65,6 @@ git add .
 git commit -m "..."
 git push origin main
 ```
-5. [Deployer doc](https://cat-aclsym.github.io/documentation/docs/setup/docusaurus-configuration#deploiement)
 
 
 ## Liens utiles

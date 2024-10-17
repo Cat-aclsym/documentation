@@ -21,7 +21,6 @@ git add .
 git commit -m "..."
 git push origin main
 ```
-5. [Déployer doc](https://cat-aclsym.github.io/documentation/docs/setup/docusaurus-configuration#deploiement)
 
 ## Diagram
 
