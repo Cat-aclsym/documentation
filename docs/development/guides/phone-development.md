@@ -33,7 +33,7 @@ Pour ce faire :
 4. Cliquez sur le bouton "Débogage Distant" en haut à droite de l'interface
 5. Sélectionner votre téléphone
 
-![Exemple de lancement sur téléphone depuis l'éditeur Godot](img/run-on-phone.png)
+![Exemple de lancement sur téléphone depuis l'éditeur Godot](/img/run-on-phone.png)
 
 L'application va s'installer, puis se lancer sur le téléphone, vous pourrez voir les logs de l'application dans l'éditeur Godot.
 Si vous modifiez le code ou les ressources, l'application se mettra à jour automatiquement sur le téléphone.
