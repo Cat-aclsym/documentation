@@ -63,7 +63,6 @@ Consultez la documentation complète sur la façon de rédiger de la documentati
     6. `_draw()`: Appelé chaque image uniquement dans les nœuds 2D
 2. Fonctions publiques (méthodes de classe)
 3. Fonctions privées
-4. Callbacks de signaux
 
 > **Astuce :** L'ajout de commentaires tels que `#core`, `#public`, `#private`, `#signal` entre chaque section peut améliorer la lisibilité si vous avez beaucoup de fonctions.
 
@@ -234,17 +233,23 @@ func _ready() -> void:
 ```
 
 - **Connexions des signaux :**
-  - Préférez connecter les signaux à partir du code plutôt que d'utiliser l'interface utilisateur Godot pour trouver facilement les signaux connectés.
-  - Utilisez toujours des fonctions pour connecter des signaux au lieu d'écrire la logique de connexion directement dans les fonctions principales comme `_ready`.
+  - Connectez les signaux à partir de l'utilitaire de Signaux créé.
+  - Créez une liste de signaux à connecter dans `_ready()`.
 
 Exemple:
 ```python
-func _ready() -> void:
-    _connect_signals()
+const signals: Array[Dictionary] = [
+	{SignalUtil.WHO: self, SignalUtil.WHAT: "my_signal", SignalUtil.TO: _on_my_signal}
+]
 
-func _connect_signals() -> void:
-    connect("my_signal", _on_MyNode_my_signal)
+func _ready() -> void:
+	SignalUtil.connect(signals)
 ```
+
+- `SignalUtil.WHO` : L'objet qui émet le signal.
+- `SignalUtil.WHAT` : Le nom du signal.
+- `SignalUtil.TO` : La fonction de rappel.
+- `SignalUtil.connect(signals)` : Connecte tous les signaux de la liste `signals`.
 
 - **Fonctions :**
   - Utilisez `assert(condition, error_message)` pour garantir une utilisation correcte par les futurs développeurs, cela générera une erreur si la condition n'est pas remplie.
@@ -356,14 +361,6 @@ func _my_private_function(my_param: int) -> void:
     
 func _process(_delta: float) -> void:
     pass
-```
-
-- Nommez les fonctions de rappel de signal au format `_on_<NomDeNœud>_<nom_de_signal>()`.
-
-Exemple:
-```python
-func _on_Player_died() -> void:
-    print("Player has died.")
 ```
 
 ## Gestion des ressources
