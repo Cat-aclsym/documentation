@@ -22,7 +22,6 @@ Tous les scripts doivent respecter la structure suivante :
 8. [Fonctions Intégrées](#function-ordering)
 9. [Fonctions Publiques](#function-ordering)
 10. [Fonctions Privées](#function-ordering)
-11. [Fonctions de callback](#function-ordering)
 
 ### Header
 
