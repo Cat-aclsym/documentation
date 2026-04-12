@@ -9,7 +9,7 @@ description: Installation de l'environnement de travail Cat-aclysm
 ## Prérequis
 
 - Installer [Git](https://git-scm.com/downloads)
-- Installer [Godot 4.3](https://godotengine.org/download)
+- Installer [Godot 4.4](https://godotengine.org/download)
 
 ## Récupérer le projet
 

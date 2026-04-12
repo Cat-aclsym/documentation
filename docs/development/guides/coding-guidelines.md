@@ -1,410 +1,292 @@
 ---
-title: Coding Guideline
+title: Directives de code
 sidebar_position: 1
-description: GDScript coding guideline
+description: Standards GDScript Godot 4.4 pour Cat'aclysm
 ---
 
-# Coding Guideline
+# Directives de code (Godot 4.4)
 
----
+Cette page définit les conventions de développement GDScript pour Cat'aclysm: Claw of the Dead.
+L'objectif est simple: garder une base de code lisible, maintenable et cohérente entre gameplay, UI, outils et debug.
 
-## Structure d'un script
+## Principes généraux
 
-Tous les scripts doivent respecter la structure suivante :
+- Le projet cible Godot 4.4.
+- Le code, les commentaires et les noms techniques sont en anglais.
+- La documentation de l'équipe est en français.
+- Toute chaîne visible par le joueur passe par `tr()`.
+- On favorise des scripts courts, typés et orientés responsabilité unique.
 
-1. [Header](#header)
-2. class_name + extends
-3. [Enums](#enums)
-4. [Constantes](#constants)
-5. [Variables Exportées](#variables)
-6. [Variables Publiques](#variables)
-7. [Variables Privées](#variables)
-8. [Fonctions Intégrées](#function-ordering)
-9. [Fonctions Publiques](#function-ordering)
-10. [Fonctions Privées](#function-ordering)
+## En-tête obligatoire
 
-### Header
+Chaque fichier `.gd` doit commencer par:
 
-- **Chaque** fichier doit commencer par l'en-tête suivant :
-- Example :
-```python
-## © [2024] A7 Studio. All rights reserved. Trademark.
+```gdscript
+## © [2026] A7 Studio. All rights reserved. Trademark.
 ```
-- Le header doit être détaillé s'il s'agit d'un script important, tel qu'une interface (par exemple `ilevel.gd`), sinon il peut être simple.
+
+Exemple minimal:
+
+```gdscript
+## © [2026] A7 Studio. All rights reserved. Trademark.
+
+class_name DamagePopup
+extends Node2D
+```
+
+## Ordre des sections dans un script
+
+Respecter cet ordre (et garder un tri alphabétique quand c'est possible dans une section):
+
+1. En-tête
+2. `class_name` et `extends`
+3. `signal` et `enum`
+4. `const`
+5. Variables exportées
+6. Variables publiques
+7. Variables `@onready`
+8. Fonctions moteur (`_init`, `_ready`, `_process`, `_physics_process`, etc.)
+9. Fonctions publiques
+10. Fonctions privées
+
+## Nommage
+
+- Classe: `PascalCase`
+- Fonctions/propriétés: `snake_case`
+- Constantes: `SCREAMING_SNAKE_CASE`
+- Privé: préfixe `_`
+- Interfaces: préfixe `I` (`IEnemy`, `ICommand`)
+- Nœuds: noms explicites (`AttackTimer`, `PathFollow`, `HealthBar`)
 
 Exemple:
-```python
-## © [2024] A7 Studio. All rights reserved. Trademark.
 
-class_name ILevel
-extends Node2d
-## Interface for level class. All levels node inherit for this node.
-##
-## The description of the class, what it can do,
-## and any further detail.
-##
-## @tutorial:             https://example.com/tutorial_1
-## @tutorial(Tutorial 2): https://example.com/tutorial_2
-## @experimental
+```gdscript
+class_name EnemySpawner
+extends Node
+
+const MAX_WAVE_DELAY: float = 10.0
+
+@export_range(0.1, 30.0, 0.1) var spawn_interval: float = 1.0
+
+var active_enemies: Array[Node2D] = []
+
+@onready var _spawn_timer: Timer = %SpawnTimer
 ```
 
-Vous pouvez utiliser les balises `@tutorial` pour rediriger vers une documentation externe, `@experimental` pour indiquer que le script est toujours en développement ou `@deprecated` pour indiquer que le script n'est plus utilisé.
-Consultez la documentation complète sur la façon de rédiger de la documentation [ici](#documentation).
+## Typage et signatures
 
-### Function Ordering
-
-1. Fonctions de base dans l'ordre suivant :
-    1. `_init()`: Constructeur
-    2. `_enter_tree()`: Appelé lorsque le nœud entre dans l'arborescence de la scène
-    3. `_ready()`: Appelé lorsque le nœud est ajouté à l'arborescence de la scène
-    4. `_process(delta: float)`: Appelé chaque image
-    5. `_physics_process(delta: float)`: Appelé chaque image physique
-    6. `_draw()`: Appelé chaque image uniquement dans les nœuds 2D
-2. Fonctions publiques (méthodes de classe)
-3. Fonctions privées
-
-> **Astuce :** L'ajout de commentaires tels que `#core`, `#public`, `#private`, `#signal` entre chaque section peut améliorer la lisibilité si vous avez beaucoup de fonctions.
-
-## Annotations de Typage
-
-- **Toujours spécifier les types de retour et les types de paramètres.**
-- Cela rend le code plus facile à lire et à comprendre et permet de détecter les bogues plus tôt.
-- Utilisez `assert` pour garantir une utilisation correcte de la fonction.
-
-### Variables
-
-Préférez écrire du typage explicites pour les nombres, car les nombres entiers sont inférés en tant que `int` mais ce principe est souvent oublié.
-
-- Example:
-```python
-var public_var: int = 10  # Can be an int or a float, so use explicit type
-var _private_var: int  # No default value
-
-var _implicit_type := Vector2(0, 1)  # Preferred
-var _redundant_type: Vector2 = Vector2(0, 1)  # Avoid
-```
-
-### Paramètres de fonction et types de retour
-
-- **Spécifiez toujours les types de retour et les types de paramètres.**
-- Évitez d'utiliser le type `Variant` sauf si cela est absolument nécessaire. Documentez toujours ce que la fonction renvoie lors de l'utilisation de « Variant ».
+- Types explicites par défaut (`var x: int = 0`).
+- Signatures de fonctions toujours typées (paramètres + retour).
+- Éviter `Variant` sauf réel besoin d'abstraction.
+- Préférer `Callable` pour stocker des callbacks.
+- Préférer les types de conteneurs compatibles Godot 4.4, par exemple:
+  - `Array[Dictionary]`
+  - `Dictionary[String, Array]`
 
 Exemple:
-```python
-## Returns [code]Player[/code] or [code]null[/code]
-func get_player_if_ready() -> Variant:
-    if Global.player != null:
-        return Global.player
-    return null
+
+```gdscript
+func get_enemy_ids() -> Array[int]:
+    return _enemies.map(func(enemy: IEnemy) -> int: return enemy.enemy_id)
+
+func run_deferred(action: Callable) -> void:
+    await get_tree().process_frame
+    action.call()
 ```
 
----
+## Documentation GDScript
 
-## Documentation
-
-- En gdscript l'opérateur `##` est utilisé pour la documentation et `#` pour les commentaires.
-- La documentation doit précéder une déclaration de variable ou de fonction pour avoir un effet.
-- Si vous documentez un script, il doit être en dessous de `class_name X extends Y`.
-- **Toutes les fonctions publiques doivent être documentées**, en suivant les recommandations de la documentation Godot : https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_documentation_comments.html
+- `##` pour la documentation, `#` pour les commentaires internes.
+- Les méthodes publiques doivent être documentées.
+- Utiliser:
+  - `## [param name]` pour les paramètres
+  - `## [br]` pour un saut de ligne
+  - `[codeblock]...[/codeblock]` pour les exemples
 
 Exemple:
-```python
-## Attempts to retrieve an enemy instance by its ID.
-##
-## [param id] : ID of the enemy
-func get_enemy_by_id(id: int) -> IEnemy:
-    for enemy in _enemies:
-        if enemy.id == id:
-            return enemy
-    
-    Log.trace(Log.Level.ERROR, "Failed to get enemy with id ", id)
-    return None
 
+```gdscript
+## Inflige des dégâts à l'ennemi et applique les effets associés.
+## [param amount] Dégâts entrants.
+## [param damage_type] Type de dégâts (feu, poison, etc.).
+## [br]
+## [codeblock]
+## enemy.take_damage(15, IEnemy.DamageType.FIRE)
+## [/codeblock]
+func take_damage(amount: int, damage_type: int) -> void:
+    pass
 ```
 
--**La documentation des fonctions privées peut être omise**, sauf si :
-    - La fonction peut échouer (idéalement, aucune fonction ne devrait échouer).
-    - La fonction est critique
-- Utilisez les balises suivantes pour documenter votre code :
+## Accès nœuds et sécurité runtime
 
-| Nom          | Exemple                                                                                                                     |
-|--------------|-----------------------------------------------------------------------------------------------------------------------------|
-| [Référence]  | Link to the class `[ILevel]`, the method `[method ILevel.thing]`.<br/>The image `[img width=32]res://local-file.png[/img]`. |
-| Obsolète     | `@deprecated`<br/>`@deprecated: Use [member another] instead.`                                                              |
-| Expérimental | `@experimental`<br/>`@experimental: This method is incomplete.`                                                             |
-| Tutoriel     | `@tutorial: https://example.com/tutorial`<br/>`@tutorial(Tutorial 2): https://example.com/tutorial_2`                       |                                       
-
-Consultez la documentation complète sur les commentaires de la [documentation GDScript](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_documentation_comments.html).
+- Préférer `@onready` et `%UniqueName` pour les nœuds importants.
+- Vérifier les dépendances en `_ready()` avec `assert(...)`.
+- Avant d'utiliser une référence potentiellement libérée: `is_instance_valid()`.
 
 Exemple:
-```python
-## The description of the variable.
-## @deprecated: Use [member other_var] instead.
-var my_var
 
-## If the member has any annotation, the annotation should
-## immediately precede it.
-@export
-var v3: int = 0
+```gdscript
+@onready var _health_bar: TextureProgressBar = %HealthBar
 
-## Documenting an inner class.
-##
-## The same rules apply here. The documentation must
-## immediately precede the class definition.
-##
-## @tutorial: https://example.com/tutorial
-## @experimental
-class Inner:
-
-    ## Inner class variable v4.
-    var v4
-
-    ## Inner class function fn.
-    func fn(): pass
-```
-
----
-
-## Pratiques du code
-
-- **Opérateurs ternaires :**
-  - Les opérateurs ternaires sont acceptables mais doivent rester faciles à lire.
-
-Exemple:
-```python
-return 1 if condition else 2
-```
-- Les opérateurs ternaires imbriqués ne sont pas autorisés car ils rendent le code plus difficile à lire, préférez utiliser des `if` pour les cas complexes.
-
-Example:
-```python
-return 1 if condition1 else (2 if condition2 else 3)  # Not allowed
-```
-- **Évitez les indentations profondes**
-    - **Minimisez le niveau d'indentation:** L'indentation profonde rend le code plus difficile à lire et à maintenir. Au lieu d'utiliser plusieurs instructions `if` imbriquées, utilisez des conditions préventives ou des retours anticipés pour garder le code plat et lisible.
-    - **Utilisez des retours anticipés pour éviter une imbrication inutile :**
-- Au lieu d'écrire:
-```python
-if condition:
-    # some deeply nested logic
-    if another_condition:
-        # more nested logic
-        if yet_another_condition:
-            # even deeper logic
-```
-- Refactoriser à l'aide de retours anticipés:
-```python
-if not condition:
-    return
-
-if not another_condition:
-    return
-
-if not yet_another_condition:
-    return
-
-# Logic here is now cleaner and avoids deep indentation
-```
-
-- **Limiter les variables globales :**
-  - N'utilisez des variables globales que lorsque cela est nécessaire.
-  - Vérifiez toujours une variable globale avant d'y accéder, car elle peut ne pas être initialisée.
-
-Exemple:
-```python
-if Global.player != null:
-    Global.player.do_something()
-```
-
-- **Variables et fonctions statiques :**
-  - Utilisez des variables et des fonctions statiques lorsque les mêmes données ou logiques sont partagées entre toutes les instances d'une classe et dépendent uniquement de la classe elle-même.
-  - Utilisez le mot-clé `static` pour définir des variables et des fonctions statiques.
-
-Exemple:
-```python
-static var _instance_count: int = 0
-
-static func get_instance_count() -> int:
-	return _instance_count
-	
 func _ready() -> void:
-	_instance_count += 1
+    assert(_health_bar != null, "HealthBar node is required")
+
+func set_target(target: Node2D) -> void:
+    if not is_instance_valid(target):
+        Log.trace(Log.Level.WARN, "Invalid target reference")
+        return
 ```
 
-- **Connexions des signaux :**
-  - Connectez les signaux à partir de l'utilitaire de Signaux créé.
-  - Créez une liste de signaux à connecter dans `_ready()`.
+## Exports et données d'édition
+
+Préférer les exports détaillés quand cela améliore l'usage dans l'inspecteur:
+
+- `@export_range`
+- `@export_flags`
+- `@export_subgroup`
 
 Exemple:
-```python
-const signals: Array[Dictionary] = [
-	{SignalUtil.WHO: self, SignalUtil.WHAT: "my_signal", SignalUtil.TO: _on_my_signal}
+
+```gdscript
+@export_subgroup("Projectile")
+@export_range(0.0, 5000.0, 1.0) var speed: float = 800.0
+@export_flags("Pierce", "Bounce", "Explode") var behavior_flags: int = 0
+```
+
+## Couplage, signaux et architecture
+
+- Règle: signaux vers le haut, appels de méthodes vers le bas.
+- Favoriser les scènes préconstruites plutôt que créer des nœuds dynamiquement sans nécessité.
+- `class_name` requis pour les types réutilisés dans plusieurs systèmes.
+
+Exemple de connexion via utilitaire:
+
+```gdscript
+const SIGNALS: Array[Dictionary] = [
+    {SignalUtil.WHO: self, SignalUtil.WHAT: "die", SignalUtil.TO: _on_enemy_die}
 ]
 
 func _ready() -> void:
-	SignalUtil.connect(signals)
+    SignalUtil.connect(SIGNALS)
 ```
 
-- `SignalUtil.WHO` : L'objet qui émet le signal.
-- `SignalUtil.WHAT` : Le nom du signal.
-- `SignalUtil.TO` : La fonction de rappel.
-- `SignalUtil.connect(signals)` : Connecte tous les signaux de la liste `signals`.
+## Ressources
 
-- **Fonctions :**
-  - Utilisez `assert(condition, error_message)` pour garantir une utilisation correcte par les futurs développeurs, cela générera une erreur si la condition n'est pas remplie.
-
-Example:
-```python
-func square_root(number: float) -> float:
-    assert(number > 0, "You can't calculate the square root of a negative number")
-    return sqrt(number)
-```
-
-- **Les valeurs des paramètres par défaut ne sont jamais autorisées dans les fonctions** 
-
----
-
-## Conventions de nommage
-
-### Fichiers
-
-- Utilisez `snake_case` pour les noms de scripts, les scènes et les dossiers.
-- Utilisez `PascalCase` pour les noms de classe.
+- Ressources statiques: `const X = preload("...")`
+- Ressources dynamiques (chemin déterminé à runtime): `load()`
 
 Exemple:
-```bash
-my_script.gd
-my_scene.tscn
 
-scenes/
-	my_scene/
-		my_sub_scene.tscn
+```gdscript
+const ZOMBIE_SCENE: PackedScene = preload("res://scenes/gameplay/entities/enemy/enemies/zombie.tscn")
+
+func load_skin(path: String) -> Texture2D:
+    return load(path) as Texture2D
 ```
 
-```python
-# File: my_script.gd
-class_name MyScript
-extends Node
+## Services globaux (autoload)
+
+Autoloads principaux du projet:
+
+- `Global`
+- `SoundManager`
+- `ScenesLoader`
+- `StatsDB`
+- `ProgressionManager`
+- `ChallengeManager`
+- `Log`
+
+Bonnes pratiques:
+
+- Vérifier l'initialisation avant usage si nécessaire.
+- Ne pas surcharger les autoloads avec de la logique métier locale.
+
+## Systèmes importants
+
+### Entités
+
+- Les ennemis héritent de `IEnemy`.
+- Utiliser un enum d'état + `match state` quand adapté.
+- Signaux usuels: `die`, `camera_effect`.
+- Les overrides de stats passent par `StatsDB`.
+
+### Logging
+
+API standard:
+
+```gdscript
+Log.trace(Log.Level.WARN, "Missing file: %s" % file_path)
 ```
 
-### Signaux
+Niveaux:
 
-- Utilisez `snake_case` pour les noms de signaux et leurs paramètres.
+- `Log.Level.DEBUG`
+- `Log.Level.INFO`
+- `Log.Level.WARN`
+- `Log.Level.ERROR`
+- `Log.Level.FATAL`
+
+### Console debug
+
+- Les commandes sont dans `scripts/commands/`.
+- Une commande doit `extends ICommand` et implémenter:
+  - `description() -> String`
+  - `get_args() -> Array[Dictionary]`
+  - `_execute(console: Console, args: Array) -> int`
+
+Exemple d'argument:
+
+```gdscript
+[
+    {"name": "amount", "type": ICommand.Types.ARG_INT, "optional": false}
+]
+```
+
+### State machine
+
+- Utiliser `StateMachine`, `State`, `Transition` pour les comportements à transitions explicites.
+- Changer d'état avec `toggle_state(state_id)`.
+
+### UI
+
+- Hériter de `CanvasLayer` ou `Control`.
+- Pour les UI persistantes, enregistrer la référence dans `Global`.
+- Toutes les chaînes affichées joueur passent par `tr()`.
+
+## Internationalisation
+
+Règles:
+
+- Toujours traduire les labels, boutons, messages, tooltips et erreurs UI.
+- Ne pas traduire les identifiants techniques, logs internes ou tokens de commande.
 
 Exemple:
-```python
-signal my_signal
 
-signal player_killed(enemy: Node)
+```gdscript
+title_label.text = tr("UI_SETTINGS_TITLE")
+confirm_button.text = tr("UI_CONFIRM")
 ```
 
-### Énumérations
+## Pixel art
 
-- Les énumérations doivent être nommées en utilisant `PascalCase`.
-- Les valeurs d'énumération doivent être nommées en `ALL_CAPS`.
-- Incluez une virgule de fin pour les déclarations d'énumération multiligne.
+- Utiliser le filtrage `Nearest` pour les sprites pixel art.
+- Garder des réglages d'import cohérents pour éviter le flou visuel.
 
-Example:
-```python
-enum MyEnum {
-    VALUE_ONE,
-    VALUE_TWO,
-    VALUE_THREE,
-}
-```
+## Checklist de review rapide
 
-### Constantes
+- En-tête copyright présent
+- Script ordonné selon la convention
+- Types explicites sur variables et fonctions
+- Méthodes publiques documentées
+- Chaînes joueur en `tr()`
+- Dépendances critiques validées (`assert` / garde)
+- Logs via `Log.trace(...)`
+- Interfaces respectées (`IEnemy`, `ICommand`, etc.)
 
-- Les constantes doivent être nommées en `ALL_CAPS`.
+## Références liées
 
-Example:
-```python
-const MAX_HEALTH: int = 100
-```
-
-### Variables
-
-- Les variables publiques doivent être en `snake_case`.
-- Les variables privées doivent commencer par un trait de soulignement (`_`) et être en `snake_case`.
-- Si vous ne savez pas si une variable doit être privée ou publique, **rendez-la privée** et modifiez-la plus tard si nécessaire.
-
-Exemple:
-```python
-var public_var: int = 10
-var _private_var: int
-var _implicit_type := Vector2(0, 1)  # Preferred
-var _redundant_type: Vector2 = Vector2(0, 1)  # Avoid
-```
-
-- Utilisez le mot-clé `@export` pour les variables exportées et nommez-les dans `snake_case`.
-
-Exemple:
-```python
-@export var my_exported_var: String = "Hello World!"
-@export_enum("Option1", "Option2") var my_enum_var: String
-```
-
-### Functions
-
-- Utilisez `snake_case` pour les noms de fonctions.
-- Les fonctions privées doivent commencer par un trait de soulignement (`_`).
-- Préfixez les paramètres avec un trait de soulignement (`_`) s'ils ne sont pas utilisés dans la fonction (mais évitez ces cas).
-
-Example:
-```python
-func my_public_function() -> int:
-    return some_value
-
-func _my_private_function(my_param: int) -> void:
-    pass
-    
-func _process(_delta: float) -> void:
-    pass
-```
-
-## Gestion des ressources
-
-- **Chemins de ressources :**
-  - Utilisez `res://` pour tous les chemins de ressources.
-  - Évitez d'utiliser des chemins absolus.
-
-Exemple:
-```python
-var texture = preload("res://textures/my_texture.png")
-```
-
-- **Chargement des ressources :**
-  - Utilisez `preload` pour charger les ressources.
-  - Précharger les ressources au début du script.
-
-Example:
-```python
-var texture = preload("res://textures/my_texture.png")
-```
-
-Évitez le chargement dynamique des ressources dans les fonctions, car cela peut entraîner des problèmes de performances.
-Évitez de modifier la ressource d'un nœud au moment de l'exécution (ex : images, sons, etc.), cela peut provoquer des fuites de mémoire.
-
-- **Nouvelles ressources :**
-  - Optimisez les images dans un outil comme [TinyPNG](https://tinypng.com/) avant de les importer dans Godot, préférez utiliser les formats WebP ou SVG.
-  - Le support SVG est limité, essayez-les toujours sur [ThorVG](https://www.thorvg.org/viewer) avant de les importer dans Godot car il utilise le même moteur.
-  - Utilisez le mode de texture `Nearest` pour les sprites avec des sprites pixel art.
-
-## Directives Git
-
-Suivez les [Git Guidelines](git-guidelines.md) pour le contrôle de version.
-Consultez la documentation sur [Gitflow Workflow](git-workflow.md) pour savoir comment créer des branches et gérer votre code.
-
-## À FAIRE
-
-1. **Gestion des journaux et des erreurs :**
-   - Lignes directrices sur la gestion des erreurs, y compris l'utilisation de « assert » et des messages d'erreur personnalisés.
-
-2. **Test :**
-   - Meilleures pratiques pour l'écriture de code testable, de tests unitaires et de tests d'intégration dans Godot.
-
-3. **Optimisation des performances :**
-   - Conseils sur l'écriture de code GDScript efficace, les outils de profilage et les pièges courants en matière de performances.
-
-4. **Collaboration en équipe :**
-   - Lignes directrices pour la collaboration avec d'autres développeurs, y compris les révisions de code, la programmation en binôme et les normes de codage partagées.
+- [Structure des fichiers](./file-structure.md)
+- [Logger](./logger.md)
+- [Console](./console.md)
+- [Git Guidelines](./git-guidelines.md)
+- [Workflow Git](../../git-workflow.md)

@@ -1,167 +1,119 @@
-
-# Guide d'Intégration Dialogic 2 
-
-## Introduction
-
-**Dialogic 2** est un plugin pour Godot Engine 4.2 qui permet de créer des dialogues interactifs facilement, des romans visuels et des dialogues plus complexes. Il s'intègre dans Godot très facilement.
-
 ---
-Voir le getting started de Dialogic [**_ici_**](https://docs.dialogic.pro/getting-started.html)
+title: Guide Dialogic
+sidebar_position: 30
+description: Intégrer et utiliser Dialogic 2 dans Cat'aclysm
+---
 
-![img_1.png](../../../static/img/dialogic_interface.png)
-## Installation du Plugin
+# Guide Dialogic 2
+
+Dialogic est utilisé pour créer des dialogues interactifs (narration, tutoriels, interactions contextuelles) dans Godot.
+
+## Références officielles
+
+- [Getting started Dialogic](https://docs.dialogic.pro/getting-started.html)
+- [Documentation complète](https://docs.dialogic.pro/)
+- [Releases GitHub](https://github.com/dialogic-godot/dialogic/releases)
+
+## Installation du plugin
 
 ### Prérequis
 
-- Godot Engine 4.2 ou une version ultérieure.
-- Un projet Godot .
+- Godot 4.4
+- Projet Godot existant
 
-### Étapes d'installation
+### Étapes
 
-1. **Téléchargement**  
-   Téléchargez la dernière version de Dialogic depuis la page des [**_releases GitHub_**](https://github.com/dialogic-godot/dialogic/releases).
+1. Télécharger la dernière release de Dialogic.
+2. Décompresser l'archive.
+3. Copier le dossier `addons/` dans la racine du projet.
+4. Activer le plugin dans `Project > Project Settings > Plugins`.
+5. Redémarrer Godot.
 
-2. **Extraction**  
-   Décompressez l'archive et déplacez le dossier `addons` dans le répertoire racine de votre projet Godot.
+## Interface Dialogic
 
-3. **Activation du plugin**
-   - Ouvrez votre projet Godot.
-   - Allez dans `Project > Project Settings > Plugins`.
-   - Activez Dialogic
+Une fois activé, l'onglet Dialogic apparaît dans l'éditeur.
 
-4. **Redémarrage de Godot**  
-   Redémarrez l'éditeur pour que les modifications prennent effet.
+Fonctions principales:
 
----
+- créer des timelines
+- créer des personnages
+- gérer les ressources de dialogue
+- prévisualiser le rendu
 
-## Configuration dans Godot
+## Créer une timeline
 
-### Accès à l'éditeur Dialogic
+1. Cliquer sur `Add Timeline`.
+2. Donner un nom explicite.
+3. Ajouter les événements de dialogue.
 
-Une fois le plugin activé, un nouvel onglet Dialogic apparaîtra dans la barre supérieure de Godot, à côté de **2D**, **3D**, **Script** et **AssetLib**.
+Exemple simple:
 
-### Fonctionnalités principales
-
-- **Add Timeline** : Créer une nouvelle séquence de dialogue.
-- **Add Character** : Ajouter un nouveau personnage.
-- **Reference Manager** : Gérer les références et glossaires.
-- **Play Timeline** : Tester le dialogue en temps réel.
-
----
-
-## Création de dialogues dans Godot
-
-### 1 Créer une timeline
-
-1. Cliquez sur **Add Timeline**.
-2. Entrez un nom et choisissez un emplacement pour enregistrer votre fichier `.dtl`.
-3. Ajoutez des événements via le panneau de droite.
-
-**Exemple :**
-
-```
+```text
 join guide
-guide: "Bienvenue dans Cat'aclysm ! Êtes-vous prêt ?"
+guide: "Bienvenue dans Cat'aclysm !"
 ```
 
-![img.png](../../../static/img/dialogic1.png) 
+## Créer un personnage
 
-![img_4.png](../../../static/img/dialogic_timeline.png)
+1. Cliquer sur `Add Character`.
+2. Définir le `Display Name`.
+3. Associer des portraits (humeurs, états).
 
-### 2 Créer un personnage
+## Écriture de texte et effets
 
-1. Cliquez sur **Add Character**.
-2. Configurez :
-   - **Display Name** : Nom affiché à l'écran.
-   - **Portraits** : Importez différentes expressions ou images.
+Exemple:
 
-Voir [**_plus_**](https://docs.dialogic.pro/characters-and-portraits.html) sur la création de personnages.
-
-![img_2.png](../../../static/img/dialogic_character.png)
-
-### 3 Ajouter du texte et des effets
-
-```
+```text
 join guide
 guide: "Bienvenue, {player_name} !"
 pause 1
-guide: "Préparez-vous, votre aventure commence maintenant !!!!!"
-
+guide: "Préparez-vous, l'aventure commence."
 ```
-**Explication des commandes**
 
-| Commande        | Description                                     |
-|-----------------|-------------------------------------------------|
-| `join guide`    | Démarre une session de dialogue avec un guide.  |
-| `guide:`        | Définit le texte à afficher dans le dialogue.   |
-| `{player_name}` | Insère dynamiquement le nom du joueur.          |
-| `pause 1`       | Met en pause le dialogue pendant **1 seconde**. |
+Commandes fréquentes:
 
----
-Voir [**_plus_**](https://docs.dialogic.pro/writing-texts.html) sur les commandes
+- `pause 1`: pause de 1 seconde
+- `{player_name}`: variable interpolée
 
-## Intégration en jeu avec GDScript
+Référence: [Writing texts](https://docs.dialogic.pro/writing-texts.html)
 
-Ajoutez ce script à votre scène principale pour lancer un dialogue :
+## Intégration GDScript
+
+Exemple de démarrage d'une timeline depuis une scène:
 
 ```gdscript
 extends Node
 
-func _input(event: InputEvent):
+func _input(event: InputEvent) -> void:
     if Dialogic.current_timeline == null and event.is_action_pressed("ui_accept"):
-        Dialogic.start("res://dialogues/mon_premier_dialogue.dtl")
+        Dialogic.start("res://dialogues/intro.dtl")
 ```
 
----
+## Fonctions avancées utiles
 
-## Fonctionnalités avancées (certains exemples)
+- Effets de texte (`[speed]`, `[pause]`, etc.)
+- Conditions (`[if]`, `[else]`)
+- Signaux (`[signal=...]`)
+- Auto-advance (`[aa]`, `[aa=5]`)
 
-### Effets de texte
+Références:
 
-- `[pause=1]` : Pause d'une seconde.
-- `[speed=0.5]` : Réduction de la vitesse de révélation.
-- `[portrait=nom_du_portrait]` : Change l'image affichée.
-- `[signal=custom_signal]` : Déclenche un signal spécifique.
-- `[n]` : Crée une nouvelle section de texte nécessitant une interaction.
+- [Auto-advance](https://docs.dialogic.pro/auto-advance.html)
 
-### Variables et conditions
+## Bonnes pratiques projet
 
-**Variables dynamiques :**
+- Garder des noms de timelines explicites (`intro_village`, `tutorial_combat_step_1`)
+- Éviter les blocs de texte trop longs sans interaction
+- Prévoir les chemins alternatifs tôt (réussite/échec)
+- Garder les chaînes utilisateur compatibles avec la stratégie de traduction du projet
 
-```gdscript
-"Bienvenue, {player_name} !"
-```
+## Dépannage rapide
 
-**Conditions :**
+- Timeline ne démarre pas: vérifier le chemin `res://...`.
+- Plugin absent: vérifier activation dans `Project Settings > Plugins`.
+- Effet non appliqué: vérifier la syntaxe exacte des tags Dialogic.
 
-```gdscript
-[if {has_key}] "Vous avez réussi le tutoriel, passez !"
-[else] "Vous n'avez pas fini le tutoriel, poursuivez pour passer à la suite."
-```
+## Liens liés
 
-### Gestion des portraits et humeurs
-
-- Changer de portrait : `[portrait=happy]`
-- Modifier le son des frappes : `[mood=angry]`
-
-### Auto-Advance
-
-- Activer l'auto-avance : `[aa]`
-- Délai de 5 secondes : `[aa=5]`
-
-Par ici pour [**_plus d'informations_**](https://docs.dialogic.pro/auto-advance.html).
-
-### Déclenchement de signaux
-
-```gdscript
-[signal=start_tuto]
-```
-
----
-
-## Pour aller plus loin _(Complément de documentation)_
-
-- [Documentation officielle de Dialogic 2](https://docs.dialogic.pro/)
-- [GitHub Dialogic](https://github.com/dialogic-godot/dialogic)
-
----
+- [Directives de code](./coding-guidelines.md)
+- [Structure des fichiers](./file-structure.md)

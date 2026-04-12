@@ -66,7 +66,7 @@ Code:
 Log.trace(Log.Level.$LEVEL$, "$MESSAGE$");
 ```
 
-Variables: 
+Variables:
 
 | Name  | Valeur de l'expression                          | Valeur par défaut |
 |-------|-------------------------------------------------|-------------------|

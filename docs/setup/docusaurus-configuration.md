@@ -12,57 +12,47 @@ Cet article décrit comment installer, tester, et deployer la documentation [Doc
 
 ## Prerequis
 
-- Installer [Node.js](https://nodejs.org/fr) **lts v20.18**
-- Installer [Yarn](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-the-yarn-package-manager-for-node-js) package manager for Node.js **v1.22** : `npm install -g yarn`
+- Installer [Node.js](https://nodejs.org/fr) **LTS v24** ou plus récent
+- Installer [Bun](https://bun.sh/) **v1.3.11** ou plus récent
 
 ## Installation
 
 ```bash
 git clone https://github.com/Cat-aclsym/documentation
 cd ./documentation
-npm install
+bun install
 ```
 
 ## Test
 
 ```bash
 cd ./documentation
-npm run start
+bun run start
 ```
 
 ## Deploiement
 
-:::warning Deprecated
-Le deploiement manuel n'est plus necessaire.
-
-Pousser une modification sur la branche `main` provoque le deploiement automatiquement via une action github.
+Pousser une modification sur la branche `main` provoque le deploiement automatiquement via GitHub Actions.
 :::
 
-### bash
-```bash
-GIT_USER=<GITHUB_USERNAME> yarn deploy
-```
+Le workflow de déploiement se trouve dans [.github/workflows/upload-pages-artifact.yml](../../.github/workflows/upload-pages-artifact.yml).
 
-### windows
-```sh
-cmd /C "set "GIT_USER=<GITHUB_USERNAME>" && yarn deploy"
-```
+Il:
 
-### powershell
-```powershell
-cmd /C 'set "GIT_USER=<GITHUB_USERNAME>" && yarn deploy'
-```
+1. installe Bun,
+2. exécute `bun install`,
+3. lance `bun run build`,
+4. publie le contenu du dossier `build` sur GitHub Pages.
 
 ## Workflow
 
 1. Mettre a jour la doc : `git pull --rebase`
 2. Modifier / Ajouter des pages
 3. [Tester](https://cat-aclsym.github.io/documentation/docs/setup/docusaurus-configuration#test) les modifications
-4. Pousser les mises a jour
+4. Vérifier le workflow GitHub Actions si le déploiement doit être ajusté
+5. Pousser les mises a jour
 ```bash
 git add .
 git commit -m "..."
 git push origin main
 ```
-
-## Liens utiles
