@@ -10,4 +10,4 @@ work in progress
 
 # In-game userflow
 
-![diagram](/models/in_game_user_flow.drawio.svg)
+![diagram](/models/in_game_user_flow.svg)

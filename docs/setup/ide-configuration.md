@@ -4,7 +4,6 @@ sidebar_position: 30
 description: Configuration IDE
 ---
 
-
 # IDE Configuration 
 
 Godot peut être utilisé avec certains éditeurs de code externes, voici comment le mettre en place pour VSCode ou un IDE Jetbrains.
@@ -15,7 +14,6 @@ Page de documentation pour la configuration des IDEs : https://docs.godotengine.
 1. Installer [VSCode](https://code.visualstudio.com/)
 2. Installer extensions [godot-tools](https://marketplace.visualstudio.com/items?itemName=geequlim.godot-tools) pour le support des scripts GDScript.
 3. _(optionnel)_ Installer extensions [Godot Files](https://marketplace.visualstudio.com/items?itemName=alfish.godot-files) pour le support des fichiers scènes, shaders et configuration de Godot.
-
 
 ## Jetbrains IDE
 

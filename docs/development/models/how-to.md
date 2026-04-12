@@ -6,7 +6,6 @@ description: Comment lire un model godot
 
 # Comment lire / écrire un model Godot ?
 
-
 ## Template [WIP]
 
 ```markdown
@@ -25,7 +24,7 @@ description: Description of [name] model
 
 ## Structure
 
-![Model diagram](/models/[name].drawio.svg)
+![Model diagram](/models/[name].svg)
 ```
 
 ## Diagramme
@@ -41,7 +40,6 @@ Demander l'accés à @Pierre ou @Benjamin en cas de besoin.
 
 A terme tout les fichiers seront deplacé dans le cloud de teams.
 :::
-
 
 ### Spécifications UML for Godot
 

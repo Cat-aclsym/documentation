@@ -65,4 +65,3 @@ La structure des fichiers pour le projet est organisée de manière à séparer 
 │   └───log
 └───project.godot
 ```
-

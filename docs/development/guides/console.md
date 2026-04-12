@@ -6,12 +6,9 @@ description: Ingame debug console
 
 # Console
 
-
-
 ## Model
 
-![logger model](/models/console.drawio.svg)
-
+![logger model](/models/console.svg)
 
 ## Créer une commande
 
@@ -30,7 +27,6 @@ extends ICommand
 func command_token() -> String:
 	return ""
 
-
 ## Return descript de la command
 func description() -> String:
 	return ""
@@ -38,7 +34,6 @@ func description() -> String:
 ## Return une list des types d'arguments attendu. e.g [ICommand.Types.ARG_INT, ICommand.Types.ARG_INT]
 func expected_args_types() -> Array[ICommand.Types]:
 	return []
-
 
 # private
 ## Method éxécuté lors de l'appel de la commande.

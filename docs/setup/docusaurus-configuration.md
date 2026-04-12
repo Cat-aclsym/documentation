@@ -53,7 +53,6 @@ cmd /C "set "GIT_USER=<GITHUB_USERNAME>" && yarn deploy"
 cmd /C 'set "GIT_USER=<GITHUB_USERNAME>" && yarn deploy'
 ```
 
-
 ## Workflow
 
 1. Mettre a jour la doc : `git pull --rebase`
@@ -65,6 +64,5 @@ git add .
 git commit -m "..."
 git push origin main
 ```
-
 
 ## Liens utiles

@@ -8,11 +8,9 @@ description: Ingame debug logger
 
 Vous pouvez retrouver le code source du logger dans `res://scripts/log/`.
 
-
 ## Model
 
-![logger model](/models/logger.drawio.svg)
-
+![logger model](/models/logger.svg)
 
 ## Utilisation
 
@@ -42,4 +40,3 @@ Les logs sont redirigés
 1. Dans la sortie standard de la console godot
 2. Dans la console de debug intégrée à Cat'aclysm _(cf. [console](./console.md))_
 3. Dans un fichier généré à chaque nouvelle session dans `res://log/`. Le nom du fichier de log est généré comme suit : `YYYY_MM_DD-hh_mm.log`, par exemple : `2024_10_15-13_19.log`
-

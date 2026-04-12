@@ -14,4 +14,4 @@ work in progress
 Le userflow intra level est decrit [ici](in-game.md)
 :::
 
-![diagram](/models/off_game_user_flow.drawio.svg)
+![diagram](/models/off_game_user_flow.svg)

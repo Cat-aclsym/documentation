@@ -86,4 +86,4 @@ Dans l'ordre :
 
 ## Structure
 
-![Example banner](/models/level.drawio.svg)
+![Example banner](/models/level.svg)

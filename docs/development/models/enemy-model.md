@@ -12,4 +12,4 @@ description: Description of enemy model
 
 ## Structure
 
-![Example banner](/models/enemy.drawio.svg)
+![Example banner](/models/enemy.svg)

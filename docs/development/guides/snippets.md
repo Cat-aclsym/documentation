@@ -6,7 +6,6 @@ description: Documentation dashboard
 
 # Snippets
 
-
 ## VSCode
 
 **Pour créer un nouveau snippet :**
@@ -73,7 +72,6 @@ Variables:
 |-------|-------------------------------------------------|-------------------|
 | level | enum("DEBUG", "INFO", "WARN", "ERROR", "FATAL") | DEBUG             |
 | value |                                                 |                   |
-
 
 ### Exemple: Fichier de base GDScript
 
