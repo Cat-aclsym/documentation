@@ -17,26 +17,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
       # 👇 Build steps
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Bun
+      - uses: oven-sh/setup-bun@v2
         with:
-          cache-dependency-path: package-lock.json
-          node-version: 20.x
-          cache: yarn
+          bun-version: 1.3.12
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --non-interactive
+        run: bun install
       - name: Build
-        run: yarn build
+        run: bun run build
       # 👆 Build steps
       - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v6
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v5
         with:
           # 👇 Specify build output path
           path: build
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v5
