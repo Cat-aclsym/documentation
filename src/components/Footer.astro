@@ -1,0 +1,15 @@
+---
+import Default from '@astrojs/starlight/components/Footer.astro';
+---
+
+<Default {...Astro.props}><slot /></Default>
+<p class="copyright">Copyright © {new Date().getFullYear()} A7 Studio, Inc.</p>
+
+<style>
+	.copyright {
+		margin-top: 1.5rem;
+		text-align: center;
+		font-size: var(--sl-text-xs);
+		color: var(--sl-color-gray-3);
+	}
+</style>
