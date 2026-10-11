@@ -99,7 +99,7 @@ Format attendu des noms de fichiers: `YYYY_MM_DD-hh_mm.log`.
 
 ## Exemple d'arborescence (simplifié)
 
-```text
+```text collapse={17-44}
 res://
 ├── addons/
 ├── assets/

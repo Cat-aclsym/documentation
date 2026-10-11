@@ -12,7 +12,7 @@ Cet article décrit comment installer, tester, et déployer la documentation [St
 ## Prérequis
 
 - Installer [Node.js](https://nodejs.org/fr) **LTS v24** ou plus récent
-- Installer [Bun](https://bun.sh/) **v1.3.11** ou plus récent
+- Installer [Bun](https://bun.sh/) **v1.4.3** ou plus récent
 
 ## Installation
 
