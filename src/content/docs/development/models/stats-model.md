@@ -86,7 +86,7 @@ Une upgrade contient `bullet_stats` et `tower_stats` (des deltas ajoutés aux st
 
 - `reward`: pièces rendues à la mort, multipliées par le `reward_multiplier` de la tour qui porte le coup fatal.
 - `escape_damage`: points de vie retirés à la base quand l'ennemi arrive au bout du chemin.
-- `extra` (optionnel): clés propres à un ennemi (`spawn_count` pour `splitter_zombie`, `trap_disable_duration` pour `minesweeper`, les délais et la portée de `big_daddy`).
+- `extra` (optionnel): clés propres à un ennemi (`spawn_count` pour `splitter_zombie`, `trap_disable_duration` pour `minesweeper`, les délais et la portée de `big_daddy`), écrites par `StatsDB.apply_fields` dans la propriété du même nom.
 
 La clé de l'entrée est l'`enemy_id` utilisé dans les vagues et dans l'export `enemy_id` de la scène ([Ennemi](/documentation/development/models/enemy-model/)).
 
@@ -125,13 +125,22 @@ Les pièges sont décrits dans [Piège](/documentation/development/models/trap-m
 - Cases: `get_tile_modifiers(kind) -> Array[Dictionary]` (`kind` vaut `"bonus"` ou `"malus"`, chaque entrée est `{"stat": String, "multiplier": float}`)
 - Nom: `name_key(category, id) -> String`, par exemple `StatsDB.name_key("TOWER", "bat_01")` donne `TOWER.BAT_01.NAME` (`category` vaut `"TOWER"`, `"TRAP"` ou `"ENEMY"`)
 - Niveaux: `get_tower_level(id)`
-- Upgrades: `get_upgrade_price(id)`, `get_upgrade_next_ids(id)`, `get_upgrade_tower_stats(id)`, `get_upgrade_bullet_stats(id)`, `get_upgrade_changes(id)`, `get_upgrade_ids_for_tower(id)`, `get_upgrade_bullet_scene(id)`, `get_upgrade_bullet_scene_path(id)`
+- Upgrades: `get_upgrade_price(id)`, `get_upgrade_next_ids(id)`, `get_upgrade_tower_stats(id)`, `get_upgrade_bullet_stats(id)`, `get_upgrade_changes(id)`, `get_upgrade_ids_for_tower(id)`, `get_upgrade_bullet_scene(id)` (charge la scène du champ `bullet_scene_path`)
 - Listes d'ids: `get_tower_ids()`, `get_enemy_ids()`, `get_trap_ids()`
 - Existence: `has_tower(id)`, `has_enemy(id)`, `has_trap(id)`, `has_upgrade(id)`
 - Chargement: `load_packed_scene(path)`
+- Application: `apply_fields(target: Object, values: Dictionary)`
 
 Il n'y a pas de `get_tower_name` ni de `get_trap_name`: les noms passent par `name_key()` et `tr()`.
 
+`apply_fields` écrit chaque entrée de `values` dans la propriété de `target` qui porte le même nom, convertie au type de cette propriété (`type_convert`). Une clé sans propriété correspondante est ignorée avec un log `WARN`.
+
+```gdscript
+StatsDB.apply_fields(trap, StatsDB.get_trap("bat_04")["base"])
+```
+
+Une upgrade n'a qu'une clé pour sa scène de projectile: `bullet_scene_path`.
+
 ## Application des stats
 
-Les tours, pièges et ennemis appliquent leurs stats à l'instanciation depuis `StatsDB` (par exemple `ITower.apply_stats_from_db()`), après quoi l'[armurerie](/documentation/development/models/armory-model/) peut appliquer ses bonus. Pour une tour, `ITower._recompute_stats()` refait ce calcul à chaque upgrade et à chaque changement de case ([Tour](/documentation/development/models/tower-model/#calcul-des-stats)).
+Les pièges appliquent leur `base` (`ITrap.apply_stats_from_db()`) et les ennemis leur `extra` (`IEnemy._apply_stats_override()`) avec `StatsDB.apply_fields`: ajouter une clé à `stats.json` demande une propriété du même nom sur le script du piège ou de l'ennemi, sans code de lecture. Les tours lisent leurs clés une à une (`ITower.apply_stats_from_db()`). La suite `test_entity_stats` vérifie que chaque scène de piège et d'ennemi reçoit ses stats ([Tests](/documentation/development/guides/testing/)). Ensuite l'[armurerie](/documentation/development/models/armory-model/) peut appliquer ses bonus. Pour une tour, `ITower._recompute_stats()` refait ce calcul à chaque upgrade et à chaque changement de case ([Tour](/documentation/development/models/tower-model/#calcul-des-stats)).

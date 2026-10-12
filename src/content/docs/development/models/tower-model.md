@@ -12,8 +12,14 @@ sidebar:
 
 ### Signaux
 
-- `upgrade_started`
-- `upgrade_completed`
+`ITower` n'émet aucun signal propre. Ses connexions se font dans `ITower.signals`, un tableau passé à `SignalUtil.connects` dans `_ready()`: `area_entered`, `body_entered` et `body_exited` de la zone de portée (`Area2D`), `mouse_entered` et `mouse_exited` de la zone de survol (`TowerHoverBox`) et `pressed` du bouton. Les scènes `bat_XX.tscn` ne déclarent aucune connexion. Les deux signaux de survol vont vers `_on_hover_changed(hovered: bool)` (liés avec `bind(true)` et `bind(false)`), qui affiche ou masque la portée sauf en pause ou menu ouvert.
+
+### Constantes
+
+- `RANGE_COLOR: Color` (`Color.WHITE`): couleur du polygone et du contour de portée.
+- `MODIFIER_STATS` et `PROJECTILE_GAMEPLAY_KEYS`: voir [Calcul des stats](#calcul-des-stats).
+
+L'identité d'une tour est son `tower_id`, et `IBuilding.BuildingKind` (`TOWER`, `TRAP`) distingue tours et pièges. `IBuilding` est `@abstract` avec `get_building_kind()` abstraite, implémentée par `ITower` et `ITrap`.
 
 ### Propriétés clés
 
@@ -72,7 +78,7 @@ Chaque sprite est la première image de l'animation `idle` de la scène. `bat_09
 
 ## Tour Inferno
 
-`InfernoTower` (`inferno_tower.gd`, `bat_09`) tire un faisceau continu (`InfernoBeam`) par cible: avec `projectile_count > 1` (upgrade `bat_09_b_04`, 4), elle garde un faisceau sur chacune des premières cibles à portée. Les faisceaux sont libérés quand la tour est désactivée. L'upgrade `bat_09_a_04` fait « charger » le faisceau: les dégâts doublent chaque seconde de verrouillage sur la même cible (`charge_speed`), plafonnés par `max_damage_multiplier`, soit x8 dans `stats.json`.
+`InfernoTower` (`inferno_tower.gd`, `bat_09`) tire un faisceau continu (`InfernoBeam`) par cible: avec `projectile_count > 1` (upgrade `bat_09_b_04`, 4), elle garde un faisceau sur chacune des premières cibles à portée. Pour une cible qu'un faisceau brûle déjà, la tour n'instancie pas de nouveau faisceau (`_handle_custom_fire` relance seulement le timer de cadence). Les faisceaux sont libérés quand la tour est désactivée, et un faisceau n'inflige plus de dégâts pendant une pause, y compris celle de fin de niveau (`Global.paused`). L'upgrade `bat_09_a_04` fait « charger » le faisceau: les dégâts doublent chaque seconde de verrouillage sur la même cible (`charge_speed`), plafonnés par `max_damage_multiplier`, soit x8 dans `stats.json`.
 
 ## Upgrades de projectile
 

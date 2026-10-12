@@ -34,7 +34,7 @@ Le déplacement passe par `_input` (événements tactiles et glissés) et la mol
 
 La force décroît jusqu'à 0 (`shake_fade`). Sources actuelles:
 
-- Un `IEnemy` de type `BIG_DADDY` connecte son signal `camera_effect` à `handle_effect` et émet `shake` à son apparition.
+- Un `IEnemy` de type `BIG_DADDY` appelle `Global.camera.handle_effect("shake")` dans son `_ready()` (si `Global.camera` est valide), sans passer par un signal.
 - La bombe (`bat_05`) appelle `handle_effect("shake", 15.0)`.
 - Le HUD secoue avec une force de 7 quand la base perd de la vie, et `IMap` avec 10 à l'apparition des tuiles bonus.
 

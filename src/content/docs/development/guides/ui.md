@@ -47,7 +47,7 @@ Un sous-menu de l'accueil masque le conteneur principal, puis émet `menu_close`
 
 ### Pause
 
-Le bouton pause du HUD (ignoré si le jeu est déjà en pause) ferme le menu de construction, demande la source `&"pause_menu"` puis ajoute `Pause` (`pause.gd`) à `Global.ui`. `Pause` émet `resumed` quand le joueur reprend: `Global.release_pause(&"pause_menu")` puis `queue_free()`. Le bouton recommencer appelle `ScenesLoader.start_level()`, le bouton accueil `ScenesLoader.go_home()`. L'encyclopédie s'ouvre dans le menu pause, avec un point d'exclamation quand des entrées sont non lues. Les boutons musique et son du menu pause reçoivent `ButtonEffects` et n'ont pas d'action: les réglages se font dans les options ([Audio](/documentation/development/guides/audio/)).
+Le bouton pause du HUD (ignoré si le jeu est déjà en pause) ferme le menu de construction, demande la source `&"pause_menu"` puis ajoute `Pause` (`pause.gd`) à `Global.ui`. `Pause` émet `resumed` quand le joueur reprend: `Global.release_pause(&"pause_menu")` puis `queue_free()`. Le bouton recommencer appelle `ScenesLoader.start_level()`, le bouton accueil `ScenesLoader.go_home()`. L'encyclopédie s'ouvre dans le menu pause, avec un point d'exclamation quand des entrées sont non lues. Les boutons musique et son du menu pause reçoivent `ButtonEffects` et changent les mêmes réglages que le menu options: à l'ouverture, leur état (`button_pressed` vaut « coupé ») reflète `music_enabled` et `sound_enabled` de la progression, et chaque bascule (`toggled`) écrit le réglage, appelle `ProgressionManager.save_game()` puis `ProgressionManager.apply_settings()` ([Audio](/documentation/development/guides/audio/#réglages-du-joueur)).
 
 ### Écran de fin
 
@@ -71,7 +71,7 @@ Ces deux sources ne sont ni dans `Global.TREE_PAUSING_SOURCES` ni dans `Global.T
 
 ## Widgets
 
-- `ButtonEffects.apply(button)` (`scripts/ui/button_effects.gd`, un `RefCounted` statique): réduit le bouton à 95 % (`CLICK_SCALE`) pendant l'appui, avec un `process_mode` toujours actif pour fonctionner en pause, et recentre le pivot à chaque `resized`. L'appel est idempotent: la méta `APPLIED_META_KEY` (`&"button_effects"`) marque le bouton, une seconde application ne fait rien. Chaque bouton peut donc l'appeler dans son `_ready()` sans risque de double connexion.
+- `ButtonEffects.apply(button)` (`scripts/ui/button_effects.gd`, un `RefCounted` statique): réduit le bouton à 95 % (`CLICK_SCALE`) pendant l'appui, avec un `process_mode` toujours actif pour fonctionner en pause, et centre le pivot avec `pivot_offset_ratio = Vector2(0.5, 0.5)` (`PIVOT_RATIO`), qui suit la taille du bouton sans code de recentrage. Les scènes qui animent l'échelle d'un contrôle (libellé de pièces du HUD, bandeau de vague) posent aussi `pivot_offset_ratio` dans le `.tscn` au lieu de calculer `pivot_offset` en code. L'appel est idempotent: la méta `APPLIED_META_KEY` (`&"button_effects"`) marque le bouton, une seconde application ne fait rien. Chaque bouton peut donc l'appeler dans son `_ready()` sans risque de double connexion.
 - `StyledButton` (`scenes/ui/styled_button.tscn`): un `Button` qui applique `ButtonEffects` à lui-même dans `_ready()`. Les boutons de l'accueil, de l'armurerie et du menu d'amélioration en sont des instances.
 - Thème global: `assets/resources/themes/generic.tres` (`gui/theme/custom` dans `project.godot`). Police: `dotgothic16_regular.ttf` (`assets/ui/fonts/dotgothic/`).
 - `SpritePreview` (`scripts/ui/sprite_preview.gd`, un `RefCounted`): `SpritePreview.from_scene(scene)` instancie la scène d'une tour, d'un piège ou d'un ennemi et lit son sprite (`texture`, `frames`, `animation`, `fps`, `scale`, `modulate`). La recherche essaie les nœuds `Sprite`, `AnimatedSprite2D` et `Sprite2D`, puis le premier `AnimatedSprite2D` ou `Sprite2D` de la scène. Elle renvoie un aperçu vide quand la scène est nulle ou sans sprite. L'armurerie et l'encyclopédie l'utilisent toutes les deux.
@@ -97,7 +97,7 @@ Le style d'un bouton se règle par ces variations, pas par des `theme_override_*
 
 `PopupSpawner` (`scenes/ui/popup/popup_spawner.gd`, un `Marker2D` porté par `ILevel` et par les ennemis) crée les textes flottants:
 
-- `display_damage(amount, color, is_critical)`: dégâts. Une tour avec `use_accumulative_popups` additionne les coups dans un seul `DamagePopup`. Les couleurs viennent de `TOWER_COLORS` (par `tower_id`).
+- `display_damage(amount: float, color: Color = Color.WHITE, tower: ITower = null, is_critical: bool = false)`: dégâts. Quand `tower` est valide, sa couleur de `TOWER_COLORS` (par `tower_id`) remplace `color`, et une tour avec `use_accumulative_popups` additionne les coups dans un seul `DamagePopup`. `IEnemy.take_damage()` passe la tour qui a porté le coup.
 - `score(text)`: texte qui monte de 16 px.
 - `wave(text)`: bandeau de vague, ajouté à `Global.ui`.
 
@@ -118,6 +118,7 @@ Le style d'un bouton se règle par ces variations, pas par des `theme_override_*
 
 - Les entrées viennent de `StatsDB.get_tower_ids()` et `get_enemy_ids()`: scène, stats ([Statistiques](/documentation/development/models/stats-model/)). Le nom est la clé `StatsDB.name_key("TOWER", id)` ou `name_key("ENEMY", id)`. Une entrée dont la scène n'existe pas est ignorée avec un avertissement.
 - Ennemis: vie, récompense, vitesse, plus les champs de `extra` (portée, cadence, durée d'étourdissement, délais d'attaque). Tours: coût, dégâts, cadence, portée. Les libellés sont les clés `ENCYCLOPEDIA.STATS.*`.
+- La grille de stats (`stats_grid`) est déclarée avec `mouse_behavior_recursive` désactivé dans `encyclopedia.tscn`: les libellés et conteneurs que le script y ajoute n'ont pas besoin de régler leur `mouse_filter`.
 - L'aperçu de chaque entrée vient de `SpritePreview.from_scene()`, mis en cache dans l'entrée.
 - Un ennemi est découvert quand `ProgressionManager.is_enemy_seen(id)` est vrai, une tour quand `ProgressionManager.is_tower_unlocked(id)` l'est. Sinon la page affiche `?`, la silhouette noire de l'aperçu et `ENCYCLOPEDIA.NOT_DISCOVERED`.
 - Afficher une entrée découverte la marque comme lue (`mark_enemy_encyclopedia_seen`, `mark_tower_encyclopedia_seen`, drapeau `encyclopedia_seen`). Un point d'exclamation signale les entrées non lues, sur l'accueil, la pause et les catégories.

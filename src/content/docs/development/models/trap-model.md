@@ -30,7 +30,7 @@ Dans `assets/resources/configs/stats.json`, chaque piège expose:
 
 Il n'y a pas de champ `name`: le libellé vient de la clé de traduction `TRAP.<ID>.NAME` (`StatsDB.name_key("TRAP", trap_id)`, par exemple `TRAP.BAT_04.NAME`).
 
-`apply_stats_from_db()` copie ces valeurs dans le piège quand `trap_id` est renseigné. Une sous-classe lit ses clés supplémentaires en surchargeant `_apply_trap_stats_extension(base: Dictionary)`.
+`apply_stats_from_db()` applique `base` avec `StatsDB.apply_fields(self, base)` quand `trap_id` est renseigné: chaque clé écrit la propriété du même nom, convertie à son type. Une sous-classe n'a donc rien à surcharger: elle déclare une propriété par clé (`var slow_amount: float` pour `slow_amount`). Une clé sans propriété est ignorée avec un log `WARN` ([Statistiques](/documentation/development/models/stats-model/#api-statsdb)).
 
 ## Catalogue
 
@@ -57,7 +57,9 @@ Les ralentissements passent par les modificateurs de vitesse nommés de l'ennemi
 
 `state: TrapState` vaut `BUILDING` pendant la pose puis `ACTIVE`.
 
-Un piège détecte les ennemis par leur `FeetArea` (la zone des pieds), jamais par le corps. Il ne fait rien pendant une pause (`Global.paused`).
+Un piège détecte les ennemis par le chevauchement de son `Area2D` avec leur `FeetArea` (la zone des pieds, signaux `area_entered` et `area_exited`), jamais par le corps. Rien ne se déclenche pendant une pause (`Global.paused`): ni l'activation par un ennemi, ni l'explosion de la bombe ni le stun du piège étourdissant une fois leur délai écoulé.
+
+Seuls les pièges `LIMITED` et l'aperçu de construction (`state = BUILDING`) ont un `_process` actif (`set_process` dans `_ready()` et `enter_build_preview()`): un piège `PASSIVE` posé ne coûte aucun appel par image.
 
 ### Durée de vie d'un piège limité
 

@@ -29,7 +29,7 @@ Les entrées de `stats.json` n'ont pas de champ `name`.
 <Steps>
 
 1. Créer `scenes/gameplay/entities/enemy/enemies/<nom>.tscn`, une scène héritée de `i_enemy.tscn`. Renseigner l'export `enemy_id` (la clé de `stats.json`) et, si besoin, `type`. Un comportement propre passe par un script qui étend `IEnemy` (`SmallZombie`, `SplitterZombie`, `BigDaddy`).
-2. Ajouter `enemies.<enemy_id>` dans `assets/resources/configs/stats.json`: `max_health`, `speed`, `reward`, `escape_damage`, `scene` (le chemin de la scène du pas 1) et `extra` si besoin.
+2. Ajouter `enemies.<enemy_id>` dans `assets/resources/configs/stats.json`: `max_health`, `speed`, `reward`, `escape_damage`, `scene` (le chemin de la scène du pas 1) et `extra` si besoin. Chaque clé d'`extra` est écrite par `StatsDB.apply_fields` dans la propriété du même nom: le script de l'ennemi la déclare (`var spawn_count: int`), sans surcharge de lecture. Une clé sans propriété est ignorée avec un log `WARN`.
 3. Utiliser la clé `<enemy_id>` comme `enemy_id` dans une étape de vague ([Vagues](/documentation/development/models/wave-model/)): `StatsDB.get_enemy_scene(enemy_id)` charge la scène depuis le champ `scene`, le nom du fichier n'a pas besoin de correspondre.
 4. Ajouter `ENEMY.<ID>.NAME` au CSV (par exemple `ENEMY.RAT.NAME`). L'encyclopédie liste tous les ennemis de `stats.json` d'après cette clé, sans autre déclaration ([Interface](/documentation/development/guides/ui/#encyclopédie)).
 
@@ -45,7 +45,7 @@ Les entrées de `stats.json` n'ont pas de champ `name`.
 }
 ```
 
-Voir [Ennemi](/documentation/development/models/enemy-model/).
+Voir [Ennemi](/documentation/development/models/enemy-model/). La suite `test_entity_stats` vérifie que chaque scène d'ennemi et de piège reçoit les stats de `stats.json` ([Tests](/documentation/development/guides/testing/)).
 
 ## Ajouter une tour
 
@@ -65,7 +65,7 @@ Voir [Tour](/documentation/development/models/tower-model/).
 
 Comme une tour, avec ces différences:
 
-- Scène dans `scenes/gameplay/entities/trap/traps/bat_XX.tscn`, héritée de `i_trap.tscn`, avec `trap_id`. Un script qui étend `ITrap` surcharge `apply_effect`, `remove_effect` et `_apply_trap_stats_extension`.
+- Scène dans `scenes/gameplay/entities/trap/traps/bat_XX.tscn`, héritée de `i_trap.tscn`, avec `trap_id`. Un script qui étend `ITrap` surcharge `apply_effect` et `remove_effect`, et déclare une propriété par clé de `base` (`var slow_amount: float`): `StatsDB.apply_fields` les remplit, aucune surcharge de lecture des stats n'est nécessaire.
 - Entrée sous `traps.bat_XX` dans `stats.json` (`base` avec `cost`, `trap_type`, et selon le piège `damage`, `max_durability`, etc., plus `scene`).
 - Effet d'armurerie `unlock_trap`.
 - Nom: `TRAP.BAT_XX.NAME`.

@@ -1,6 +1,6 @@
 ---
 title: Niveau et carte (ILevel, IMap)
-description: Propriétés d'un niveau et de sa carte, stats de session, pause, horloge et machine d'états du niveau
+description: Propriétés d'un niveau et de sa carte, stats de session, apparition des ennemis, pause, tick des vagues et machine d'états du niveau
 sidebar:
   label: Niveau et carte
   order: 10
@@ -34,10 +34,10 @@ classDiagram
 
 | Classe | Membres |
 |---|---|
-| `ILevel` (`Node2D`) | `current_level` (statique), `map`, `state_machine` ([Machine d'états](/documentation/development/models/state-machine/)), `waves`, `current_step`, `current_wave`, `elapsed_time`, `coins`, `health`, `max_health`, signaux `stats_updated` et `wave_started(wave_number)`, méthodes `start_level()`, `start_wave_flow()`, `get_enemies_alive()` |
+| `ILevel` (`Node2D`) | `current_level` (statique), `map`, `state_machine` ([Machine d'états](/documentation/development/models/state-machine/)), `waves`, `current_step`, `current_wave`, `elapsed_time`, `coins`, `health`, `max_health`, signaux `stats_updated` et `wave_started(wave_number)`, méthodes `start_level()`, `start_wave_flow()`, `spawn_enemy(path, enemy)`, `get_enemies_alive()` |
 | `IMap` (`Node2D`) | `tilemap`, `placement_tilemap`, `props_tilemap` (des `TileMapLayer`), `paths`, `special_tiles`, `special_tile_percentage`, `play_special_tiles_intro_sequence()`, `get_tower_by_name(name)`, `is_tile_buildable(coords)`, `get_blocked_cells()` |
 | `Wave` (`RefCounted`) | `steps`, `peak()`, `pop()` |
-| `WaveStep` (`RefCounted`) | `build(data)` statique, `data()`, `exec()`, `is_over()` |
+| `WaveStep` (`RefCounted`, `@abstract`) | `build(data)` statique, `data()`, `exec()` et `is_over()` abstraites |
 
 Gestion des chemins d'`IMap`:
 
@@ -75,11 +75,15 @@ Ces stats sont des stats de session (niveau en cours), distinctes de la sauvegar
 
 `elapsed_time` compte les secondes de temps de jeu depuis le début du flux de vagues. Il n'avance pas pendant une pause (`Global.paused`) ni après la fin du niveau. `WaveStepWait` et le défi `cha.205` le lisent.
 
-`get_enemies_alive()` renvoie le nombre d'ennemis vivants sur la carte: `EnemySpawner` appelle `_on_enemy_spawn()` à chaque apparition, et le niveau décompte un ennemi via `_on_enemy_removed()` quand son signal `died` ou `escaped` est émis.
+## Apparition des ennemis
+
+`ILevel.spawn_enemy(path: Path2D, enemy: IEnemy)` est le point d'entrée unique pour mettre un ennemi sur la carte. `WaveStepSpawn.exec()` l'appelle via `ILevel.current_level`, et `SplitterZombie` aussi pour ses petits zombies ([Ennemi](/documentation/development/models/enemy-model/#apparition)). Un ennemi ajouté à la main doit passer par cette méthode pour être compté vivant.
+
+`get_enemies_alive()` renvoie le nombre d'ennemis vivants sur la carte: `spawn_enemy()` incrémente le compteur, et `_on_enemy_removed()` le décrémente quand le signal `died` ou `escaped` de l'ennemi est émis.
 
 ## Pause
 
-`ILevel` se connecte à `Global.pause_changed` dans `start_level()` ([Pause par source](/documentation/development/guides/architecture/#pause-par-source)). `_on_pause_changed(is_paused)` est appelé tout de suite, sans attendre un tick de l'horloge:
+`ILevel` se connecte à `Global.pause_changed` dans `start_level()` ([Pause par source](/documentation/development/guides/architecture/#pause-par-source)). `_on_pause_changed(is_paused)` est appelé tout de suite, sans attendre un tick du niveau:
 
 - Quand une source active gèle le temps (`Global.is_time_frozen()`), le niveau mémorise `Engine.time_scale` et le met à 0. Quand plus aucune source ne le gèle, il restaure la valeur mémorisée (aussi dans `_exit_tree()`). Le bouton d'avance rapide du HUD est ignoré pendant que le temps est gelé.
 - Pendant `CONFIGURING` ou `WAVE_<i>`, une pause fait passer la machine à états à `PAUSE` (l'état précédent est mémorisé). Quand la dernière source libère sa pause, elle revient à cet état. Une pause est donc possible pendant l'introduction des tuiles spéciales.
@@ -89,21 +93,17 @@ Sources de pause: `pause_menu`, `new_enemy`, `tower_info`, `upgrade_menu`, `dial
 
 ## Fin de niveau
 
-`_on_level_end(victory)`, appelé par les états `VICTORY` et `DEFEAT`, arrête l'horloge et la musique, demande la pause `level_end` (le temps continue de tourner, mais le gameplay et la caméra s'arrêtent), arrête le tutoriel s'il tourne encore, ajoute le menu de fin de partie à `Global.ui` et passe à l'état `END`. Un boss (`BIG_DADDY`) qui arrive au bout du chemin met `health` à 0 et provoque donc une défaite immédiate.
+`_on_level_end(victory)`, appelé par les états `VICTORY` et `DEFEAT`, arrête le `WaveTickTimer` et la musique, demande la pause `level_end` (le temps continue de tourner, mais le gameplay et la caméra s'arrêtent), arrête le tutoriel s'il tourne encore, ajoute le menu de fin de partie à `Global.ui` et passe à l'état `END`. Un boss (`BIG_DADDY`) qui arrive au bout du chemin met `health` à 0 et provoque donc une défaite immédiate.
 
-## Horloge (Clock)
+## Tick des vagues
 
-`Clock` (`scenes/gameplay/world/clock/clock.gd`) est un nœud enfant d'`ILevel` qui appelle des callbacks à intervalle régulier. Un tick dure `tick_rate` secondes (0,1 par défaut, donc 10 ticks = 1 seconde).
-
-| Méthode | Rôle |
-|---|---|
-| `subscribe(callback, tick_count = 1) -> int` | Appelle `callback` tous les `tick_count` ticks, renvoie l'identifiant de l'abonnement |
-| `unsubscribe(id) -> bool` | Retire l'abonnement |
-| `start()` et `stop()` | Démarrent et arrêtent le `Timer` interne |
-
-`ILevel.start_wave_flow()` abonne `_process_tick` tous les 5 ticks (toutes les 0,5 s) puis démarre l'horloge. À chaque cycle, `_process_tick` exécute le callback de l'état courant de la machine à états. `ILevel` arrête l'horloge à la fin du niveau.
+`WaveTickTimer` est un nœud `Timer` de 0,5 s (`wait_time = 0.5`) enfant d'`ILevel`, déclaré dans `i_level.tscn`. `ILevel._ready()` connecte son signal `timeout` à `_process_tick()`, et `start_wave_flow()` le démarre. À chaque tick, `_process_tick()` exécute `state_machine.tick()`: le callback de l'état courant s'exécute toutes les 0,5 s de temps de jeu. `ILevel` arrête le timer à la fin du niveau (`_on_level_end`).
 
 ```gdscript
-clock.subscribe(_process_tick, 5)
-clock.start()
+@onready var _wave_tick_timer: Timer = $WaveTickTimer
+
+func _ready() -> void:
+	SignalUtil.connects([{SignalUtil.WHO: _wave_tick_timer, SignalUtil.WHAT: "timeout", SignalUtil.TO: _process_tick}])
 ```
+
+Les tests arrêtent ce timer et appellent `_process_tick()` à la main pour avancer le niveau tick par tick ([Tests](/documentation/development/guides/testing/)).

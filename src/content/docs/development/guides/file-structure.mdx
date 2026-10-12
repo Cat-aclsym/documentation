@@ -12,7 +12,9 @@ import {FileTree} from '@astrojs/starlight/components';
 
 <FileTree>
 
-- addons/ plugins externes (Dialogic), à modifier seulement pour un travail sur le plugin
+- addons/ plugins externes (Dialogic, gdUnit4), à modifier seulement pour un travail sur le plugin
+  - dialogic/
+  - gdUnit4/ framework de tests, exclu des exports
 - assets/
   - audio/ musique (`music/`)
   - environment/
@@ -25,7 +27,7 @@ import {FileTree} from '@astrojs/starlight/components';
 - scenes/
   - gameplay/
     - entities/ enemy, tower, trap, building, building_placement, bullet
-    - world/ clock, level, map
+    - world/ level, map
   - ui/
     - debug/
     - menus/
@@ -47,7 +49,17 @@ import {FileTree} from '@astrojs/starlight/components';
   - ui/
   - utilities/
   - wave/
-- tools/ vérifications headless (`check_scripts.tscn`, `smoke_test.tscn`)
+- reports/ rapports gdUnit4 (`report_N/`), ignoré par Git
+- tests/ suites gdUnit4, même arborescence que les sources
+  - autoloads/
+  - data/
+  - narrative/
+  - progression/
+  - scenes/
+  - support/ helpers de test (`test_enemies.gd`)
+  - ui/
+  - utilities/
+- tools/ vérifications headless (`check_scripts.tscn`, `smoke_test.tscn`), run déterministe (`golden_run.tscn`), benchmark (`bench_combat.tscn`) et `tool_buildings.gd`
 - default_bus_layout.tres bus audio `Music`, `SFX` et `UI`
 - export_presets.cfg
 - project.godot
@@ -73,12 +85,15 @@ Le workflow CI est dans `.github/workflows/build.yml`.
 | `scripts/challenges/` | Classe `Challenge` et logiques dans `logics/cha.XXX.gd`. |
 | `scripts/commands/` | Commandes de la console, voir [Console de debug](/documentation/development/guides/console/). |
 | `scripts/narrative/` | `Narrative` (`narrative.gd`): choix de la timeline par langue et dialogues joués une seule fois. |
-| `tools/` | Scènes et scripts lancés en ligne de commande sans interface: `check_scripts` et `smoke_test`. Exclu des exports. |
+| `tools/` | Scènes et scripts lancés en ligne de commande sans interface: `check_scripts`, `smoke_test`, `golden_run`, `bench_combat` et le helper `tool_buildings.gd`. Exclu des exports. |
+| `tests/` | Suites gdUnit4 (`test_*.gd`) qui reprennent l'arborescence des sources, et `tests/support/`. Exclu des exports, voir [Tests](/documentation/development/guides/testing/). |
+| `addons/gdUnit4/` | Framework de tests gdUnit4 6.2.2. Exclu des exports. |
 
 ## Fichiers générés ou ignorés par Git
 
 - `log/` : écrit dans `res://log`, donc seulement depuis l'éditeur ([Logs](/documentation/development/guides/logger/)).
 - `*.translation` : générés à l'import à partir de `translations.csv`, déclarés dans `project.godot`. Dialogic ne génère pas de fichiers de traduction: les timelines sont une par langue.
+- `reports/`: rapports JUnit et HTML de gdUnit4.
 - `exports/` et `.godot/`.
 
 ## Où créer quoi
@@ -86,6 +101,7 @@ Le workflow CI est dans `.github/workflows/build.yml`.
 - Entité, menu ou widget avec une scène : `scenes/...`
 - Service global : `scripts/autoloads/...`
 - Commande de console : `scripts/commands/...`
+- Test unitaire : `tests/...`, dans le dossier qui reprend celui de la source testée
 - Niveau ou challenge : `resources/...` (les arcs sont dans `level_selection_menu.tscn`)
 - Stats d'une tour, d'un piège ou d'un ennemi : `assets/resources/configs/stats.json`
 - Nom affiché d'une tour, d'un piège ou d'un ennemi : `assets/translations/translations.csv`

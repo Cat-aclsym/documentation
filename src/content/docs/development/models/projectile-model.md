@@ -18,6 +18,7 @@ sidebar:
 - `trail_enabled: bool` (active la traînée configurée dans la scène)
 - `direction: Vector2`
 - `target: Vector2`
+- `enemy_target: IEnemy`: l'ennemi visé quand la tour a tiré, que le faisceau et la foudre suivent ou frappent directement. La tour l'écrit à chaque tir.
 - `tower_owner: ITower`: la tour qui a tiré. C'est elle qui est la source des dégâts, y compris ceux qui tombent après la disparition du projectile (brûlure, ticks d'électrisation), pour que la récompense et les défis la créditent.
 
 ### Cycle de vie
@@ -37,7 +38,7 @@ Scènes et scripts dans `scenes/gameplay/entities/bullet/`. Les constantes de ga
 | `AOEArrow` | `aoe_arrow` | Explosion à l'impact: l'ennemi touché prend `damage`, les autres de la zone `aoe_range` prennent `damage` x `aoe_damage_multiplier` | `bullets.aoe_arrow.aoe_damage_multiplier` (0,75) |
 | `FireArrow` | `fire_arrow` (hérite de `AOEArrow`) | Laisse une zone en feu pendant `burn_duration` s. À chaque tick, chaque ennemi dedans prend `burn_damage_base` + `damage` x `burn_damage_multiplier` (dégâts `FIRE`, source = la tour) | `bullets.fire_arrow`: `base_burn_damage` (5, repli quand la tour n'en fournit pas), `burn_damage_multiplier` (0,5), `burn_tick_time` (1 s) |
 | `PiercingArrow` | `piercing_arrow` | Traverse `pierce_count` ennemis, avec `pierce_reduction` % de dégâts en moins par ennemi traversé | `bullet_stats` de la tour |
-| `InstantLightning` | `instant_lightning` | Foudre instantanée sur la cible, rebonds (`chain_bounces`, `chain_range`, `chain_damage_falloff`) et électrisation (`electrify_duration`, `electrify_slow_amount`, `electrify_tick_damage`, `electrify_tick_interval`). L'électrisation a pour source la tour, pas la foudre, car celle-ci a disparu quand les ticks tuent | `bullet_stats` de la tour |
+| `InstantLightning` | `instant_lightning` | Foudre instantanée sur la cible, rebonds (`chain_bounces`, `chain_range`, `chain_damage_falloff`) et électrisation (`electrify_duration`, `electrify_slow_amount`, `electrify_tick_damage`, `electrify_tick_interval`). L'électrisation a pour source la tour, pas la foudre, car celle-ci a disparu quand les ticks tuent. Les rebonds ne choisissent que des ennemis vivants du même chemin (un ennemi en train de mourir est ignoré) et ne frappent plus pendant une pause (`Global.paused`) | `bullet_stats` de la tour |
 | `InfernoBeam` | `inferno_beam` | Faisceau continu sur une cible. Avec `is_charging`, les dégâts doublent chaque seconde de verrouillage (`charge_speed`), plafonnés par `max_damage_multiplier` (x8) | `bullet_stats` de la tour |
 
 La brûlure est un état du `FireArrow`, pas de l'ennemi. Les dégâts de brûlure sont de type `FIRE`, ce qui compte pour le défi `cha.004` ([Défis](/documentation/development/models/challenge-model/)).

@@ -41,11 +41,11 @@ sequenceDiagram
 
 ## BuildPlacement
 
-`BuildPlacement` (`scenes/gameplay/entities/building_placement/`) s'enregistre dans `Global.cursor` à son `_ready()`. Il ignore les entrées pendant une pause (`Global.paused`). Sa machine à états `CursorState` a deux valeurs:
+`BuildPlacement` (`scenes/gameplay/entities/building_placement/`) s'enregistre dans `Global.cursor` à son `_ready()`. Il ignore les entrées pendant une pause (`Global.paused`). Son énumération `CursorState` a deux valeurs:
 
 | État | Signal émis à l'entrée | Usage |
 |---|---|---|
-| `IDLE` | `trigger_state_idle` | Repos, curseur masqué, boutons des tours actifs |
+| `IDLE` | aucun | Repos, curseur masqué, boutons des tours actifs |
 | `BUILD` | `trigger_state_build` | Aperçu d'un bâtiment, boutons des tours désactivés |
 
 - `change_state(new_state, args)`: passer en `BUILD` exige `args = [bâtiment]` et un état courant `IDLE` (sinon un `WARN` est loggé). Un nouvel appel en `BUILD` remplace l'aperçu.
@@ -63,7 +63,7 @@ sequenceDiagram
 |---|---|
 | `cost: int` | Coût d'achat, rempli depuis `StatsDB` (`base.cost`) pour les tours et les pièges |
 | `enum BuildingKind { TOWER, TRAP }` | Type de bâtiment |
-| `get_building_kind()` | À surcharger par `ITower` et `ITrap` |
+| `@abstract func get_building_kind() -> BuildingKind` | Abstraite, implémentée par `ITower` et `ITrap` (`IBuilding` est une classe `@abstract`) |
 | `enter_build_preview()` | Appelé quand l'aperçu démarre |
 | `cancel_build_preview()` | Appelé quand l'aperçu est annulé |
 | `get_placement_vertical_offset()` | Décalage vertical entre l'ancre de la tuile et le nœud pendant l'aperçu (0 par défaut) |

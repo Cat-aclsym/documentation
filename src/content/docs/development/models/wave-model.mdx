@@ -18,17 +18,16 @@ sequenceDiagram
 	participant W as Wave
 	participant S as WaveStep
 	participant D as StatsDB
-	participant E as EnemySpawner
 
 	L->>W: Wave.new(JSON)
 	W->>S: build(étape)
 	S-->>W: étape Spawn ou Wait
-	loop à chaque cycle
+	loop à chaque tick
 		L->>W: pop()
 		L->>S: exec()
 		S->>D: get_enemy_scene(enemy_id)
-		S->>E: spawn_enemy()
-		E-->>L: ennemi compté
+		S->>L: spawn_enemy(path, enemy)
+		L->>L: ennemi compté
 	end
 ```
 
@@ -50,7 +49,7 @@ sequenceDiagram
 	L->>L: ennemi décompté
 ```
 
-`ILevel` exécute l'étape courante à chaque cycle jusqu'à ce que `is_over()` soit vrai, puis en dépile une autre. Les signaux `died` et `escaped` sont distincts: `ChallengeManager.notify_enemy_died` n'est appelé que pour une mort, et une arrivée au bout du chemin appelle `notify_enemy_escaped`. Dans les deux cas, `ILevel` décompte l'ennemi.
+`ILevel` exécute l'étape courante à chaque tick du `WaveTickTimer` (0,5 s, [Niveau et carte](/documentation/development/models/level-model/#tick-des-vagues)) jusqu'à ce que `is_over()` soit vrai, puis en dépile une autre. Les signaux `died` et `escaped` sont distincts: `ChallengeManager.notify_enemy_died` n'est appelé que pour une mort, et une arrivée au bout du chemin appelle `notify_enemy_escaped`. Dans les deux cas, `ILevel` décompte l'ennemi.
 
 ## Contrat public
 
@@ -63,11 +62,13 @@ sequenceDiagram
 
 ### WaveStep
 
+`WaveStep` est une classe `@abstract`: seules ses sous-classes `WaveStepSpawn` et `WaveStepWait` s'instancient.
+
 - Constantes de clés JSON: `ENEMY_ID`, `COUNT`, `SPAWNER` et `WAIT_S`. `build()` ne crée que des étapes de spawn et d'attente.
 - `build(in_data: Dictionary) -> WaveStep`: renvoie un `WaveStepSpawn` si les clés `enemy_id`, `count` et `spawner` sont présentes, un `WaveStepWait` si `wait_s` l'est, sinon `null` avec un log `ERROR`.
 - `data() -> Dictionary`: données brutes de l'étape.
-- `exec()`: exécute l'étape.
-- `is_over() -> bool`: indique si l'étape est terminée.
+- `@abstract func exec() -> void`: exécute l'étape.
+- `@abstract func is_over() -> bool`: indique si l'étape est terminée.
 
 ## Étapes
 
@@ -77,7 +78,7 @@ sequenceDiagram
 {"enemy_id": "default_zombie", "count": 5, "spawner": 0}
 ```
 
-`enemy_id` est la clé de l'ennemi dans la section `enemies` de `stats.json` (`default_zombie`, `damage_zombie`, `rat`, `small_zombie`, `splitter_zombie`, `minesweeper`, `big_daddy`). `exec()` charge la scène avec `StatsDB.get_enemy_scene(enemy_id)`, qui lit le champ `scene` de l'entrée et met la scène en cache. Chaque `exec()` fait apparaître un ennemi sur le chemin `spawner` de la carte et décrémente `count`. L'étape est terminée quand `count` atteint 0.
+`enemy_id` est la clé de l'ennemi dans la section `enemies` de `stats.json` (`default_zombie`, `damage_zombie`, `rat`, `small_zombie`, `splitter_zombie`, `minesweeper`, `big_daddy`). `exec()` charge la scène avec `StatsDB.get_enemy_scene(enemy_id)`, qui lit le champ `scene` de l'entrée et met la scène en cache. Chaque `exec()` instancie la scène, la place sur le chemin `spawner` de la carte avec `ILevel.spawn_enemy(path, enemy)` et décrémente `count`. L'étape est terminée quand `count` atteint 0.
 
 `spawner` désigne un chemin de la carte (index à partir de 0):
 
@@ -116,13 +117,12 @@ Une vague qui attend 1 seconde, puis fait apparaître 5 zombies de base sur le c
 
 ## Dépendances
 
-- `ILevel` pilote les étapes et les transitions.
+- `ILevel` pilote les étapes et les transitions, et place l'ennemi sur le chemin (`spawn_enemy`).
 - `StatsDB` fournit la scène de l'ennemi (`get_enemy_scene`).
-- `EnemySpawner` place l'ennemi sur le chemin.
 - `ProgressionManager` retient les ennemis vus.
 
 ## Ajouter un type d'étape
 
-1. Créer une classe dérivée de `WaveStep`.
+1. Créer une classe dérivée de `WaveStep` qui implémente `exec()` et `is_over()` (abstraites).
 2. Étendre la détection des clés dans `WaveStep.build()`.
 3. Documenter la clé JSON correspondante ici.

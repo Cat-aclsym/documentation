@@ -6,7 +6,7 @@ sidebar:
   order: 3
 ---
 
-Le projet repose sur quatre mécanismes récurrents: les autoloads (singleton), la pause par source, les signaux (observer) et les factories.
+Le projet repose sur quatre mécanismes récurrents: les autoloads (singleton), la pause par source, les signaux (observer) et les factories. Les tests unitaires qui les couvrent sont décrits dans [Tests](/documentation/development/guides/testing/).
 
 ## Singleton
 
@@ -94,7 +94,7 @@ Les autres sources gèlent le temps: `ILevel` met `Engine.time_scale` à 0 tant 
 | `dialogue` | `Narrative.play_once()` | oui | non |
 | `tutorial` | `TutorialManager` | oui | non |
 
-Les systèmes de gameplay (ennemis, tours, pièges, projectiles, caméra, curseur de construction) testent `Global.paused` dans leur `_process` ou `_physics_process`. `ILevel` applique le gel du temps et l'état `PAUSE` de sa machine à états ([Niveau et carte](/documentation/development/models/level-model/#pause)). Un système qui a ses propres `Timer` s'abonne à `pause_changed` pour les suspendre (c'est le cas de Big Daddy, voir [Ennemi](/documentation/development/models/enemy-model/#big-daddy)).
+Les systèmes de gameplay (ennemis, tours, pièges, projectiles, caméra, curseur de construction) testent `Global.paused` dans leur `_process` ou `_physics_process`. Les effets différés testent aussi `Global.paused` à leur déclenchement, parce que la pause de fin de niveau (`level_end`) n'arrête pas l'arbre de scène: les pièges, les faisceaux de l'Inferno et les rebonds de la foudre n'infligent rien pendant une pause. `ILevel` applique le gel du temps et l'état `PAUSE` de sa machine à états ([Niveau et carte](/documentation/development/models/level-model/#pause)). Un système qui a ses propres `Timer` s'abonne à `pause_changed` pour les suspendre (c'est le cas de Big Daddy, voir [Ennemi](/documentation/development/models/enemy-model/#big-daddy)).
 
 ## Observer
 
@@ -110,7 +110,8 @@ SignalUtil.connects([
 
 Exemples de signaux:
 
-- `IEnemy`: `died`, `escaped`, `camera_effect(effect: String)`
+- `IEnemy`: `died`, `escaped`
+- `ITower`: aucun signal propre, ses connexions (zone de portée, zone de survol, bouton) sont dans `ITower.signals`, passées à `SignalUtil.connects` dans `_ready()` ([Tour](/documentation/development/models/tower-model/#signaux))
 - `ILevel`: `stats_updated`, `wave_started(wave_number: int)`
 - `Global`: `pause_changed(paused: bool)`
 - `ChallengeManager`: `challenge_status_updated(challenge_id, is_completed, is_failed)`, `challenges_loaded`
@@ -119,5 +120,7 @@ Exemples de signaux:
 ## Factory
 
 - `WaveStep.build(data)` retourne un `WaveStepSpawn` ou un `WaveStepWait` selon les clés du JSON du niveau.
-- `StateMachineBuilder` assemble une `StateMachine` complète avec `build_state`, `build_initial_state` et `build_transition`, et crée les `State` et `Transition` ([Machine d'états](/documentation/development/models/state-machine/)).
 - `StatsDB.get_enemy_scene(id)` charge à la demande la scène d'un ennemi à partir de sa clé de `stats.json` et la met en cache.
+- `ILevel.spawn_enemy(path, enemy)` met un ennemi sur un chemin et le compte vivant ([Niveau et carte](/documentation/development/models/level-model/#apparition-des-ennemis)).
+
+`WaveStep` (`exec()` et `is_over()`) et `IBuilding` (`get_building_kind()`) sont des classes `@abstract`: seules leurs sous-classes s'instancient. `StateMachine` est une seule classe `RefCounted` que `ILevel` remplit avec `add_state` et `allow`, sans builder ([Machine d'états](/documentation/development/models/state-machine/)).

@@ -49,7 +49,7 @@ Les arguments entre crochets sont optionnels. `tower_name` est le nom du nœud d
 | --- | --- |
 | `progression armory stars` | Affiche les étoiles gagnées, dépensées et disponibles |
 | `progression armory grant <node_id>` | Accorde un nœud de l'armurerie |
-| `progression armory clear` | Efface les achats de l'armurerie |
+| `progression armory clear` | Efface les achats de l'armurerie (appelle `ArmoryManager.reset_armory_spending()`) |
 | `progression challenge <level_id> <challenge_id>` | Marque un défi comme réussi pour un niveau |
 | `progression reset` | Réinitialise la progression |
 | `progression show` | Affiche la progression en JSON |
