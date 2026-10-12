@@ -1,58 +1,84 @@
 ---
 title: Audio (SoundManager)
-description: Groupes de volume, SoundEntity, réglages musique et sons du joueur et fichiers audio du projet
+description: Bus audio, groupes de SoundEntity, réglages musique et sons du joueur et fichiers audio du projet
 sidebar:
   label: Audio
   order: 40
 ---
 
-Le son passe par l'autoload `SoundManager` et le nœud `SoundEntity`. `SoundManager` range les lecteurs par groupe et applique un volume à tout un groupe.
+Le son passe par l'autoload `SoundManager`, le nœud `SoundEntity` et trois bus audio. Le volume et le mode muet vivent sur les bus: ils s'appliquent à tous les sons, y compris ceux créés après le réglage.
 
 ```mermaid
 classDiagram
     class SoundManager {
         <<autoload>>
+        GROUP_BUSES
+        change_volume(group, linear_volume)
+        register(group, sound)
+        set_group_enabled(group, enabled)
     }
     class SoundEntity {
         <<AudioStreamPlayer>>
+        group
     }
-    SoundEntity ..> SoundManager : register, remove
-    SoundManager ..> SoundEntity : set_volume
+    SoundEntity ..> SoundManager : register
+    SoundManager ..> AudioServer : volume, mute
 ```
+
+## Bus audio
+
+`default_bus_layout.tres` (à la racine du projet, chargé par Godot comme disposition par défaut) déclare trois bus qui envoient tous vers `Master`:
+
+| Bus | Groupe de `SoundEntity` | Réglage du joueur |
+|---|---|---|
+| `Music` | `music` | `music_enabled` |
+| `SFX` | `sfx` | `sound_enabled` |
+| `UI` | `gui` | `sound_enabled` |
+
+`SoundManager.GROUP_BUSES` associe chaque groupe à son bus (`"gui"` vers `&"UI"`, `"music"` vers `&"Music"`, `"sfx"` vers `&"SFX"`).
 
 | Classe | Membre | Rôle |
 |---|---|---|
-| `SoundManager` | `register(group, sound)` | ajoute le lecteur à son groupe |
-| `SoundManager` | `remove(group, sound)` | retire le lecteur de son groupe |
-| `SoundManager` | `change_volume(group, vol)` | appelle `set_volume(vol)` sur tout le groupe |
-| `SoundEntity` | `group` | `sfx`, `music` ou `gui` |
-| `SoundEntity` | `set_volume(vol)` | règle `volume_db` en décibels |
+| `SoundManager` | `register(group, sound)` | affecte `sound.bus` au bus du groupe, avec un avertissement si le groupe est inconnu |
+| `SoundManager` | `change_volume(group, linear_volume)` | règle le volume du bus du groupe, de `0.0` (silence) à `1.0` (pleine échelle), converti en dB par `linear_to_db` |
+| `SoundManager` | `set_group_enabled(group, enabled)` | coupe ou rétablit le bus du groupe (`AudioServer.set_bus_mute`) |
+| `SoundEntity` | `group` | export `sfx`, `music` ou `gui` |
+
+Un groupe sans bus (nom inconnu ou bus absent de la disposition) écrit un avertissement dans le journal et n'a aucun effet.
 
 ## SoundEntity
 
-`SoundEntity` (`scenes/utilities/sound_entity/sound_entity.tscn`) est un `AudioStreamPlayer`. Son export `group` vaut `sfx`, `music` ou `gui`. Il s'enregistre dans `_ready()` et se retire dans `_exit_tree()`. `set_volume(vol)` règle `volume_db`.
-
-`SoundManager.register()` ne réapplique pas le volume courant du groupe: un `SoundEntity` ajouté à l'arbre après un `change_volume` garde son `volume_db`.
+`SoundEntity` (`scenes/utilities/sound_entity/sound_entity.tscn`) est un `AudioStreamPlayer`. Son export `group` vaut `sfx`, `music` ou `gui`. Il appelle `SoundManager.register()` dans `_ready()` pour être routé vers le bon bus. Le volume propre du nœud (`volume_db`) reste libre: il s'ajoute à celui du bus.
 
 ## Réglages du joueur
 
 `SettingsData.music_enabled` et `sound_enabled` ([Progression et sauvegarde](/documentation/development/models/progression-model/)) sont appliqués par `ProgressionManager.apply_settings()`:
 
-| Réglage | Groupe | Désactivé | Activé |
-|---|---|---|---|
-| `music_enabled` | `music` | `-80` dB | `0` dB |
-| `sound_enabled` | `sfx` | `-80` dB | `0` dB |
+```gdscript
+SoundManager.set_group_enabled("music", data.parameters.music_enabled)
+SoundManager.set_group_enabled("sfx", data.parameters.sound_enabled)
+SoundManager.set_group_enabled("gui", data.parameters.sound_enabled)
+```
 
-Le groupe `gui` n'est pas touché. `apply_settings()` s'exécute au chargement de la sauvegarde, à sa réinitialisation et à chaque bascule du menu options.
+`apply_settings()` s'exécute au chargement de la sauvegarde, à sa réinitialisation et à chaque bascule des boutons musique et son du menu options. Les boutons musique et son du menu pause n'ont pas d'action.
 
-## Dans le projet
+## Fichiers audio
 
-- `ILevel` contient un nœud `BackgroundMusic` (un `SoundEntity` du groupe `music`) dont le flux est `assets/audio/music/background.mp3`. Il démarre dans `start_level()` et s'arrête à la fin du niveau.
-- Aucun autre `SoundEntity` n'est utilisé. `assets/audio/music/Les_Ombres_de_la_Nuit.mp3` et `assets/audio/sounds/Huh Sound Effect.mp3` ne sont référencés par aucun script ni scène.
-- Les canaux audio de Dialogic ont leurs propres réglages dans `project.godot` (canal `music` en boucle, bus par défaut): ils ne passent pas par `SoundManager`.
+`assets/audio/` contient uniquement de la musique (`assets/audio/music/`):
+
+| Fichier | Utilisation |
+|---|---|
+| `background.mp3` | Musique de fond des niveaux (`ILevel`) |
+| `les_ombres_de_la_nuit.mp3` | Aucun script ni aucune scène ne le référence |
+
+`ILevel` contient un nœud `BackgroundMusic` (un `SoundEntity` du groupe `music`) dont le flux est `BACKGROUND_MUSIC_STREAM` (`background.mp3`). Il démarre dans `start_level()` et s'arrête à la fin du niveau. Aucun autre `SoundEntity` n'est utilisé: le jeu n'a pas d'effet sonore.
+
+Les canaux audio de Dialogic ont leurs propres réglages dans `project.godot` (canal `music` en boucle, `audio_bus` vide): ils ne passent pas par `SoundManager` et ne suivent donc pas les réglages du joueur.
 
 ## Ajouter un son
 
 1. Placer le fichier dans `assets/audio/music/` ou `assets/audio/sounds/` (nom en `snake_case`).
 2. Ajouter un `SoundEntity` à la scène, choisir son `group` et son flux.
 3. Appeler `play()` et `stop()` depuis le script de la scène.
+
+Le volume et le mode muet du groupe s'appliquent sans autre code.
