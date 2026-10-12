@@ -16,9 +16,19 @@ Les ressources narratives sont dans `res://assets/narrative/`:
 
 - `armory_intro.en.dtl` et `armory_intro.fr.dtl`: dialogue d'introduction de l'armurerie
 - `tutorial_level_01.en.dtl` et `tutorial_level_01.fr.dtl`: tutoriel du premier niveau
-- `character1.dch`: personnage du guide
+- `character1.dch`: personnage du guide, nommé Whiskas
 - `whiskas.png`, `whiskas_amazed.png`, `whiskas_worry.png`: portraits du personnage
 - `style.tres`: style et layout
+
+Whiskas, le guide du tutoriel et de l'armurerie, a trois portraits (l'humeur est donnée entre parenthèses dans la timeline, comme `character1 (Neutral)`):
+
+| Portrait | Humeur | Fichier |
+|---|---|---|
+| ![Whiskas, humeur neutre](/documentation/game/sprites/sprite-whiskas-neutral.png) | `Neutral` (par défaut) | `whiskas.png` |
+| ![Whiskas, étonné](/documentation/game/sprites/sprite-whiskas-amazed.png) | `Amazed` | `whiskas_amazed.png` |
+| ![Whiskas, inquiet](/documentation/game/sprites/sprite-whiskas-worry.png) | `Worry` | `whiskas_worry.png` |
+
+Les timelines du projet n'utilisent que `Neutral`.
 
 Chaque `.dtl` et `.dch` est enregistré dans `project.godot`, sous `[dialogic]`, dans `directories/dtl_directory` et `directories/dch_directory`. Le fichier `scenes/narrative/example/dialogic_example.gd` démarre une timeline `example` qui n'existe pas: cette scène d'exemple ne fonctionne pas.
 

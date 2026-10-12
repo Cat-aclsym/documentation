@@ -12,58 +12,6 @@ sidebar:
 
 ```mermaid
 classDiagram
-    class IEnemy {
-        <<CharacterBody2D>>
-        +String enemy_id
-        +EnemyType type
-        +float health
-        +float max_health
-        +float speed
-        +EnemyState state
-        +bool is_stunned
-        +signal die()
-        +signal camera_effect(effect: String)
-        +take_damage(damage: float, damage_type: DamageType, source: Variant)
-        +follow_path(delta: float)
-        +add_poison_effect(damage: float, total_execution: int, interval: float)
-        +apply_electrify_effect(duration: float, slow_amount: float, tick_damage: float, tick_interval: float, source: Variant)
-        +is_electrified() bool
-        +stun(duration: float)
-        +push_slow_visual()
-        +pop_slow_visual()
-        +push_inferno_visual()
-        +pop_inferno_visual()
-    }
-    class EnemyType {
-        <<enumeration>>
-        BIG_DADDY
-        DEFAULT
-        FAT
-        RAT
-    }
-    class EnemyState {
-        <<enumeration>>
-        DEAD
-        FOLLOW_PATH
-        PATH_FINISHED
-    }
-    class DamageType {
-        <<enumeration>>
-        DEFAULT
-        POISON
-        FIRE
-        STUN
-    }
-    class EnemySpawner {
-        +spawn_enemy(path: Path2D, enemy: IEnemy)$
-    }
-    class BigDaddy
-    class SmallZombie
-    class SplitterZombie
-
-    IEnemy --> EnemyType
-    IEnemy --> EnemyState
-    IEnemy --> DamageType
     BigDaddy --|> IEnemy
     SmallZombie --|> IEnemy
     SplitterZombie --|> IEnemy
@@ -82,7 +30,15 @@ classDiagram
 
 ### Propriétés clés
 
-`enemy_id`, `type`, `health`, `max_health`, `speed`, `state` et `is_stunned` (types dans le diagramme).
+| Propriété | Type |
+|---|---|
+| `enemy_id` | `String` |
+| `type` | `EnemyType`: `BIG_DADDY`, `DEFAULT`, `FAT`, `RAT` |
+| `health`, `max_health`, `speed` | `float` |
+| `state` | `EnemyState` (voir [États](#états)) |
+| `is_stunned` | `bool` |
+
+Les types de dégâts (`DamageType`) sont `DEFAULT`, `POISON`, `FIRE` et `STUN`.
 
 ### Méthodes publiques
 
@@ -92,6 +48,8 @@ classDiagram
 - `apply_electrify_effect(duration: float, slow_amount: float, tick_damage: float, tick_interval: float, source: Variant = null)`
 - `is_electrified() -> bool`
 - `stun(duration: float)`
+- `push_slow_visual()` et `pop_slow_visual()`
+- `push_inferno_visual()` et `pop_inferno_visual()`
 
 ## États
 
@@ -111,15 +69,17 @@ Deux identifiants coexistent: l'`enemy_id` d'une étape de vague est le nom du f
 
 Scènes de `scenes/gameplay/entities/enemy/enemies/`, toutes héritées de `i_enemy.tscn`:
 
-| Clé `stats.json` | Scène | Vie | Vitesse | `reward` | Particularité |
+| Sprite | Clé `stats.json` et scène | Vie | Vitesse | `reward` | Particularité |
 |---|---|---|---|---|---|
-| `default_zombie` | `ene.01` | 50 | 35 | 20 | Ennemi de base |
-| `damage_zombie` | `ene.02` | 120 | 20 | 40 | |
-| `rat` | `ene.03` | 25 | 70 | 5 | `type = RAT` |
-| `splitter_zombie` | `splitter_zombie` | 150 | 35 | 5 | `SplitterZombie`: à sa mort, fait apparaître `extra.spawn_count` (4) petits zombies près de sa position sur le chemin |
-| `small_zombie` | `small_zombie` | 25 | 70 | 10 | `SmallZombie`: échelle 0,6, apparaît avec une animation |
-| `minesweeper` | `minesweeper` | 70 | 45 | 12 | Scène héritée de `ene.02`, teintée en vert, sans script |
-| `big_daddy` | `big_daddy` | 700 | 20 | 400 | `BigDaddy`, `type = BIG_DADDY`: tire sur les tours à portée et les désactive ([Projectile](/documentation/development/models/projectile-model/)). `extra`: `shoot_range`, `fire_rate`, `tower_disable_duration`, `pre_attack_delay`, `attack_duration`, `post_attack_delay`, `attack_cooldown` |
+| ![Sprite du zombie de base](/documentation/game/sprites/sprite-enemy-default-zombie.png) | `default_zombie`<br>`ene.01` | 50 | 35 | 20 | Ennemi de base |
+| ![Sprite du zombie à dégâts](/documentation/game/sprites/sprite-enemy-damage-zombie.png) | `damage_zombie`<br>`ene.02` | 120 | 20 | 40 | |
+| ![Sprite du rat](/documentation/game/sprites/sprite-enemy-rat.png) | `rat`<br>`ene.03` | 25 | 70 | 5 | `type = RAT` |
+| ![Sprite du zombie diviseur, teinté en rouge](/documentation/game/sprites/sprite-enemy-splitter-zombie.png) | `splitter_zombie`<br>`splitter_zombie` | 150 | 35 | 5 | `SplitterZombie`: teinté en rouge, à sa mort fait apparaître `extra.spawn_count` (4) petits zombies près de sa position sur le chemin |
+| ![Sprite du petit zombie, teinté en rose](/documentation/game/sprites/sprite-enemy-small-zombie.png) | `small_zombie`<br>`small_zombie` | 25 | 70 | 10 | `SmallZombie`: teinté en rose, échelle 0,6, apparaît avec une animation |
+| ![Sprite du démineur, teinté en vert](/documentation/game/sprites/sprite-enemy-minesweeper.png) | `minesweeper`<br>`minesweeper` | 70 | 45 | 12 | Scène héritée de `ene.02`, teintée en vert, sans script |
+| ![Sprite de Big Daddy](/documentation/game/sprites/sprite-enemy-big-daddy.png) | `big_daddy`<br>`big_daddy` | 700 | 20 | 400 | `BigDaddy`, `type = BIG_DADDY`: tire sur les tours à portée et les désactive ([Projectile](/documentation/development/models/projectile-model/)). `extra`: `shoot_range`, `fire_rate`, `tower_disable_duration`, `pre_attack_delay`, `attack_duration`, `post_attack_delay`, `attack_cooldown` |
+
+Chaque sprite est la première image de la feuille d'animation de la scène, avec la teinte de la scène. `ene.01`, `splitter_zombie` et `small_zombie` partagent la feuille `Zombie_lOM_Base-Sheet.png`, `ene.02` et `minesweeper` la feuille `Zombie_lOM_Damage-Sheet.png`.
 
 Les types `FAT` et `BIG_DADDY` secouent la caméra à l'apparition et vident la vie de la base à l'arrivée. Aucune scène du projet n'utilise `FAT`.
 

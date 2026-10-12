@@ -25,72 +25,29 @@ Les niveaux sont composés de **vagues**, elles-mêmes composées d'**étapes** 
 
 ```mermaid
 classDiagram
-    class ILevel {
-        <<Node2D>>
-        +String level_id
-        +String level_name
-        +String level_description
-        +String arc_id
-        +PackedScene map_scene
-        +ILevel current_level$
-        +IMap map
-        +StateMachine state_machine
-        +Array~Wave~ waves
-        +WaveStep current_step
-        +int current_wave
-        +float start_time
-        +float end_time
-        +int coins
-        +int health
-        +signal stats_updated()
-        +signal wave_started(wave_number: int)
-        +start_level()
-        +start_wave_flow()
-        +pause()
-        +resume_from_pause()
-    }
-    class IMap {
-        <<Node2D>>
-        +TileMap tilemap
-        +TileMap placement_tilemap
-        +TileMap props_tilemap
-        +Array~Path2D~ paths
-        +Dictionary special_tiles
-        +float special_tile_percentage
-        +play_special_tiles_intro_sequence()
-        +get_tower_by_name(tower_name: String) ITower
-        +activate_path(path_index: int) bool
-        +deactivate_path(path_index: int) bool
-        +get_active_paths() Array~Path2D~
-        +get_random_active_path() Path2D
-        +is_path_active(path_index: int) bool
-        +set_active_paths_only(path_indices: Array~int~)
-        +is_tile_buildable(coords: Vector2i) bool
-    }
-    class Wave {
-        +Array~WaveStep~ steps
-        +peak() WaveStep
-        +pop() WaveStep
-    }
-    class WaveStep {
-        +build(in_data: Dictionary) WaveStep$
-        +data() Dictionary
-        +exec()
-        +is_over() bool
-        +order() Order
-    }
-    class WaveStepSpawn
-    class WaveStepWait
-    class StateMachine
-
     ILevel *-- IMap : map
     ILevel o-- Wave : waves
-    ILevel --> WaveStep : current_step
-    ILevel *-- StateMachine : state_machine
     Wave *-- WaveStep : steps
     WaveStepSpawn --|> WaveStep
     WaveStepWait --|> WaveStep
 ```
+
+| Classe | Membres |
+|---|---|
+| `ILevel` (`Node2D`) | `current_level` (statique), `map`, `state_machine` ([Machine d'états](/documentation/development/models/state-machine/)), `waves`, `current_step`, `current_wave`, `start_time`, `end_time`, `coins`, `health`, signaux `stats_updated` et `wave_started(wave_number)`, méthodes `start_level()`, `start_wave_flow()`, `pause()`, `resume_from_pause()` |
+| `IMap` (`Node2D`) | `tilemap`, `placement_tilemap`, `props_tilemap`, `paths`, `special_tiles`, `special_tile_percentage`, `play_special_tiles_intro_sequence()`, `get_tower_by_name(name)`, `is_tile_buildable(coords)` |
+| `Wave` | `steps`, `peak()`, `pop()` |
+| `WaveStep` | `build(data)` statique, `data()`, `exec()`, `is_over()`, `order()` |
+
+Gestion des chemins d'`IMap`:
+
+| Méthode | Rôle |
+|---|---|
+| `activate_path(index)` et `deactivate_path(index)` | Active ou désactive un chemin, renvoie un `bool` |
+| `is_path_active(index)` | Indique si le chemin est actif |
+| `get_active_paths()` | Liste les chemins actifs |
+| `get_random_active_path()` | Renvoie un chemin actif au hasard |
+| `set_active_paths_only(indices)` | N'active que les chemins donnés |
 
 ## Stats joueur
 

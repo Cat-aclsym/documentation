@@ -21,41 +21,11 @@ Le nom du fichier est le token de commande tapé en jeu : `set_money.gd` expose 
 classDiagram
     class ICommand {
         <<RefCounted>>
-        +int OK$
-        +int ERR_INVALID_ARGS_TYPES$
-        +int ERR_INVALID_ARGS_COUNT$
-        +int ERR_UNKNOWN_BEHAVIOR$
-        +description() String
-        +get_args() Array~Dictionary~
-        +get_args_dynamic(current_args: Array) Array~Dictionary~
-        +is_variable_args() bool
-        +execute(console: Console, args: Array) int
-        +type_to_string(t: Types) String
-        #_execute(console: Console, args: Array) int
     }
     class Types {
         <<enumeration>>
-        ARG_BOOL
-        ARG_CHALLENGE
-        ARG_COMMAND
-        ARG_ENEMY
-        ARG_ENUM
-        ARG_FLOAT
-        ARG_INGAME_TOWER
-        ARG_INT
-        ARG_LEVEL
-        ARG_STRING
-        ARG_TOWER
-        ARG_UNKNOWN
     }
-    class Console {
-        <<Control>>
-        +push_text(text: String, save: bool)
-        +push_color(text: String, color_val: Variant)
-        +push_error_(text: String)
-        +push_debug(text: String)
-        +push_command(command: String, add_to_history: bool)
-    }
+    class Console
     class SetMoney["set_money.gd"]
     class Progression["progression.gd"]
 
@@ -65,6 +35,17 @@ classDiagram
     Console ..> ICommand : charge et exécute
     ICommand ..> Console : sortie
 ```
+
+| Membre de `ICommand` | Rôle |
+|---|---|
+| `description()` | texte d'aide de la commande |
+| `get_args()` | définition des arguments |
+| `get_args_dynamic(current_args)` | définition qui dépend des arguments déjà saisis |
+| `is_variable_args()` | `false` par défaut |
+| `execute(console, args)` | valide les arguments puis appelle `_execute()` |
+| `_execute(console, args)` | comportement de la commande, à surcharger |
+| `type_to_string(t)` | nom d'un type d'argument |
+| `OK`, `ERR_*` | [codes de retour](#codes-de-retour) |
 
 ## Contrat minimal
 

@@ -18,29 +18,21 @@ Log.trace(Log.Level.ERROR, ["Cannot load wave id", wave_id])
 
 ```mermaid
 classDiagram
-    class Log {
-        <<Node>>
-        +Dictionary PREFIXS$
-        +init()$
-        +trace(level: Log.Level, args: Variant)$
-        +save_message(message: String)$
-    }
+    class Log
     class Level["Log.Level"] {
         <<enumeration>>
-        DEBUG
-        INFO
-        WARN
-        ERROR
-        FATAL
     }
-    class Console {
-        +push_text(text: String, save: bool)
-    }
-
     Log --> Level
-    Log ..> Console : Global.console.push_text
-    Log ..> Global : Global.debug
+    Log ..> Console : push_text
+    Log ..> Global : debug
 ```
+
+| Membre statique de `Log` | Rôle |
+|---|---|
+| `init()` | crée le fichier de logs, appelé une fois par `Global` |
+| `trace(level, args)` | formate et publie un message |
+| `save_message(message)` | ajoute le message au fichier, sans effet si le fichier n'existe pas |
+| `PREFIXS` | préfixe affiché pour chaque niveau |
 
 ## Niveaux
 

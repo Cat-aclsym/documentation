@@ -6,7 +6,9 @@ sidebar:
   order: 21
 ---
 
-Le jeu contient un tutoriel guidé sur `lev.01` et un dialogue d'introduction à l'armurerie. Les deux utilisent [Dialogic](/documentation/development/guides/dialogic-guide/).
+Le jeu contient un tutoriel guidé sur `lev.01` et un dialogue d'introduction à l'armurerie. Les deux utilisent [Dialogic](/documentation/development/guides/dialogic-guide/). Le guide qui parle au joueur est Whiskas (`character1`):
+
+![Whiskas, le guide du tutoriel et de l'armurerie](/documentation/game/sprites/sprite-whiskas-neutral.png)
 
 ## Tutoriel du premier niveau
 
@@ -31,21 +33,20 @@ Dans `ILevel`, le démarrage des vagues de `lev.01` est différé tant que le tu
 ```mermaid
 stateDiagram-v2
     [*] --> NONE
-    NONE --> OPEN_BUILD_MENU : signal open_build_menu
-    OPEN_BUILD_MENU --> NONE : menu de construction ouvert
-    NONE --> SELECT_BUILD_CARD : signal select_build_card
-    SELECT_BUILD_CARD --> NONE : curseur en état BUILD
-    NONE --> PLACE_CONFIRM : signal place_confirm
-    PLACE_CONFIRM --> NONE : bâtiment posé, vagues lancées
-    NONE --> SELECT_TOWER : 5 ennemis tués
+    NONE --> Objectif : signal tutorial
+    Objectif --> NONE : action accomplie
+    NONE --> [*] : fin de la timeline
+```
+
+L'amélioration d'une tour enchaîne trois objectifs, avec un retour en arrière possible:
+
+```mermaid
+stateDiagram-v2
     SELECT_TOWER --> PRESS_UPGRADE : menu radial ouvert
     PRESS_UPGRADE --> SELECT_TOWER : menu radial fermé
     PRESS_UPGRADE --> CONFIRM_UPGRADE : menu d'amélioration ouvert
     CONFIRM_UPGRADE --> SELECT_TOWER : menu fermé sans confirmer
     CONFIRM_UPGRADE --> NONE : amélioration confirmée
-    NONE --> PAUSE_AND_RESUME : signal pause_and_resume
-    PAUSE_AND_RESUME --> NONE : pause puis reprise
-    NONE --> [*] : fin de la timeline
 ```
 
 | Objectif | Action attendue |

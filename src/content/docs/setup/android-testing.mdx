@@ -6,6 +6,8 @@ sidebar:
   order: 4
 ---
 
+import {Steps} from '@astrojs/starlight/components';
+
 L'éditeur Godot peut installer et lancer le jeu directement sur un téléphone Android.
 
 ## Prérequis
@@ -17,18 +19,27 @@ L'éditeur Godot peut installer et lancer le jeu directement sur un téléphone 
 ## Mode développeur
 
 Activer le mode développeur sur le téléphone:
+
+<Steps>
+
 1. Allez dans les paramètres du téléphone
 2. Allez dans la section "À propos du téléphone"
 3. Cherchez la section "Numéro de build" et appuyez dessus plusieurs fois jusqu'à ce qu'un message vous indique que le mode développeur est activé
 4. Retournez dans les paramètres et cherchez la section "Options pour les développeurs"
 5. Activez les options `Installer via USB` et `Débogage USB`
 
+</Steps>
+
 ## Tester le jeu
+
+<Steps>
 
 1. Connectez le téléphone à l'ordinateur avec le câble USB
 2. Ouvrez le projet Godot
 3. Cliquez sur le bouton de déploiement à distance (`Remote Deploy` dans l'interface anglaise) en haut à droite de l'interface
 4. Sélectionnez votre téléphone
+
+</Steps>
 
 ![Exemple de lancement sur téléphone depuis l'éditeur Godot](../../../assets/img/run-on-phone.png)
 

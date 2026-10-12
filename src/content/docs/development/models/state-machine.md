@@ -10,42 +10,6 @@ sidebar:
 
 ```mermaid
 classDiagram
-    class StateMachine {
-        +String name
-        +Dictionary states
-        +signal state_changed(state: State)
-        +toggle_state(state_id: String) bool
-        +toggle_initial_state() bool
-        +handle_current_state(args: Array) bool
-        +get_current_state() State
-        +add_state(state_id: String, new_state: State)
-        +add_initial_state(state_id: String, new_state: State)
-        +add_transition(new_transition: Transition)
-    }
-    class State {
-        +String name
-        +Callable callback
-        +handle(args: Array) bool
-    }
-    class Transition {
-        +State from
-        +State to
-        +Callable callback
-        +handle()
-    }
-    class StateMachineBuilder {
-        +build() StateMachine
-        +build_state(state_id: String, state_callback: Callable) StateMachineBuilder
-        +build_initial_state(state_id: String, state_callback: Callable) StateMachineBuilder
-        +build_transition(tr_id_from: String, tr_id_to: String, new_callback: Callable) StateMachineBuilder
-    }
-    class StateFactory {
-        +create(state_id: String, state_callback: Callable) State$
-    }
-    class TransitionFactory {
-        +create(tr_from: State, tr_to: State, new_callback: Callable) Transition$
-    }
-
     StateMachine *-- State : states
     StateMachine *-- Transition : valid_transition
     Transition --> State : from, to
@@ -55,6 +19,15 @@ classDiagram
     StateFactory ..> State
     TransitionFactory ..> Transition
 ```
+
+| Classe | Membres |
+|---|---|
+| `StateMachine` | `name`, `states`, signal `state_changed(state)`, `toggle_state(state_id)`, `toggle_initial_state()`, `handle_current_state(args)`, `get_current_state()`, `add_state`, `add_initial_state`, `add_transition` |
+| `State` | `name`, `callback`, `handle(args)` |
+| `Transition` | `from`, `to`, `callback`, `handle()` |
+| `StateMachineBuilder` | `build()`, `build_state`, `build_initial_state`, `build_transition`, chacun renvoie le builder |
+| `StateFactory` | `create(state_id, state_callback)` statique |
+| `TransitionFactory` | `create(tr_from, tr_to, new_callback)` statique |
 
 ## Fonctionnement
 
@@ -86,7 +59,7 @@ stateDiagram-v2
     CONFIGURING --> WAVE_0
     WAVE_0 --> WAVE_1 : vague suivante
     WAVE_1 --> WAVE_n : vague suivante
-    WAVE_n --> VICTORY : dernière vague terminée
+    WAVE_n --> VICTORY : dernière vague
     WAVE_1 --> PAUSE : depuis chaque vague
     PAUSE --> WAVE_1 : vers la vague courante
     WAVE_1 --> DEFEAT : vie à 0, depuis chaque vague

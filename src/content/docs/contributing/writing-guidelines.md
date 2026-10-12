@@ -54,7 +54,7 @@ Contenu de l'encadré.
 Tous les diagrammes sont des blocs de code `mermaid` dans les pages Markdown (`flowchart`, `classDiagram`, `sequenceDiagram`, `stateDiagram-v2`, voir la [documentation Mermaid](https://mermaid.js.org/intro/)). Ils suivent le thème clair ou sombre du site.
 
 ```mermaid
-flowchart TD
+flowchart LR
 	A[Idée] --> B[Implémentation]
 	B --> C[Review]
 	C --> D[Merge]

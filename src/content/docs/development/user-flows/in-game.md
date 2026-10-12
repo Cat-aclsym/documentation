@@ -10,42 +10,42 @@ Ce que vit le joueur dans un niveau, du lancement à l'écran de fin. Voir aussi
 
 ```mermaid
 flowchart TD
-    start(["Début du niveau"]) --> tuto{"lev.01 et tutoriel non terminé ?"}
-    tuto -->|oui| guide["Tutoriel guidé puis lancement des vagues"]
-    tuto -->|non| waves
-    guide --> waves
-    waves{"Toutes les vagues terminées ?"}
-    waves -->|oui| win(["Fin du niveau : victoire"])
-    waves -->|non| newwave["Début d'une nouvelle vague"]
-    newwave --> spend["Le joueur dépense ses ressources"]
-    spend --> reach{"Un ennemi atteint le joueur ?"}
-    reach -->|oui| hurt["Le joueur perd de la vie"]
-    reach -->|non| gain["Le joueur gagne des ressources"]
+    start(["Début"]) --> waves{"Vagues restantes ?"}
+    waves -->|non| win(["Victoire"])
+    waves -->|oui| newwave["Nouvelle vague"]
+    newwave --> play["Dépenser les ressources"]
+    play --> hit{"Ennemi à la base ?"}
+    hit -->|oui| hurt["Perte de vie"]
+    hit -->|non| gain["Gain de ressources"]
     hurt --> dead{"Vie à 0 ?"}
-    dead -->|oui| lose(["Fin du niveau : défaite"])
+    dead -->|oui| lose(["Défaite"])
     dead -->|non| clear
-    gain --> clear{"Tous les ennemis sont morts ?"}
-    gain --> spend
+    gain --> play
+    gain --> clear{"Ennemis morts ?"}
     clear -->|oui| waves
-    win --> endscreen["Écran de fin : temps, vie restante, défis avec étoiles"]
-    lose --> endscreen
-    endscreen --> home["Retour à l'accueil"]
-    endscreen --> restart["Recommencer le niveau"]
-    endscreen --> next["Niveau suivant, victoire uniquement"]
 ```
 
-Pendant la boucle, le joueur peut à tout moment agir sur l'interface :
+La victoire et la défaite mènent à l'écran de fin:
 
 ```mermaid
 flowchart LR
-    build["Bouton de construction"] --> cards["Menu de construction : cartes de bâtiments"]
-    cards --> placement["Curseur de placement : valider ou annuler"]
-    tower["Clic sur une tour"] --> radial["Menu radial : améliorer ou vendre"]
-    challenges["Bouton des défis"] --> panel["Panneau latéral des défis"]
-    speed["Bouton d'accélération"] --> fast["Vitesse du jeu multipliée par 3"]
-    pause["Bouton pause"] --> pausemenu["Menu pause : reprendre, recommencer, accueil, encyclopédie"]
-    spawn["Première apparition d'un ennemi"] --> popup["Popup de nouvel ennemi, jeu en pause"]
+    win(["Victoire"]) --> endscreen["Écran de fin"]
+    lose(["Défaite"]) --> endscreen
+    endscreen --> home["Accueil"]
+    endscreen --> restart["Recommencer"]
+    endscreen -->|victoire seulement| next["Niveau suivant"]
 ```
+
+Pendant la boucle, le joueur peut à tout moment agir sur l'interface:
+
+| Action | Résultat |
+|---|---|
+| Bouton de construction | Ouvre le menu des cartes de bâtiments. Une carte verrouillée par l'armurerie ne peut pas être choisie. Valider le placement déduit le coût des pièces |
+| Clic sur une tour | Ouvre le menu radial: améliorer ou vendre |
+| Bouton des défis | Ouvre le panneau latéral des défis |
+| Bouton d'accélération | Multiplie la vitesse du jeu par 3 |
+| Bouton pause | Ferme le menu de construction, met le jeu en pause et ouvre le menu pause: reprendre, recommencer, accueil, encyclopédie, musique et son |
+| Première apparition d'un ennemi | Popup de nouvel ennemi, jeu en pause le temps de l'animation |
 
 ## Boucle de vagues
 
@@ -56,13 +56,6 @@ flowchart LR
 ## Tutoriel du premier niveau
 
 Sur `lev.01`, tant que le tutoriel n'est pas terminé, `ILevel.start_level()` ne lance pas les vagues : le `TutorialManager` les démarre après l'objectif de placement d'une tour. Voir [le tutoriel](/documentation/development/guides/tutorial/).
-
-## Pendant le niveau
-
-- **Construction** : le bouton de construction ouvre le menu des cartes. Une carte verrouillée par l'armurerie ne peut pas être choisie. Valider le placement déduit le coût du bâtiment des pièces.
-- **Amélioration** : un clic sur une tour active ouvre un menu radial avec l'amélioration et la vente.
-- **Pause** : le bouton pause ferme le menu de construction, met le jeu en pause et ouvre le menu pause (reprendre, recommencer, retour à l'accueil, encyclopédie, musique et son).
-- **Nouvel ennemi** : la première fois qu'un ennemi de ce type apparaît, une popup le présente et met le jeu en pause le temps de l'animation.
 
 ## Écran de fin
 

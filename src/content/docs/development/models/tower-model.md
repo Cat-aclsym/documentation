@@ -41,6 +41,19 @@ sidebar:
 - `show_range(p_show: bool, smooth: bool = true)`
 - `get_display_bullet_stats() -> Dictionary`
 
+## Catalogue
+
+Stats de base de `stats.json` (niveau 1), scènes dans `scenes/gameplay/entities/tower/towers/`:
+
+| Sprite | Clé | Nom | Coût | Cadence (`fire_rate`) | Portée | Dégâts |
+|---|---|---|---|---|---|---|
+| ![Sprite de l'Arbre à chat'rché](/documentation/game/sprites/sprite-tower-bat-01.png) | `bat_01` | Arbre à chat'rché | 50 | 1 | 75 | 25 |
+| ![Sprite de la Tour Cataboom](/documentation/game/sprites/sprite-tower-bat-02.png) | `bat_02` | Tour Cataboom | 100 | 0,5 | 60 | 20 (`aoe_range` 15) |
+| ![Sprite de la Tour Tesla](/documentation/game/sprites/sprite-tower-bat-08.png) | `bat_08` | Tour Tesla | 150 | 5 | 55 | 5 |
+| ![Sprite de la Tour Inferno, teintée en rouge](/documentation/game/sprites/sprite-tower-bat-09.png) | `bat_09` | Tour Inferno | 200 | 10 | 100 | 0,5 |
+
+Chaque sprite est la première image de l'animation `idle` de la scène. `bat_09` réutilise la feuille de `bat_01` teintée en rouge.
+
 ## Armurerie
 
 Les achats de l'[armurerie](/documentation/development/models/armory-model/) modifient les tours:

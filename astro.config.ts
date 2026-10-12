@@ -18,7 +18,18 @@ export default defineConfig({
 	base,
 	integrations: [
 		/** Must come before Starlight to transform the mermaid code blocks first. */
-		mermaid({autoTheme: true}),
+		mermaid({
+			autoTheme: true,
+			/** useMaxWidth off keeps the natural 16px text, wide diagrams scroll horizontally (see custom.css). */
+			mermaidConfig: {
+				fontSize: 16,
+				themeVariables: {fontSize: '16px'},
+				flowchart: {useMaxWidth: false, nodeSpacing: 30, rankSpacing: 40, padding: 12, wrappingWidth: 220},
+				sequence: {useMaxWidth: false, actorMargin: 20, messageMargin: 32, boxMargin: 8, width: 120, wrap: true},
+				class: {useMaxWidth: false, padding: 12},
+				state: {useMaxWidth: false, nodeSpacing: 40, rankSpacing: 50},
+			},
+		}),
 		starlight({
 			title: "Cat'aclysm",
 			description: "Documentation technique de Cat'aclysm",

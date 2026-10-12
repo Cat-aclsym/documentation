@@ -10,33 +10,27 @@ Les menus accessibles hors d'un niveau, depuis le menu principal. Voir aussi le 
 
 ```mermaid
 flowchart TD
-    launch(["Lancement du jeu"]) --> home["Menu principal"]
-
-    home -->|"Jouer, tutoriel non terminé"| first["Niveau lev.01 lancé directement"]
-    home -->|"Jouer"| select["Sélection de niveau"]
-    select --> details["Détails du niveau : description et défis"]
-    details -->|"Jouer"| level["Niveau"]
-    select -->|"Bouton menu principal"| home
-
+    launch(["Lancement"]) --> home["Menu principal"]
+    home --> select["Sélection de niveau"]
     home --> options["Options"]
-    options --> language["Langue : bascule entre français et anglais"]
-    options --> audio["Musique et son"]
-    options --> links["Réseaux sociaux et contact"]
-    options -->|"Fermer"| home
+    home --> armory["Armurerie"]
+    home --> encyclopedia["Encyclopédie"]
+```
 
-    home -->|"Après le tutoriel"| armory["Armurerie"]
-    armory --> intro["Dialogue d'introduction : première visite ou bouton d'aide"]
-    armory --> buy["Acheter un nœud avec des étoiles"]
-    armory --> reset["Réinitialiser les étoiles dépensées, avec confirmation"]
-    armory -->|"Fermer"| home
+L'armurerie et l'encyclopédie restent verrouillées tant que le tutoriel n'est pas terminé. Les options, l'armurerie et l'encyclopédie se ferment par leur bouton de fermeture et reviennent au menu principal.
 
-    home -->|"Après le tutoriel"| encyclopedia["Encyclopédie"]
-    encyclopedia --> categories["Catégories tours et ennemis, entrée précédente ou suivante"]
-    encyclopedia -->|"Fermer"| home
+Le parcours d'une partie:
 
-    level --> endscreen["Écran de fin"]
+```mermaid
+flowchart LR
+    home["Menu"] --> select["Sélection"]
+    select --> details["Détails"]
+    details --> level["Niveau"]
+    level --> endscreen["Fin"]
     endscreen --> home
 ```
+
+Quand le tutoriel n'est pas terminé, « Jouer » lance `lev.01` directement, sans passer par la sélection.
 
 ## Menu principal
 

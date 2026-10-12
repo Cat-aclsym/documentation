@@ -28,16 +28,13 @@ Le niveau en cours est accessible par la variable statique `ILevel.current_level
 
 ### Sources de données
 
+Les gestionnaires remontent leurs résultats vers `ProgressionManager`, qui écrit la sauvegarde et applique les réglages:
+
 ```mermaid
-flowchart LR
-	S["assets/resources/configs/stats.json"] --> StatsDB
-	A["resources/armory/armory.json"] --> ArmoryManager
-	CJ["resources/challenges/*.json"] --> ChallengeManager
-	LJ["resources/levels/*.json"] --> ChallengeManager
-	LJ --> ILevel
-	F["user://progression.dat"] <--> ProgressionManager
+flowchart TB
 	ArmoryManager -->|déblocages| ProgressionManager
 	ChallengeManager -->|défis complétés| ProgressionManager
+	F[progression.dat] <--> ProgressionManager
 	ProgressionManager -->|apply_settings| SoundManager
 ```
 

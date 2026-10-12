@@ -36,14 +36,12 @@ Le nom du fichier de la scène et celui du JSON sont le `level_id`: `ILevel` cha
 
 ## Arcs
 
-```mermaid
-flowchart LR
-	A1["arc.01 : Chat'lanques de Nyarseille"] --> L1[lev.01] & L2[lev.02] & L3[lev.03] & L4[lev.04] & L5[lev.05]
-	A2["arc.02 : La mer Nyaditerranée"] --> L6[lev.06] & L7[lev.07] & L8[lev.08]
-	A1 -->|next| A2
-```
+| Image de fond | Arc | Nom | Niveaux | `next` |
+|---|---|---|---|---|
+| ![Fond de l'arc 01 : une calanque turquoise entre des falaises, avec un zombie vert](../../../../assets/game/arcs/arc-01.png) | `arc.01` | Chat'lanques de Nyarseille | `lev.01` à `lev.05` | `arc.02` |
+| ![Fond de l'arc 02 : trois chats sur une mer calme sous un ciel bleu](../../../../assets/game/arcs/arc-02.png) | `arc.02` | La mer Nyaditerranée | `lev.06` à `lev.08` | aucun (`none`) |
 
-Ce graphe est celui de `resources/arcs/arc.01.json` et `arc.02.json` (champs `id`, `next`, `name`, `levels`). Aucun code du jeu ne lit ces fichiers. Ce qui compte à l'exécution:
+Cette table reprend `resources/arcs/arc.01.json` et `arc.02.json` (champs `id`, `next`, `name`, `levels`). Aucun code du jeu ne lit ces fichiers. Ce qui compte à l'exécution:
 
 - `arc_id` dans la scène du niveau, qui choisit l'image de fond `assets/ui/level_selection/bg_arcs/<arc_id>.png`.
 - `arc_title` du `LevelFrame`, le titre affiché pour l'arc.

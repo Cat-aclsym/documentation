@@ -15,7 +15,7 @@ Documentation technique de **Cat'aclysm**, un tower defense développé avec God
 4. [Structure du projet](/documentation/development/guides/file-structure/)
 
 ```mermaid
-flowchart LR
+flowchart TB
 	A[Présentation] --> B[Installation]
 	B --> C[Conventions de code]
 	C --> D[Structure du projet]

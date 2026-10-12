@@ -6,6 +6,8 @@ sidebar:
   order: 20
 ---
 
+import {Badge} from '@astrojs/starlight/components';
+
 Un niveau est une liste de vagues (`Wave`), chacune étant une liste d'étapes (`WaveStep`). `ILevel` dépile les étapes une par une jusqu'à la fin de la vague, puis passe à la suivante. Le diagramme de classes est dans [Niveau et carte](/documentation/development/models/level-model/#diagramme-de-classes).
 
 ## Du JSON à l'ennemi
@@ -15,26 +17,30 @@ sequenceDiagram
 	participant L as ILevel
 	participant W as Wave
 	participant S as WaveStep
-	participant P as WaveStepSpawn
 	participant E as EnemySpawner
+
+	L->>W: Wave.new(JSON)
+	W->>S: build(étape)
+	S-->>W: étape Spawn ou Wait
+	loop à chaque cycle
+		L->>W: pop()
+		L->>S: exec()
+		S->>E: spawn_enemy()
+		E-->>L: ennemi compté
+	end
+```
+
+À la mort d'un ennemi, ou à son arrivée au bout du chemin:
+
+```mermaid
+sequenceDiagram
 	participant I as IEnemy
 	participant C as ChallengeManager
+	participant L as ILevel
 
-	L->>W: Wave.new(données JSON)
-	W->>S: WaveStep.build(étape)
-	S-->>W: WaveStepSpawn ou WaveStepWait
-	loop à chaque cycle de l'horloge
-		opt pas d'étape courante
-			L->>W: pop()
-			W-->>L: étape suivante
-		end
-		L->>P: exec()
-		P->>E: spawn_enemy(path, enemy)
-		E-->>L: ennemi compté (_on_enemy_spawn)
-	end
-	I->>I: die (mort ou fin de chemin)
-	I->>C: notify_enemy_died(enemy, damage_type)
-	I-->>L: die, ennemi décompté (_on_enemy_die)
+	I->>C: notify_enemy_died()
+	I-->>L: signal die
+	L->>L: ennemi décompté
 ```
 
 `ILevel` exécute l'étape courante à chaque cycle jusqu'à ce que `is_over()` soit vrai, puis en dépile une autre. Le signal `die` est émis aussi bien à la mort qu'à l'arrivée au bout du chemin: `ChallengeManager.notify_enemy_died` est donc appelé dans les deux cas.
@@ -50,7 +56,7 @@ sequenceDiagram
 
 ### WaveStep
 
-- `enum Order { UNDEFINED, COMMAND, SPAWN, WAIT, DIALOG }`. `COMMAND` et `DIALOG` ne sont pas implémentés: `build()` ne crée que des étapes `SPAWN` et `WAIT`.
+- `enum Order { UNDEFINED, COMMAND, SPAWN, WAIT, DIALOG }`. `COMMAND` et `DIALOG` <Badge text="non implémentés" variant="caution" />: `build()` ne crée que des étapes `SPAWN` et `WAIT`.
 - `build(in_data: Dictionary) -> WaveStep`: renvoie un `WaveStepSpawn` si les clés `enemy_id`, `count` et `spawner` sont présentes, un `WaveStepWait` si `wait_s` l'est, sinon `null` avec un log `ERROR`.
 - `data() -> Dictionary`: données brutes de l'étape.
 - `exec()`: exécute l'étape.

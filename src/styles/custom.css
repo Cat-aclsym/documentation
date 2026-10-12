@@ -1,15 +1,90 @@
+/**
+ * The accent and the content links are unlayered on purpose: this file is bundled before Lucode's layers.css, so the layer order is
+ * lucode, starlight and Starlight's own layered accent (blue) beats anything declared in `@layer lucode`.
+ */
+:root[data-theme='dark'] {
+	--sl-color-accent-low: #0b3d33;
+	--sl-color-accent: #25c2a0;
+	--sl-color-accent-high: #4fddbf;
+	--ring: var(--sl-color-accent);
+}
+
+:root[data-theme='light'] {
+	--sl-color-accent-low: #c8ecd8;
+	--sl-color-accent: #2e8555;
+	--sl-color-accent-high: #205d3b;
+	--ring: var(--sl-color-accent);
+}
+
+/** Content links use the accent green (AA on both themes), the hover state thickens the underline and shifts the shade. */
+.sl-markdown-content :is(p, li, td, th, dd, blockquote, summary) a:not([class]) {
+	color: var(--sl-color-accent);
+	text-decoration-color: currentColor;
+	text-decoration-thickness: 1px;
+}
+
+.sl-markdown-content :is(p, li, td, th, dd, blockquote, summary) a:not([class]):hover {
+	color: var(--sl-color-accent-high);
+	text-decoration-thickness: 2px;
+}
+
+/** Inline code keeps the body text colour inside a link: green on the muted code background is below AA in light mode. */
+.sl-markdown-content a:not([class]) > code {
+	color: var(--foreground);
+}
+
 @layer lucode {
-	:root[data-theme='dark'] {
-		--sl-color-accent-low: #0b3d33;
-		--sl-color-accent: #25c2a0;
-		--sl-color-accent-high: #4fddbf;
-		--ring: var(--sl-color-accent);
+	/** Pages of a category are indented under their group label, with a guide line like the nested groups. */
+	.sidebar .container-sidebar-entry > .container-group-link,
+	#drawer .container-sidebar-entry > a {
+		margin-left: calc(var(--spacing) * 2);
+		padding-left: calc(var(--spacing) * 3);
+		border-left: 1px solid var(--border);
 	}
 
-	:root[data-theme='light'] {
-		--sl-color-accent-low: #c8ecd8;
-		--sl-color-accent: #2e8555;
-		--sl-color-accent-high: #205d3b;
-		--ring: var(--sl-color-accent);
+	/** Pixel art stays crisp: sprites live in public/game/sprites (Astro's lossy webp would blur them) and are scaled with nearest neighbour. */
+	.sl-markdown-content img[src*='/game/sprites/'] {
+		image-rendering: pixelated;
+		max-width: none;
 	}
+
+	/** Arc backgrounds are 1440x960 screenshots: keep them as thumbnails in tables. */
+	.sl-markdown-content td img[src*='/_astro/arc-'] {
+		width: 14rem;
+		height: auto;
+		image-rendering: pixelated;
+	}
+}
+
+/** Unlayered on purpose: astro-mermaid injects its own unlayered styles at runtime (max-width: 100% shrinks wide diagrams). */
+.sl-markdown-content pre.mermaid {
+	justify-content: flex-start;
+	min-width: 0;
+	padding-inline: 0;
+}
+
+/** Unlayered on purpose: starlight-image-zoom styles its wrapper globally. Small sprites aren't zoomable, the wrapper and its button are neutralised. */
+.sl-markdown-content starlight-image-zoom-zoomable:has(> img[src*='/game/sprites/']) {
+	display: contents;
+}
+
+.sl-markdown-content starlight-image-zoom-zoomable:has(> img[src*='/game/sprites/']) > button {
+	display: none;
+}
+
+.sl-markdown-content tr:has(img[src*='/game/sprites/'], img[src*='/_astro/arc-']) > td {
+	vertical-align: middle;
+}
+
+.sl-markdown-content starlight-image-zoom-zoomable > img[src*='/game/sprites/'] {
+	display: block;
+	cursor: default;
+	pointer-events: none;
+}
+
+.sl-markdown-content pre.mermaid svg {
+	flex: none;
+	max-width: none;
+	height: auto;
+	margin-inline: auto;
 }

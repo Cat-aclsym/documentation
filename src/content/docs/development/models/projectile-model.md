@@ -45,6 +45,15 @@ Scènes et scripts dans `scenes/gameplay/entities/bullet/`:
 - `speed: float` (export, 200 par défaut).
 - Il se détruit au bout de `DESTROY_TIMEOUT` (5 s) s'il ne touche rien.
 
+## Sprites
+
+| Sprite | Fichier | Utilisé par |
+|---|---|---|
+| ![Flèche](/documentation/game/sprites/sprite-projectile-arrow.png) | `assets/gameplay/bullet/arrow.png` | `base_arrow`, `aoe_arrow`, `fire_arrow` et `piercing_arrow` |
+| ![Projectile ennemi](/documentation/game/sprites/sprite-projectile-jedo.png) | `assets/gameplay/bullet/jedo.png` | `enemy_projectile` |
+
+`smoke.png` et `trail.png` sont les textures des particules de `i_bullet` (fumée d'impact et traînée).
+
 ## Dépendances
 
 - `ITower` (owner)

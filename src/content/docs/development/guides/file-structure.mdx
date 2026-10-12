@@ -6,48 +6,53 @@ sidebar:
   order: 2
 ---
 
+import {FileTree} from '@astrojs/starlight/components';
+
 ## Arborescence
 
-```text
-res://
-├── addons/                 plugins externes (Dialogic), à modifier seulement pour un travail sur le plugin
-├── assets/
-│   ├── audio/
-│   ├── environment/
-│   ├── gameplay/
-│   ├── narrative/          timelines et personnages Dialogic
-│   ├── resources/          thèmes, shaders et configs/stats.json
-│   ├── translations/       translations.csv
-│   └── ui/
-├── resources/              données JSON (levels, arcs, challenges, armory)
-├── scenes/
-│   ├── gameplay/
-│   │   ├── entities/       enemy, tower, trap, building, building_placement, bullet
-│   │   └── world/          clock, level, map
-│   ├── ui/
-│   │   ├── debug/
-│   │   ├── menus/
-│   │   ├── popup/
-│   │   ├── tutorial/
-│   │   └── ui.gd
-│   ├── utilities/          console, sound_entity
-│   ├── watcher/            widget de debug
-│   ├── main.tscn           scène principale
-│   └── DebugScene.tscn
-├── scripts/
-│   ├── autoloads/
-│   ├── camera/
-│   ├── challenges/
-│   ├── commands/
-│   ├── log/
-│   ├── progression/
-│   ├── state_machine/
-│   ├── ui/
-│   ├── utilities/
-│   └── wave/
-├── export_presets.cfg
-└── project.godot
-```
+<FileTree>
+
+- addons/ plugins externes (Dialogic), à modifier seulement pour un travail sur le plugin
+- assets/
+  - audio/
+  - environment/
+  - gameplay/
+  - narrative/ timelines et personnages Dialogic
+  - resources/ thèmes, shaders et configs/stats.json
+  - translations/ translations.csv
+  - ui/
+- resources/ données JSON (levels, arcs, challenges, armory)
+- scenes/
+  - gameplay/
+    - entities/ enemy, tower, trap, building, building_placement, bullet
+    - world/ clock, level, map
+  - ui/
+    - debug/
+    - menus/
+    - popup/
+    - tutorial/
+    - ui.gd
+  - utilities/ console, sound_entity
+  - watcher/ widget de debug
+  - main.tscn scène principale
+  - DebugScene.tscn
+- scripts/
+  - autoloads/
+  - camera/
+  - challenges/
+  - commands/
+  - log/
+  - progression/
+  - state_machine/
+  - ui/
+  - utilities/
+  - wave/
+- export_presets.cfg
+- project.godot
+
+</FileTree>
+
+La racine est `res://`.
 
 Le workflow CI est dans `.github/workflows/build.yml`.
 

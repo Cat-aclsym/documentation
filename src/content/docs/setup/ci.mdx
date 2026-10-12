@@ -6,21 +6,13 @@ sidebar:
   order: 7
 ---
 
+import {Steps} from '@astrojs/starlight/components';
+
 Le workflow `Build Cat'aclysm Android APK` (`.github/workflows/build.yml` du projet Godot) construit l'APK sur `ubuntu-latest` à chaque push sur `main`, `develop` et `feature/workflow`. L'export manuel est décrit dans [Exporter le jeu](/documentation/setup/exporting/).
 
-```mermaid
-flowchart TD
-	A[Java 17 + Godot 4.4.0] --> B[Templates d'export 4.4]
-	B --> C[Keystore décodé et injecté dans export_presets.cfg]
-	C --> D[Import du projet]
-	D --> E[Export release Android]
-	E --> F[apktool : intent filter Game Loop]
-	F --> G[apktool : reconstruction]
-	G --> H[apksigner]
-	H --> I[Artefact Cataclysm-apk]
-```
-
 ## Étapes
+
+<Steps>
 
 1. **Outils**: Java 17 (Temurin) et Godot 4.4.0 en headless (`chickensoft-games/setup-godot`, sans .NET). Les templates d'export 4.4-stable sont téléchargés et placés dans `~/.local/share/godot/export_templates/4.4.stable`.
 2. **Keystore**: le secret `KEYSTORE_BASE64` est décodé en `~/Cataclysm.keystore`, puis ses informations sont affichées avec `keytool` (le résultat n'arrête pas le workflow).
@@ -30,6 +22,8 @@ flowchart TD
 6. **Patch Firebase**: `apktool` (2.9.3) décode l'APK, ajoute à la première activité du manifeste l'intent filter `com.google.intent.action.TEST_LOOP` et la meta-data `com.google.test.loops` (valeur 2), retire la référence `themed_icon` de `public.xml` et supprime `res/values-anydpi-v26/`, puis reconstruit l'APK (`Cataclysm_unsigned.apk`). Les scénarios sont dans [Firebase Test Lab](/documentation/setup/android-test-lab/).
 7. **Signature**: `apksigner` (build-tools 34.0.0) signe avec l'alias `Cataclysm` et écrit `exports/Cataclysm.apk`.
 8. **Artefact**: `exports/Cataclysm.apk` est publié sous le nom `Cataclysm-apk`.
+
+</Steps>
 
 ## Secrets
 

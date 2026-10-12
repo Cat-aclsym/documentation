@@ -6,6 +6,8 @@ sidebar:
   order: 5
 ---
 
+import {Steps} from '@astrojs/starlight/components';
+
 Chaque recette liste les fichiers à créer ou à modifier. Les détails sont dans les pages liées.
 
 ## Conventions d'identifiants
@@ -22,20 +24,28 @@ Chaque recette liste les fichiers à créer ou à modifier. Les détails sont da
 
 ## Ajouter un ennemi
 
+<Steps>
+
 1. Créer `scenes/gameplay/entities/enemy/enemies/<nom>.tscn`, une scène héritée de `i_enemy.tscn`. Renseigner l'export `enemy_id` (la clé `stats.json`) et, si besoin, `type`. Un comportement propre passe par un script qui étend `IEnemy` (`SmallZombie`, `SplitterZombie`, `BigDaddy`).
 2. Ajouter `enemies.<enemy_id>` dans `assets/resources/configs/stats.json`: `max_health`, `speed`, `reward`, `scene` et `extra` si besoin.
 3. Utiliser le nom du fichier comme `enemy_id` dans une étape de vague ([Vagues](/documentation/development/models/wave-model/)).
 4. Ajouter `ENEMY.<ID>.NAME` au CSV et l'identifiant à la table de noms de `encyclopedia.gd` ([Traductions](/documentation/development/guides/i18n/), [Interface](/documentation/development/guides/ui/#encyclopédie)).
 
+</Steps>
+
 Voir [Ennemi](/documentation/development/models/enemy-model/).
 
 ## Ajouter une tour
+
+<Steps>
 
 1. Créer `scenes/gameplay/entities/tower/towers/bat_XX.tscn`, héritée de `i_tower.tscn`, avec `tower_id = "bat_XX"`.
 2. Ajouter `towers.bat_XX` dans `stats.json` (`base`, `level`, `name`, `scene`, `upgrades`) et les `upgrades.<id>` référencés ([Statistiques](/documentation/development/models/stats-model/)).
 3. Créer `build_card_bat_XX.tscn` dans `scenes/ui/menus/building_selection/building_cards/` avec son export `entity`, puis l'ajouter à `build_selection.tscn` ([Construction](/documentation/development/guides/building-placement/#menu-de-construction)).
 4. Ajouter le nœud `unlock_bat_XX` dans `resources/armory/armory.json`, avec l'effet `unlock_tower`. Sans lui, la tour reste verrouillée, sauf si son id est dans `ARMORY_STARTER_TOWER_IDS` ([Armurerie](/documentation/development/models/armory-model/)).
 5. Ajouter `TOWER.BAT_XX.NAME` au CSV si le nom doit être traduit.
+
+</Steps>
 
 Voir [Tour](/documentation/development/models/tower-model/).
 
@@ -55,10 +65,14 @@ Scène de niveau, scène de carte, JSON de vagues et un `LevelFrame` dans le men
 
 ## Ajouter un défi
 
+<Steps>
+
 1. Créer `resources/challenges/cha.XXX.json` avec `id`, `name`, `description` (clés de traduction), `difficulty` (`Easy`, `Medium`, `Hard` ou `Impossible`) et `script`.
 2. Créer la logique `scripts/challenges/logics/cha.XXX.gd`: une classe qui étend `Challenge` et implémente les méthodes `on_*` dont elle a besoin (`on_damage_taken`, `on_tower_placed`, `on_enemy_died`...).
 3. Ajouter `CHALLENGE.CHA.XXX.NAME` et `CHALLENGE.CHA.XXX.DESC` au CSV.
 4. Ajouter `cha.XXX` à la clé `challenges` du JSON des niveaux concernés.
+
+</Steps>
 
 ```gdscript
 class_name Challenge001

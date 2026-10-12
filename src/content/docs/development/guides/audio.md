@@ -12,18 +12,21 @@ Le son passe par l'autoload `SoundManager` et le nœud `SoundEntity`. `SoundMana
 classDiagram
     class SoundManager {
         <<autoload>>
-        +register(group: String, sound: Node)
-        +remove(group: String, sound: Node)
-        +change_volume(group: String, vol: float)
     }
     class SoundEntity {
         <<AudioStreamPlayer>>
-        +String group
-        +set_volume(vol: float)
     }
     SoundEntity ..> SoundManager : register, remove
     SoundManager ..> SoundEntity : set_volume
 ```
+
+| Classe | Membre | Rôle |
+|---|---|---|
+| `SoundManager` | `register(group, sound)` | ajoute le lecteur à son groupe |
+| `SoundManager` | `remove(group, sound)` | retire le lecteur de son groupe |
+| `SoundManager` | `change_volume(group, vol)` | appelle `set_volume(vol)` sur tout le groupe |
+| `SoundEntity` | `group` | `sfx`, `music` ou `gui` |
+| `SoundEntity` | `set_volume(vol)` | règle `volume_db` en décibels |
 
 ## SoundEntity
 

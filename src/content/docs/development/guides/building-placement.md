@@ -14,18 +14,27 @@ sequenceDiagram
 	participant C as BuildCard
 	participant P as BuildPlacement
 	participant B as IBuilding
+
+	J->>C: appuie sur la carte
+	C->>P: change_state(BUILD)
+	P->>B: enter_build_preview()
+```
+
+Puis le joueur choisit une tuile et valide:
+
+```mermaid
+sequenceDiagram
+	actor J as Joueur
+	participant P as BuildPlacement
 	participant L as ILevel
 	participant M as ChallengeManager
 
-	J->>C: appuie sur la carte
-	C->>P: change_state(BUILD, [entité])
-	P->>B: enter_build_preview()
 	J->>P: choisit une tuile
 	P->>P: valide la tuile (teinte l'aperçu)
 	J->>P: appuie sur PlaceButton
 	P->>L: coins -= cost
-	P->>M: notify_building_placed(building)
-	P-->>J: building_placed(building)
+	P->>M: notify_building_placed()
+	P-->>J: building_placed
 ```
 
 ## BuildPlacement
