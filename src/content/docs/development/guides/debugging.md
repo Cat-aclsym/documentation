@@ -1,6 +1,6 @@
 ---
 title: Outils de debug
-description: Ce qui n'existe qu'en debug, les widgets de visualisation et les raccourcis pour tester un niveau
+description: Ce qui n'existe qu'en debug, les vérifications headless, les widgets de visualisation et les raccourcis pour tester un niveau
 sidebar:
   label: Outils de debug
   order: 13
@@ -15,6 +15,45 @@ Les outils de debug dépendent tous de `Global.debug`, qui vaut `OS.has_feature(
 | `Watcher` | Le nœud se libère dans `_ready()` |
 | Bouton `debug: stats icons` du menu d'accueil | Reste masqué |
 
+## Vérifications headless
+
+Deux scènes de `tools/` vérifient le projet sans fenêtre. Elles sont exclues des exports (`tools/*` dans le filtre d'exclusion des presets) et la [CI](/documentation/setup/ci/) les lance dans cet ordre, après l'import:
+
+```bash
+godot --headless --path . --import
+godot --headless --path . --quit-after 3000 res://tools/check_scripts.tscn
+godot --headless --path . --quit-after 6000 res://tools/smoke_test.tscn
+```
+
+Dans les deux cas, le code de sortie du processus est le résultat: `0` si tout va bien. Ce sont des scènes et non l'option `--check-only` de Godot, car `--check-only` charge les scripts sans les autoloads (`Global`, `StatsDB`, `Log`...) dont ils dépendent.
+
+### `tools/check_scripts.tscn`
+
+`tools/check_scripts.gd` parcourt `res://` récursivement (sauf `res://addons`, `res://.godot`, `res://android` et `res://exports`), charge chaque fichier `.gd` avec `load()` et signale un échec quand le script est `null`, ou quand il ne peut pas être instancié sans être abstrait. Chaque échec s'affiche (`FAILED: res://...`), puis le bilan et la sortie:
+
+```text
+Checked N scripts, 0 failed.
+```
+
+Le code de sortie est le nombre d'échecs. L'avertissement `untyped_declaration` ne fait pas échouer la vérification.
+
+### `tools/smoke_test.tscn`
+
+`tools/smoke_test.gd` joue le jeu quelques secondes en accéléré:
+
+1. Il désactive la sauvegarde (`ProgressionManager.persistence_enabled = false`), marque le tutoriel comme terminé et plafonne le jeu à 60 images par seconde.
+2. Il instancie `res://scenes/main.tscn` et attend 120 images.
+3. Il charge chaque scène `lev.*.tscn` de `res://scenes/gameplay/world/level/levels`, lance le niveau (`start_level()` puis `Global.ui.start_level()`, comme le menu de sélection et la commande `load_level`), le fait tourner 240 images avec `Engine.time_scale = 8.0`, puis le libère.
+4. Il compte chaque erreur journalisée par le moteur grâce à un `Logger` (`OS.add_logger`): `push_error`, chargement raté, erreur de script ou de shader. Les avertissements sont ignorés, ainsi que l'erreur `not supported in Dummy renderer` que chaque shader produit en `--headless`.
+
+La sortie résume le run (`Smoke test: 8 levels, 0 errors.`), après avoir listé au plus 20 erreurs (`ERROR: fichier:ligne @ fonction: ...`). Le code de sortie est le nombre d'erreurs, plafonné à 255.
+
+Un garde-fou (`FRAME_BUDGET`, 5500 images) termine le test en erreur avant la limite `--quit-after 6000` de la CI: une erreur de script dans la coroutine l'interromprait sans bruit, et le processus se terminerait sinon avec le code `0`.
+
+### Cache d'uid périmé
+
+Après un renommage ou un déplacement d'assets, `.godot/uid_cache.bin` peut associer des uids à d'anciens chemins: les scènes ne trouvent plus leurs ressources. Déplacer ce fichier hors de `.godot/` puis relancer l'import (`godot --headless --path . --import`) le régénère. La CI met seulement `.godot/imported` en cache pour la même raison ([Intégration continue](/documentation/setup/ci/#job-check)).
+
 ## Watcher
 
 `Watcher` (`scenes/watcher/watcher.tscn`) est un `PanelContainer` qui affiche en continu la valeur d'une propriété d'un nœud. Il est marqué `@experimental` et aucune scène du projet n'en contient.
@@ -27,10 +66,9 @@ Les outils de debug dépendent tous de `Global.debug`, qui vaut `OS.has_feature(
 
 Instancier `watcher.tscn` dans la scène à inspecter, puis renseigner `node` et `property` dans l'inspecteur.
 
-## Écrans et scènes de test
+## Écrans de test
 
-- **Icônes de stats** (`scenes/ui/debug/stats_icons_debug.tscn`): depuis le menu d'accueil, le bouton `debug: stats icons` ouvre la liste (ou la grille) de toutes les icônes de stats avec leur clé. Utile pour vérifier une nouvelle stat dans `StatBar`.
-- **`scenes/DebugScene.tscn`**: une caméra et quatre instances de `bat_01.tscn`, à lancer depuis l'éditeur (`Run Current Scene`) pour tester une tour sans niveau.
+**Icônes de stats** (`scenes/ui/debug/stats_icons_debug.tscn`): depuis le menu d'accueil, le bouton `debug: stats icons` ouvre la liste (ou la grille) de toutes les icônes de stats avec leur clé. Utile pour vérifier une nouvelle stat dans `StatBar`. Pour tester une tour ou un ennemi isolé, lancer un niveau avec `load_level` puis utiliser les commandes ci-dessous.
 
 ## Tester un niveau
 
@@ -41,7 +79,7 @@ Les commandes de la [console](/documentation/development/guides/console/#command
 | Lancer un niveau précis | `load_level lev.05` |
 | Avoir des pièces | `set_money 5000` |
 | Accélérer ou ralentir | `set_time_scale 3` |
-| Voir où poser une tour | `debug-tower-placement` ([Construction](/documentation/development/guides/building-placement/#tuiles-de-placement)) |
+| Voir où poser une tour | `debug_tower_placement` ([Construction](/documentation/development/guides/building-placement/#tuiles-de-placement)) |
 | Améliorer ou vendre une tour | `up`, `sell` |
 | Débloquer l'armurerie, un niveau, un défi | `unlock_armory`, `progression` |
 | Chercher une fuite de nœuds | `orphans` |
