@@ -21,7 +21,7 @@
     "@expressive-code/plugin-collapsible-sections": "^0.44.2",
     "astro": "^7.3.8",
     "astro-mermaid": "^2.1.0",
-    "lucode-starlight": "^1.0.0",
+    "lucode-starlight": "1.0.0",
     "mermaid": "^11",
     "starlight-image-zoom": "^0.16.1",
     "starlight-llms-txt": "^0.12.0"

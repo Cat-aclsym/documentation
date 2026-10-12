@@ -6,6 +6,7 @@ import lucode from 'lucode-starlight';
 import starlightImageZoom from 'starlight-image-zoom';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightLlmsTxt from 'starlight-llms-txt';
+import {copyright} from './src/consts';
 
 const site = 'https://cat-aclsym.github.io';
 const base = '/documentation';
@@ -42,7 +43,7 @@ export default defineConfig({
 			plugins: [
 				lucode({
 					navLinks: [{label: 'Documentation', link: `${base}/dashboard/`}],
-					footerText: `Copyright © ${new Date().getFullYear()} A7 Studio, Inc.`,
+					footerText: copyright,
 					/** Our Footer override wraps the theme's footer to add the copyright line on doc pages. */
 					warnOverrides: false,
 				}),
