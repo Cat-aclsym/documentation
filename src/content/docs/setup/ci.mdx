@@ -1,0 +1,35 @@
+---
+title: Intégration continue (APK Android)
+description: Les étapes du workflow GitHub Actions qui construit, patche et signe l'APK, et les secrets requis
+sidebar:
+  label: Intégration continue
+  order: 7
+---
+
+import {Steps} from '@astrojs/starlight/components';
+
+Le workflow `Build Cat'aclysm Android APK` (`.github/workflows/build.yml` du projet Godot) construit l'APK sur `ubuntu-latest` à chaque push sur `main`, `develop` et `feature/workflow`. L'export manuel est décrit dans [Exporter le jeu](/documentation/setup/exporting/).
+
+## Étapes
+
+<Steps>
+
+1. **Outils**: Java 17 (Temurin) et Godot 4.4.0 en headless (`chickensoft-games/setup-godot`, sans .NET). Les templates d'export 4.4-stable sont téléchargés et placés dans `~/.local/share/godot/export_templates/4.4.stable`.
+2. **Keystore**: le secret `KEYSTORE_BASE64` est décodé en `~/Cataclysm.keystore`, puis ses informations sont affichées avec `keytool` (le résultat n'arrête pas le workflow).
+3. **Signature dans le preset**: un script Python remplace `package/signed=true` dans `export_presets.cfg` par les chemins du keystore, l'utilisateur `Cataclysm` et le mot de passe du secret `KEYSTORE_PASSWORD`. Il échoue si cette ligne est absente du preset.
+4. **Import**: `godot --headless --import`, puis un passage en éditeur headless pour forcer l'import des ressources.
+5. **Export**: `godot --headless --export-release "Android" exports/Cataclysm.apk`. La commande est lancée deux fois, la première avec `|| true` et la seconde sans.
+6. **Patch Firebase**: `apktool` (2.9.3) décode l'APK, ajoute à la première activité du manifeste l'intent filter `com.google.intent.action.TEST_LOOP` et la meta-data `com.google.test.loops` (valeur 2), retire la référence `themed_icon` de `public.xml` et supprime `res/values-anydpi-v26/`, puis reconstruit l'APK (`Cataclysm_unsigned.apk`). Les scénarios sont dans [Firebase Test Lab](/documentation/setup/android-test-lab/).
+7. **Signature**: `apksigner` (build-tools 34.0.0) signe avec l'alias `Cataclysm` et écrit `exports/Cataclysm.apk`.
+8. **Artefact**: `exports/Cataclysm.apk` est publié sous le nom `Cataclysm-apk`.
+
+</Steps>
+
+## Secrets
+
+| Secret | Contenu |
+|---|---|
+| `KEYSTORE_BASE64` | Keystore de signature encodé en base64 |
+| `KEYSTORE_PASSWORD` | Mot de passe du keystore, utilisé pour le preset et `apksigner` |
+
+La CI ne construit que l'APK Android: le preset Windows n'est pas exporté.

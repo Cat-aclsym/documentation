@@ -1,0 +1,86 @@
+---
+title: Cat'aclysm
+description: Documentation technique de Cat'aclysm, un tower defense mobile développé avec Godot 4.4.
+template: splash
+hero:
+  layout: split-left
+  tagline: Documentation technique du tower defense où des tours chats repoussent des vagues de zombies. Code, données et outils du projet Godot 4.4.
+  image:
+    file: ../../assets/home/gameplay.png
+    alt: Partie en cours sur le niveau 2, avec quatre tours placées le long du chemin et le HUD de vie et de pièces
+  actions:
+    - text: Commencer
+      link: /documentation/introduction/overview/
+      icon: right-arrow
+    - text: Tableau de bord
+      link: /documentation/dashboard/
+      variant: secondary
+---
+
+import {Card, CardGrid, Icon} from '@astrojs/starlight/components';
+import {Image} from 'astro:assets';
+import {ContainerSection} from 'lucode-starlight/components';
+import IconLinkCard from '../../components/IconLinkCard.astro';
+import levelSelection from '../../assets/home/level-selection.png';
+import buildMenu from '../../assets/home/build-menu.png';
+import armory from '../../assets/home/armory-selected.png';
+import victory from '../../assets/home/victory.png';
+
+<ContainerSection width="lg">
+
+## Par où commencer
+
+<CardGrid>
+	<IconLinkCard icon="rocket" title="Présentation du jeu" description="Boucle de jeu, arcs, niveaux et systèmes principaux." href="/documentation/introduction/overview/" />
+	<IconLinkCard icon="download" title="Installation" description="Cloner le projet et le lancer dans Godot 4.4." href="/documentation/introduction/installation/" />
+	<IconLinkCard icon="database" title="Architecture" description="Autoloads, signaux et sources de données." href="/documentation/development/guides/architecture/" />
+	<IconLinkCard icon="add-document" title="Ajouter du contenu" description="Recettes pour un ennemi, une tour, un défi ou un niveau." href="/documentation/development/guides/recipes/" />
+</CardGrid>
+
+</ContainerSection>
+
+<ContainerSection width="lg">
+
+## Le jeu en images
+
+<div class="home-gallery">
+	<a href="/documentation/development/guides/levels-and-arcs/">
+		<Image src={levelSelection} alt="Sélection de niveau de l'arc 1 avec les défis du niveau 2" data-zoom-off />
+		<span><Icon name="list-format" />Sélection de niveau</span>
+	</a>
+	<a href="/documentation/development/guides/building-placement/">
+		<Image src={buildMenu} alt="Menu de construction ouvert en jeu, avec les cartes des tours" data-zoom-off />
+		<span><Icon name="pencil" />Construction</span>
+	</a>
+	<a href="/documentation/development/models/armory-model/">
+		<Image src={armory} alt="Armurerie avec une amélioration sélectionnée et son panneau de description" data-zoom-off />
+		<span><Icon name="star" />Armurerie</span>
+	</a>
+	<a href="/documentation/development/user-flows/in-game/">
+		<Image src={victory} alt="Écran de victoire avec la vie restante et les défis du niveau" data-zoom-off />
+		<span><Icon name="approve-check-circle" />Fin de niveau</span>
+	</a>
+</div>
+
+</ContainerSection>
+
+<ContainerSection width="lg">
+
+## La documentation
+
+<CardGrid>
+	<Card title="Mise en place" icon="setting">
+		[Éditeur Godot](/documentation/setup/godot-configuration/), [test sur Android](/documentation/setup/android-testing/), [export](/documentation/setup/exporting/) et [intégration continue](/documentation/setup/ci/).
+	</Card>
+	<Card title="Guides" icon="open-book">
+		[Conventions de code](/documentation/development/guides/coding-guidelines/), [console](/documentation/development/guides/console/), [traductions](/documentation/development/guides/i18n/), [Dialogic](/documentation/development/guides/dialogic-guide/) et [outils de debug](/documentation/development/guides/debugging/).
+	</Card>
+	<Card title="Modèles" icon="puzzle">
+		[Niveau](/documentation/development/models/level-model/), [vagues](/documentation/development/models/wave-model/), [ennemis](/documentation/development/models/enemy-model/), [tours](/documentation/development/models/tower-model/), [pièges](/documentation/development/models/trap-model/) et [progression](/documentation/development/models/progression-model/).
+	</Card>
+	<Card title="Contribuer" icon="code-branch">
+		[Branches Git](/documentation/contributing/git-workflow/), [conventions Git](/documentation/contributing/git-guidelines/) et [rédaction de la doc](/documentation/contributing/writing-guidelines/).
+	</Card>
+</CardGrid>
+
+</ContainerSection>

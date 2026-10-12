@@ -1,0 +1,19 @@
+---
+import Footer from 'lucode-starlight/components/overrides/Footer.astro';
+import {copyright} from '../consts';
+
+const {template} = Astro.locals.starlightRoute.entry.data;
+---
+
+{/** Lucode renders its own footerText and hides it on doc pages (PageFrame.astro), so the copyright is added here for those pages only. */}
+<Footer {...Astro.props}><slot /></Footer>
+{template === 'doc' && <p class="copyright">{copyright}</p>}
+
+<style>
+	.copyright {
+		margin-top: 1.5rem;
+		text-align: center;
+		font-size: var(--sl-text-xs);
+		color: var(--muted-foreground);
+	}
+</style>

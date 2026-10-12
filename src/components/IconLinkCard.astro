@@ -1,0 +1,53 @@
+---
+import {Icon} from '@astrojs/starlight/components';
+import type {StarlightIcon} from '@astrojs/starlight/types';
+
+/** Starlight's LinkCard has no icon prop: same markup and classes (so Lucode styles it), plus a leading icon. */
+interface Props {
+	title: string;
+	description: string;
+	href: string;
+	icon: StarlightIcon;
+	/** Icon on the right edge, `external` for links leaving the site. */
+	trailing?: StarlightIcon;
+}
+
+const {title, description, href, icon, trailing = 'right-arrow'} = Astro.props;
+---
+
+<div class="sl-link-card icon-link-card">
+	<Icon name={icon} size="1.25rem" class="lead" />
+	<span class="sl-flex stack">
+		<a {href}><span class="title">{title}</span></a>
+		<span class="description">{description}</span>
+	</span>
+	<Icon name={trailing} size="1.333em" class="icon rtl:flip" />
+</div>
+
+<style>
+	.icon-link-card {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		position: relative;
+	}
+
+	.lead {
+		margin-top: 0.25rem;
+		color: var(--sl-color-accent);
+	}
+
+	.stack {
+		flex-direction: column;
+	}
+
+	a {
+		text-decoration: none;
+	}
+
+	/** Stretches the link over the whole card. */
+	a::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+	}
+</style>

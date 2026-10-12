@@ -1,32 +1,34 @@
-# Website
+# Documentation Cat'aclysm
 
-This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
+Documentation technique de Cat'aclysm, construite avec [Astro Starlight](https://starlight.astro.build/) et publiée sur GitHub Pages: <https://cat-aclsym.github.io/documentation/>.
 
-### Installation
+## Commandes
 
-```
-$ bun install
-```
-
-### Local Development
-
-```
-$ bun run start
+```bash
+bun install            # installe les dépendances
+bun run dev            # serveur local sur http://localhost:4321/documentation/
+bun run build          # génère le site dans dist/ et valide les liens internes
+bun run preview        # sert le contenu de dist/
+bun run typecheck      # vérifie les types (astro check)
 ```
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+## Structure
 
-### Build
-
+```text
+src/content/docs/      pages Markdown (un dossier = un groupe de la barre latérale)
+src/assets/            images référencées par les pages
+src/components/        surcharges de composants Starlight
+src/styles/custom.css  couleurs d'accentuation
+public/                favicon et fichiers servis tels quels
+astro.config.ts        configuration du site, de la barre latérale et de Mermaid
 ```
-$ bun run build
-```
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+Les diagrammes Mermaid s'écrivent dans des blocs de code ```` ```mermaid ````.
+Les conventions d'écriture des pages sont décrites dans `src/content/docs/contributing/writing-guidelines.md`.
 
-### Deployment
+## Déploiement
 
-Deployment is handled automatically by GitHub Actions on pushes to `main`.
-The workflow lives in [.github/workflows/upload-pages-artifact.yml](.github/workflows/upload-pages-artifact.yml).
+Le déploiement est automatique via GitHub Actions à chaque push sur `main`.
+Le workflow se trouve dans [.github/workflows/upload-pages-artifact.yml](.github/workflows/upload-pages-artifact.yml).
 
-For local validation, use `bun run build` before pushing.
+Lancer `bun run build` avant de pousser.
