@@ -20,15 +20,15 @@ Dans `assets/resources/configs/stats.json`, chaque piège expose:
       "slow_amount": 0.3,
       "trap_type": 0
     },
-    "name": "Piège ralentissant",
     "scene": "res://scenes/gameplay/entities/trap/traps/bat_04.tscn"
   }
 }
 ```
 
-- `name`: libellé UI
 - `scene`: scène instanciée
 - `base`: `cost`, `trap_type` (0 = `PASSIVE`, 1 = `LIMITED`), `effect_duration` et `max_durability` (lus par `ITrap`), plus les clés propres à chaque piège (`slow_amount`, `damage`, `explosion_range`...)
+
+Il n'y a pas de champ `name`: le libellé vient de la clé de traduction `TRAP.<ID>.NAME` (`StatsDB.name_key("TRAP", trap_id)`, par exemple `TRAP.BAT_04.NAME`).
 
 `apply_stats_from_db()` copie ces valeurs dans le piège quand `trap_id` est renseigné. Une sous-classe lit ses clés supplémentaires en surchargeant `_apply_trap_stats_extension(base: Dictionary)`.
 
@@ -38,11 +38,13 @@ Les cinq pièges partagent le sprite `spikes.png`, teinté par la scène (colonn
 
 | Sprite | Clé | Nom | Coût | `trap_type` | Teinte | Effet de base |
 |---|---|---|---|---|---|---|
-| ![Sprite du piège à lames](/documentation/game/sprites/sprite-trap-bat-03.png) | `bat_03` | Piège à lames | 10 | `LIMITED` | aucune | `damage` 10 |
+| ![Sprite du piège à lames](/documentation/game/sprites/sprite-trap-bat-03.png) | `bat_03` | Piège à lames | 10 | `LIMITED` | aucune | `damage` 10, puis immobilise l'ennemi qui survit pendant `effect_duration` (0,25 s) |
 | ![Sprite du piège ralentissant, teinté en turquoise](/documentation/game/sprites/sprite-trap-bat-04.png) | `bat_04` | Piège ralentissant | 50 | `PASSIVE` | turquoise | `slow_amount` 0,3 |
-| ![Sprite de la bombe, teintée en rouge](/documentation/game/sprites/sprite-trap-bat-05.png) | `bat_05` | Bombe | 25 | `LIMITED` | rouge | `damage` 50, `explosion_range` 100 |
-| ![Sprite du piège empoisonné, teinté en violet](/documentation/game/sprites/sprite-trap-bat-06.png) | `bat_06` | Piège empoisonné | 40 | `PASSIVE` | violet | `poison_damage` 5 pendant 6 ticks, `poison_interval` 1 |
-| ![Sprite du piège étourdissant, teinté en jaune](/documentation/game/sprites/sprite-trap-bat-07.png) | `bat_07` | Piège étourdissant | 30 | `LIMITED` | jaune | `stun_duration` 4, `stun_range` 100 |
+| ![Sprite de la bombe, teintée en rouge](/documentation/game/sprites/sprite-trap-bat-05.png) | `bat_05` | Bombe | 25 | `LIMITED` | rouge | `damage` 50, `explosion_range` 100, `explosion_delay` 2 |
+| ![Sprite du piège empoisonné, teinté en violet](/documentation/game/sprites/sprite-trap-bat-06.png) | `bat_06` | Piège empoisonné | 40 | `PASSIVE` | violet | `poison_damage` 5 pendant 6 ticks (`poison_ticks`), `poison_interval` 1 |
+| ![Sprite du piège étourdissant, teinté en jaune](/documentation/game/sprites/sprite-trap-bat-07.png) | `bat_07` | Piège étourdissant | 30 | `LIMITED` | jaune | `charge_time` 2, `stun_duration` 4, `stun_range` 100 |
+
+Les ralentissements passent par les modificateurs de vitesse nommés de l'ennemi ([Ennemi](/documentation/development/models/enemy-model/#modificateurs-de-vitesse)): `bat_03` utilise la clé `bat_03`, `bat_04` la clé `bat_04`.
 
 ## ITrap
 
@@ -55,20 +57,31 @@ Les cinq pièges partagent le sprite `spikes.png`, teinté par la scène (colonn
 
 `state: TrapState` vaut `BUILDING` pendant la pose puis `ACTIVE`.
 
+Un piège détecte les ennemis par leur `FeetArea` (la zone des pieds), jamais par le corps. Il ne fait rien pendant une pause (`Global.paused`).
+
+### Durée de vie d'un piège limité
+
+Un piège `LIMITED` perd 1 de durabilité à chaque ennemi déclenché (son opacité reflète la durabilité restante). Quand la durabilité tombe à 0, il n'est plus utilisable et se libère après `_get_post_trigger_lifetime()` (par défaut `effect_duration`) une fois les effets en cours terminés, pour que l'effet commencé se finisse. Les pièges à séquence (bombe, piège étourdissant) posent `is_activating` tant qu'ils jouent leur charge ou leur explosion, et se libèrent eux-mêmes. Un ennemi qui meurt ou arrive au bout du chemin pendant un effet le laisse s'épuiser sans lui.
+
 Méthodes à surcharger ou à utiliser:
 
 - `apply_effect(enemy: IEnemy)`
 - `remove_effect(enemy: IEnemy)`
-- `disable_temporarily(duration: float)`: suspend le piège. Un ennemi `minesweeper` qui entre dans la zone désactive le piège pendant `MINESWEEPER_DISABLE_DURATION_SECONDS` (5 s).
+- `disable_temporarily(duration: float)`: suspend le piège (opacité réduite, effets retirés), puis le réactive et réapplique ses effets aux ennemis présents.
+
+### Démineur
+
+Un ennemi dont `trap_disable_duration` est supérieur à 0 (le `minesweeper`, `extra.trap_disable_duration` = 5 dans `stats.json`) ne déclenche pas le piège: il le désactive avec `disable_temporarily(enemy.trap_disable_duration)` quand il entre dans sa zone. La durée est mise en cache sur l'ennemi à son `_ready()`, `ITrap` n'interroge pas `StatsDB` à chaque chevauchement.
 
 ## Progression
 
-`TrapData` porte `unlocked: bool`, `save() -> Dictionary` et `from_dictionary(d: Dictionary)`. `ProgressionManager.is_trap_unlocked(trap_id)` contrôle l'accès.
+`TrapData` porte `unlocked: bool`, `save() -> Dictionary` et `from_dictionary(d: Dictionary)`. `ProgressionManager.is_trap_unlocked(trap_id)` contrôle l'accès. Aucun piège n'est débloqué au départ (`ARMORY_STARTER_TRAP_IDS` est vide).
 
 ## Dépendances
 
 - `StatsDB`: définitions runtime
 - `ProgressionManager`: unlock et persistance
 - `ArmoryManager`: déblocage des pièges depuis l'armurerie
+- `ChallengeManager`: `notify_enemy_hit` pour un boss touché par un piège passif ([Défis](/documentation/development/models/challenge-model/))
 
 Garder `trap_id` identique entre `stats.json`, l'armurerie et la sauvegarde.

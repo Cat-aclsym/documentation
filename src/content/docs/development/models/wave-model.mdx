@@ -8,7 +8,7 @@ sidebar:
 
 import {Badge} from '@astrojs/starlight/components';
 
-Un niveau est une liste de vagues (`Wave`), chacune étant une liste d'étapes (`WaveStep`). `ILevel` dépile les étapes une par une jusqu'à la fin de la vague, puis passe à la suivante. Le diagramme de classes est dans [Niveau et carte](/documentation/development/models/level-model/#diagramme-de-classes).
+Un niveau est une liste de vagues (`Wave`), chacune étant une liste d'étapes (`WaveStep`). `Wave`, `WaveStep` et leurs sous-classes étendent `RefCounted`. `ILevel` dépile les étapes une par une jusqu'à la fin de la vague, puis passe à la suivante. Le diagramme de classes est dans [Niveau et carte](/documentation/development/models/level-model/#diagramme-de-classes).
 
 ## Du JSON à l'ennemi
 
@@ -17,6 +17,7 @@ sequenceDiagram
 	participant L as ILevel
 	participant W as Wave
 	participant S as WaveStep
+	participant D as StatsDB
 	participant E as EnemySpawner
 
 	L->>W: Wave.new(JSON)
@@ -25,6 +26,7 @@ sequenceDiagram
 	loop à chaque cycle
 		L->>W: pop()
 		L->>S: exec()
+		S->>D: get_enemy_scene(enemy_id)
 		S->>E: spawn_enemy()
 		E-->>L: ennemi compté
 	end
@@ -38,40 +40,44 @@ sequenceDiagram
 	participant C as ChallengeManager
 	participant L as ILevel
 
-	I->>C: notify_enemy_died()
-	I-->>L: signal die
+	alt mort
+		I->>C: notify_enemy_died()
+		I-->>L: signal died
+	else arrivée au bout du chemin
+		I->>C: notify_enemy_escaped()
+		I-->>L: signal escaped
+	end
 	L->>L: ennemi décompté
 ```
 
-`ILevel` exécute l'étape courante à chaque cycle jusqu'à ce que `is_over()` soit vrai, puis en dépile une autre. Le signal `die` est émis aussi bien à la mort qu'à l'arrivée au bout du chemin: `ChallengeManager.notify_enemy_died` est donc appelé dans les deux cas.
+`ILevel` exécute l'étape courante à chaque cycle jusqu'à ce que `is_over()` soit vrai, puis en dépile une autre. Les signaux `died` et `escaped` sont distincts: `ChallengeManager.notify_enemy_died` n'est appelé que pour une mort, et une arrivée au bout du chemin appelle `notify_enemy_escaped`. Dans les deux cas, `ILevel` décompte l'ennemi.
 
 ## Contrat public
 
 ### Wave
 
 - `steps: Array[WaveStep]`
-- `_init(data: Array)`: construit les étapes depuis le JSON.
+- `_init(data: Array)`: construit les étapes depuis le JSON. Une étape invalide est ignorée avec un log `ERROR`.
 - `peak() -> WaveStep`: lit la prochaine étape sans la retirer.
 - `pop() -> WaveStep`: retire et renvoie la prochaine étape.
 
 ### WaveStep
 
-- `enum Order { UNDEFINED, COMMAND, SPAWN, WAIT, DIALOG }`. `COMMAND` et `DIALOG` <Badge text="non implémentés" variant="caution" />: `build()` ne crée que des étapes `SPAWN` et `WAIT`.
+- Constantes de clés JSON: `ENEMY_ID`, `COUNT`, `SPAWNER` et `WAIT_S`. `build()` ne crée que des étapes de spawn et d'attente.
 - `build(in_data: Dictionary) -> WaveStep`: renvoie un `WaveStepSpawn` si les clés `enemy_id`, `count` et `spawner` sont présentes, un `WaveStepWait` si `wait_s` l'est, sinon `null` avec un log `ERROR`.
 - `data() -> Dictionary`: données brutes de l'étape.
 - `exec()`: exécute l'étape.
 - `is_over() -> bool`: indique si l'étape est terminée.
-- `order() -> WaveStep.Order`: type de l'étape.
 
 ## Étapes
 
 ### Spawn
 
 ```json
-{"enemy_id": "ene.01", "count": 5, "spawner": 0}
+{"enemy_id": "default_zombie", "count": 5, "spawner": 0}
 ```
 
-`enemy_id` est le nom de la scène dans `scenes/gameplay/entities/enemy/enemies/` (`ene.01` charge `ene.01.tscn`). Chaque `exec()` fait apparaître un ennemi sur le chemin `spawner` de la carte et décrémente `count`. L'étape est terminée quand `count == 0`.
+`enemy_id` est la clé de l'ennemi dans la section `enemies` de `stats.json` (`default_zombie`, `damage_zombie`, `rat`, `small_zombie`, `splitter_zombie`, `minesweeper`, `big_daddy`). `exec()` charge la scène avec `StatsDB.get_enemy_scene(enemy_id)`, qui lit le champ `scene` de l'entrée et met la scène en cache. Chaque `exec()` fait apparaître un ennemi sur le chemin `spawner` de la carte et décrémente `count`. L'étape est terminée quand `count` atteint 0.
 
 `spawner` désigne un chemin de la carte (index à partir de 0):
 
@@ -79,7 +85,11 @@ sequenceDiagram
 - un index invalide: repli sur un chemin actif au hasard, avec un log `WARN`
 - l'index d'un chemin inactif: l'ennemi n'apparaît pas (log `ERROR`)
 
-À la première rencontre d'un ennemi, `ProgressionManager` le marque comme vu et l'interface affiche le popup de nouvel ennemi.
+:::caution[Spawn impossible]
+Quand la scène de l'ennemi est introuvable, que la carte n'a aucun chemin actif ou que `spawner` désigne un chemin inactif, l'étape met `count` à 0 et se termine, avec un log `ERROR`. Les ennemis restants de l'étape sont perdus, mais la vague ne reste pas bloquée à attendre des ennemis qui ne peuvent pas apparaître.
+:::
+
+À la première rencontre d'un ennemi, après un spawn réussi seulement, `ProgressionManager` le marque comme vu (`mark_enemy_seen`) et l'interface affiche le popup de nouvel ennemi ([Interface](/documentation/development/guides/ui/)).
 
 ### Wait
 
@@ -87,18 +97,18 @@ sequenceDiagram
 {"wait_s": 3}
 ```
 
-Le premier `exec()` mémorise l'heure de départ, l'étape se termine quand `wait_s` secondes se sont écoulées.
+Le premier `exec()` mémorise `ILevel.elapsed_time`, l'étape se termine quand `wait_s` secondes de temps de jeu se sont écoulées. L'attente est donc gelée par une pause ([Niveau et carte](/documentation/development/models/level-model/#temps-de-jeu)).
 
 ## Exemple
 
-Une vague qui attend 1 seconde, puis fait apparaître 5 ennemis `ene.01` sur le chemin 0:
+Une vague qui attend 1 seconde, puis fait apparaître 5 zombies de base sur le chemin 0:
 
 ```json
 {
   "waves": [
     [
       {"wait_s": 1},
-      {"enemy_id": "ene.01", "count": 5, "spawner": 0}
+      {"enemy_id": "default_zombie", "count": 5, "spawner": 0}
     ]
   ]
 }
@@ -107,8 +117,8 @@ Une vague qui attend 1 seconde, puis fait apparaître 5 ennemis `ene.01` sur le 
 ## Dépendances
 
 - `ILevel` pilote les étapes et les transitions.
+- `StatsDB` fournit la scène de l'ennemi (`get_enemy_scene`).
 - `EnemySpawner` place l'ennemi sur le chemin.
-- `ScenesLoader` met en cache les scènes d'ennemis déjà chargées (`enemies_scene`).
 - `ProgressionManager` retient les ennemis vus.
 
 ## Ajouter un type d'étape
