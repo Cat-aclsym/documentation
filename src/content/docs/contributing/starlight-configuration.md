@@ -42,7 +42,7 @@ Le build échoue si un lien interne ou une ancre est cassé.
 
 Fusionner une modification sur la branche `main` déclenche automatiquement le déploiement via GitHub Actions.
 
-Le workflow de déploiement se trouve dans [.github/workflows/upload-pages-artifact.yml](https://github.com/Cat-aclsym/documentation/blob/main/.github/workflows/upload-pages-artifact.yml).
+Le workflow de déploiement se trouve dans [.github/workflows/deploy.yml](https://github.com/Cat-aclsym/documentation/blob/main/.github/workflows/deploy.yml).
 
 Il:
 
@@ -55,9 +55,11 @@ Il:
 
 - `astro.config.ts`: URL du site, base `/documentation`, barre latérale, lien d'édition, dernière mise à jour, intégration Mermaid et plugins (thème `lucode-starlight`, zoom d'images, validation des liens, `llms.txt`).
 - `src/content/docs/`: pages Markdown de la documentation. Chaque dossier est un groupe de la barre latérale : `introduction`, `setup`, `development/guides`, `development/models`, `development/user-flows` et `contributing`.
-- `src/assets/`: images référencées par les pages.
+- `src/assets/`: captures du jeu et images référencées par les pages.
+- `public/game/sprites/`: sprites du jeu en PNG sans perte (le WebP d'Astro les flouterait).
 - `src/components/Footer.astro`: ajoute la ligne de copyright au pied de page du thème.
-- `src/styles/custom.css`: couleurs d'accentuation, déclarées dans la couche `lucode` du thème.
+- `src/components/IconLinkCard.astro`: carte de lien avec une icône Starlight, le `LinkCard` de Starlight n'en ayant pas.
+- `src/styles/custom.css`: déclare l'ordre des couches `starlight, lucode` pour que le thème l'emporte, puis la couleur d'accentuation, les liens verts, les icônes de la barre latérale et la galerie de l'accueil, hors couche.
 
 ## Workflow
 
