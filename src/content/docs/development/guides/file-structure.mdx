@@ -14,14 +14,14 @@ import {FileTree} from '@astrojs/starlight/components';
 
 - addons/ plugins externes (Dialogic), à modifier seulement pour un travail sur le plugin
 - assets/
-  - audio/
+  - audio/ musique (`music/`)
   - environment/
   - gameplay/
-  - narrative/ timelines et personnages Dialogic
+  - narrative/ timelines `<nom>.<locale>.dtl`, `character1.dch` et `style.tres`
   - resources/ thèmes, shaders et configs/stats.json
   - translations/ translations.csv
   - ui/
-- resources/ données JSON (levels, arcs, challenges, armory)
+- resources/ données JSON (levels, challenges, armory)
 - scenes/
   - gameplay/
     - entities/ enemy, tower, trap, building, building_placement, bullet
@@ -35,18 +35,20 @@ import {FileTree} from '@astrojs/starlight/components';
   - utilities/ console, sound_entity
   - watcher/ widget de debug
   - main.tscn scène principale
-  - DebugScene.tscn
 - scripts/
   - autoloads/
   - camera/
   - challenges/
   - commands/
   - log/
+  - narrative/
   - progression/
   - state_machine/
   - ui/
   - utilities/
   - wave/
+- tools/ vérifications headless (`check_scripts.tscn`, `smoke_test.tscn`)
+- default_bus_layout.tres bus audio `Music`, `SFX` et `UI`
 - export_presets.cfg
 - project.godot
 
@@ -60,22 +62,23 @@ Le workflow CI est dans `.github/workflows/build.yml`.
 
 | Dossier | Contenu |
 |---|---|
-| `assets/` | Ressources artistiques et audio. Les nouveaux fichiers sont nommés en `snake_case` (certains existants ne le sont pas, par exemple `Button Close.svg`). |
-| `assets/narrative/` | Timelines `.dtl` (une par langue) et personnages, voir [Dialogic](/documentation/development/guides/dialogic-guide/). |
+| `assets/` | Ressources artistiques et audio. Les noms de fichiers sont en `snake_case`. |
+| `assets/narrative/` | Timelines `<nom>.<locale>.dtl` (une par langue), `character1.dch` et `style.tres`, voir [Dialogic](/documentation/development/guides/dialogic-guide/). |
 | `assets/resources/` | Thèmes, shaders et `configs/stats.json`, la source des stats ([Statistiques](/documentation/development/models/stats-model/)). |
-| `resources/` | `levels/` (`lev.01.json` à `lev.08.json`), `arcs/` (`arc.01.json`, `arc.02.json`), `challenges/` (`cha.XXX.json`) et `armory/armory.json`. |
+| `assets/translations/` | `translations.csv` (clés `TOWER.*`, `TRAP.*`, `ENEMY.*`, `LEVEL.LEV_0X.*`, `ARC.0X.TITLE`, `STAT.*`, `TILE.*`, `CHALLENGE.CHA.*`), voir [Traductions](/documentation/development/guides/i18n/). |
+| `resources/` | `levels/` (`lev.01.json` à `lev.08.json`), `challenges/` (`cha.XXX.json`) et `armory/armory.json`. Il n'y a pas de dossier `arcs/`: les arcs sont dans `level_selection_menu.tscn` ([Créer un niveau](/documentation/development/guides/levels-and-arcs/#arcs)). |
 | `scenes/` | Les `.tscn` par domaine. Un script spécifique à une scène reste à côté d'elle. |
 | `scripts/` | Logique transverse non attachée à une scène unique. |
 | `scripts/autoloads/` | Services globaux, voir [Architecture](/documentation/development/guides/architecture/). |
 | `scripts/challenges/` | Classe `Challenge` et logiques dans `logics/cha.XXX.gd`. |
 | `scripts/commands/` | Commandes de la console, voir [Console de debug](/documentation/development/guides/console/). |
-
-La scène `scenes/narrative/example/` lance une timeline `example` qui n'existe pas dans le projet.
+| `scripts/narrative/` | `Narrative` (`narrative.gd`): choix de la timeline par langue et dialogues joués une seule fois. |
+| `tools/` | Scènes et scripts lancés en ligne de commande sans interface: `check_scripts` et `smoke_test`. Exclu des exports. |
 
 ## Fichiers générés ou ignorés par Git
 
 - `log/` : écrit dans `res://log`, donc seulement depuis l'éditeur ([Logs](/documentation/development/guides/logger/)).
-- `*.translation` : générés à l'import, y compris `dialogic_translations.en.translation` et `dialogic_translations.fr.translation` à la racine, déclarés dans `project.godot`.
+- `*.translation` : générés à l'import à partir de `translations.csv`, déclarés dans `project.godot`. Dialogic ne génère pas de fichiers de traduction: les timelines sont une par langue.
 - `exports/` et `.godot/`.
 
 ## Où créer quoi
@@ -83,7 +86,8 @@ La scène `scenes/narrative/example/` lance une timeline `example` qui n'existe 
 - Entité, menu ou widget avec une scène : `scenes/...`
 - Service global : `scripts/autoloads/...`
 - Commande de console : `scripts/commands/...`
-- Niveau, arc ou challenge : `resources/...`
+- Niveau ou challenge : `resources/...` (les arcs sont dans `level_selection_menu.tscn`)
 - Stats d'une tour, d'un piège ou d'un ennemi : `assets/resources/configs/stats.json`
+- Nom affiché d'une tour, d'un piège ou d'un ennemi : `assets/translations/translations.csv`
 
 Les étapes pour ajouter un ennemi, une tour, un piège, un niveau, un défi ou une commande sont dans [Recettes](/documentation/development/guides/recipes/).

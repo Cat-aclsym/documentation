@@ -41,27 +41,27 @@ sequenceDiagram
 
 ## BuildPlacement
 
-`BuildPlacement` (`scenes/gameplay/entities/building_placement/`) s'enregistre dans `Global.cursor` à son `_ready()`. Sa machine à états `CursorState` a trois valeurs:
+`BuildPlacement` (`scenes/gameplay/entities/building_placement/`) s'enregistre dans `Global.cursor` à son `_ready()`. Il ignore les entrées pendant une pause (`Global.paused`). Sa machine à états `CursorState` a deux valeurs:
 
 | État | Signal émis à l'entrée | Usage |
 |---|---|---|
 | `IDLE` | `trigger_state_idle` | Repos, curseur masqué, boutons des tours actifs |
 | `BUILD` | `trigger_state_build` | Aperçu d'un bâtiment, boutons des tours désactivés |
-| `UPGRADE` | `trigger_state_upgrade` | Aucun code du projet n'y passe, son traitement est vide |
 
 - `change_state(new_state, args)`: passer en `BUILD` exige `args = [bâtiment]` et un état courant `IDLE` (sinon un `WARN` est loggé). Un nouvel appel en `BUILD` remplace l'aperçu.
 - `add_invalid_cell(tm_pos)` et `remove_invalid_cell(tm_pos)`: marquent une tuile occupée ou libre.
 - `building_placed(building: IBuilding)`: signal émis après chaque pose.
+- `tm_ref: TileMapLayer`: le calque racine de la carte, qui sert aux conversions cellule/position.
 - Au démarrage de l'aperçu, le curseur se place sur la tuile valide la plus proche du centre de l'écran.
 - Sur ordinateur, un clic gauche déplace le curseur et un clic droit annule. Sur mobile, un toucher déplace le curseur. Un glisser ne le déplace pas.
 
-`BuildPlacement` est le nœud `Controller` de `i_map.tscn`, donc chaque carte en contient un. `IMap` lui donne sa `TileMap` (`tm_ref`) à son `_ready()`.
+`BuildPlacement` est le nœud `Controller` de `i_map.tscn`, donc chaque carte en contient un. `IMap` lui donne sa `TileMapLayer` racine (`tm_ref`) à son `_ready()`.
 
 ## IBuilding
 
 | Membre | Rôle |
 |---|---|
-| `cost: int` | Coût d'achat (tours: rempli depuis `StatsDB`, pièges: inspecteur) |
+| `cost: int` | Coût d'achat, rempli depuis `StatsDB` (`base.cost`) pour les tours et les pièges |
 | `enum BuildingKind { TOWER, TRAP }` | Type de bâtiment |
 | `get_building_kind()` | À surcharger par `ITower` et `ITrap` |
 | `enter_build_preview()` | Appelé quand l'aperçu démarre |
@@ -79,27 +79,38 @@ L'aperçu est teinté (`COLOR_OK` ou `COLOR_KO`) et le bouton de validation se d
 | Pièces du niveau >= `cost` | <Icon name="approve-check" class="inline-icon" /> oui | <Icon name="approve-check" class="inline-icon" /> oui |
 | Tuile libre (pas dans les cellules invalides) | <Icon name="approve-check" class="inline-icon" /> oui | <Icon name="approve-check" class="inline-icon" /> oui |
 | Cellule peinte dans `IMap.placement_tilemap` | <Icon name="approve-check" class="inline-icon" /> oui | <Icon name="close" class="inline-icon" /> non |
-| À moins de 12,5 px d'un chemin | refusé | requis |
+| Cellule hors de `IMap.get_blocked_cells()` (décorations) | <Icon name="approve-check" class="inline-icon" /> oui | non vérifié |
+| À moins de 12,5 px d'un chemin (`IMap.is_cell_on_path`) | refusé | requis |
 
 ## Tuiles de placement
 
-Chaque carte (`IMap`) porte une `TileMap` invisible, `placement_tilemap`, peinte par le level designer: seules les cellules peintes acceptent une tour. `IMap.is_tile_buildable(coords)` ajoute l'exclusion des tuiles trop proches d'un chemin.
+Les cartes sont faites de `TileMapLayer` (`TileMapPlains`, `TileMapProps`, `TileMapPlacement`, `TileMapDebug`). Chaque carte (`IMap`) porte un calque invisible, `placement_tilemap`, peint par le level designer: seules les cellules peintes acceptent une tour. `IMap.is_tile_buildable(coords)` ajoute l'exclusion des cellules bloquées par une décoration et des tuiles trop proches d'un chemin. `BuildPlacement` applique les mêmes règles.
 
-La commande `debug-tower-placement` affiche cette surcouche ([Outils de debug](/documentation/development/guides/debugging/)).
+La commande `debug_tower_placement` affiche cette surcouche ([Outils de debug](/documentation/development/guides/debugging/)).
 
-Le script `MapPlacementBlocker` (un `Sprite2D`) calcule les cellules qu'une décoration devrait bloquer (`get_blocked_cells(tilemap)`), mais aucun code du projet n'appelle cette méthode.
+### Bloqueurs de placement
+
+`MapPlacementBlocker` (un `Sprite2D` placé sur une décoration de la carte) bloque les cellules qu'elle recouvre. `IMap.get_blocked_cells()` collecte les cellules de tous les `MapPlacementBlocker` de la carte une seule fois (`MapPlacementBlocker.get_blocked_cells(tilemap)`, les décorations ne bougent pas) et `is_tile_buildable()` ainsi que la validation de `BuildPlacement` les refusent. Exports d'un bloqueur:
+
+| Export | Rôle |
+|---|---|
+| `use_sprite_bounds` | Bloque toute cellule dont le centre est dans le rectangle du sprite (taille de la texture autour de l'origine du nœud, l'échelle est ignorée) |
+| `bounds_inset_px` | Réduit ce rectangle de chaque côté (0 à 64 px, 12 par défaut) pour autoriser le placement plus près des bords |
+| `blocked_tile_offsets` | Cellules supplémentaires, en décalage depuis la cellule d'ancrage du sprite |
 
 ### Tuiles spéciales
 
-`IMap` génère des tuiles bonus et malus au chargement de la carte, dans `special_tiles` (position vers dictionnaire de modificateurs):
+`SpecialTile` (`special_tile.gd`) est la classe abstraite (`@abstract`) des tuiles qui modifient les tours posées dessus. `BonusTile` et `MalusTile` en héritent et implémentent `_apply_configuration()`, `_get_particles()` et `_setup_layers()` (teinte du sol et des particules). La teinte d'une case est lue dans le modificateur que `IMap` a généré pour sa cellule.
+
+`IMap` génère des tuiles bonus et malus au chargement de la carte, dans `special_tiles` (position vers dictionnaire de modificateurs: la stat et son multiplicateur, plus `color`, `label` traduit `TILE.<BONUS|MALUS>.<STAT>` et `is_malus`). Les cases sont posées sur un calque `TileMapLayer` créé à l'exécution (`Special Bonus`):
 
 - Le nombre visé de tuiles bonus est `special_tile_percentage` (2 % par défaut) des tuiles constructibles, avec un minimum de 1 quand le pourcentage n'est pas nul.
 - Les tuiles bonus sont à 2 tuiles au plus d'un chemin et à au moins 2 tuiles les unes des autres. Les tuiles à moins de 2 tuiles de l'indice de placement du tutoriel sont exclues.
 - Si les tuiles éligibles ou l'espacement ne suffisent pas pour atteindre ce nombre, la génération s'arrête avec un log `WARN` et la carte n'a aucune tuile spéciale.
-- Les bonus alternent entre `fire_rate x1.3`, `damage x1.3` et `reward_multiplier x1.5`.
+- Les modificateurs viennent de la section `tile_modifiers` de `stats.json` (`StatsDB.get_tile_modifiers("bonus")` et `("malus")`) et sont attribués dans l'ordre déclaré, en boucle. Aujourd'hui, les bonus alternent entre `fire_rate x1.3`, `damage x1.3` et `reward_multiplier x1.5`.
 - Les tuiles malus sont les cases voisines d'une tuile bonus parmi les cases éligibles. Elles alternent entre `fire_rate x0.7`, `damage x0.7` et `shoot_range x0.7`.
 
-Les tuiles apparaissent avec une animation (`play_special_tiles_intro_sequence()`). Un bâtiment qui supporte un modificateur (`ITower.apply_special_modifier(modifiers)`) le reçoit à l'aperçu puis à la pose.
+Les tuiles apparaissent avec une animation (`play_special_tiles_intro_sequence()`). Un bâtiment qui supporte un modificateur (`ITower.apply_special_modifier(modifiers)`) le reçoit à l'aperçu puis à la pose, et la tour recalcule ses stats depuis ses upgrades ([Tour](/documentation/development/models/tower-model/#calcul-des-stats)).
 
 ## Menu de construction
 
@@ -118,8 +129,8 @@ Pour ajouter un bâtiment, voir [Recettes](/documentation/development/guides/rec
 Un appui sur une tour active (hors pause) ouvre `RadialTowerUpgradeMenu` avec quatre boutons: vendre, améliorer, infos et fermer.
 
 - **Vendre**: `ITower.sell_tower()` rend `sell_price` en pièces et libère la tuile. `sell_price` vaut la moitié du coût, plus la moitié du prix de chaque upgrade achetée.
-- **Améliorer**: ouvre `TowerUpgradeMenu`, qui met le jeu en pause. Il liste une ou deux options d'upgrade (deux onglets), les changements de stats en `StatBar` et le prix. `tower.start_upgrade(upgrade_id)` débite les pièces et passe la tour en `UPGRADING`; `apply_upgrade()` applique ensuite les changements.
-- **Infos**: ouvre `TowerInfo` avec les stats de la tour.
+- **Améliorer**: ouvre `TowerUpgradeMenu`, qui met le jeu en pause avec la source `upgrade_menu` (le temps est gelé, [Pause par source](/documentation/development/guides/architecture/#pause-par-source)). Il liste une ou deux options d'upgrade (deux onglets), les changements de stats en `StatBar` et le prix. `tower.start_upgrade(upgrade_id)` débite les pièces et passe la tour en `UPGRADING`; `apply_upgrade()` applique ensuite les changements.
+- **Infos**: ouvre `TowerInfo` avec les stats de la tour, avec la source de pause `tower_info`.
 
 Quand `available_upgrade_ids` est vide, le bouton d'amélioration est grisé et affiche `TOWER.UPGRADE.MAX`. Les upgrades viennent de `stats.json` ([Statistiques](/documentation/development/models/stats-model/)).
 
