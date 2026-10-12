@@ -7,7 +7,7 @@ sidebar:
 ---
 
 Godot peut être utilisé avec certains éditeurs de code externes. Cette page explique comment le mettre en place pour VSCode ou un IDE Jetbrains.
-Voir aussi la [documentation Godot sur les éditeurs externes](https://docs.godotengine.org/en/4.4/tutorials/editor/external_editor.html).
+Le projet cible Godot 4.7.2. L'avertissement `untyped_declaration` est activé dans `project.godot` ([Configurer l'éditeur Godot](/documentation/setup/godot-configuration/#paramètres-du-projet)): toute variable, constante ou paramètre sans type explicite est signalé. Voir aussi la [documentation Godot sur les éditeurs externes](https://docs.godotengine.org/en/4.7/tutorials/editor/external_editor.html).
 
 ## VSCode
 
@@ -24,7 +24,7 @@ Voir aussi la [documentation Godot sur les éditeurs externes](https://docs.godo
 
 1. Créer une Run Configuration de type Godot.
 2. Inscrire le chemin complet de `godot.exe`.
-3. _(optionnel)_ Ajouter des [paramètres supplémentaires](https://docs.godotengine.org/en/4.4/tutorials/editor/command_line_tutorial.html), par exemple `-m` pour lancer le jeu en fenêtre maximisée.
+3. _(optionnel)_ Ajouter des [paramètres supplémentaires](https://docs.godotengine.org/en/4.7/tutorials/editor/command_line_tutorial.html), par exemple `-m` pour lancer le jeu en fenêtre maximisée.
 
 ## Configuration de Godot
 

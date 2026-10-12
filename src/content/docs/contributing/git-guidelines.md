@@ -11,6 +11,7 @@ sidebar:
 
 - Les messages de commits sont en anglais, au présent, doivent être courts et concis.
 - Un message tient sur une seule ligne, sans corps ni référence de ticket.
+- Les commits sont signés (`git commit -S`).
 
 **type(scope): Description.**
 
@@ -47,6 +48,10 @@ fix(tower-gui): Fix tower name not being displayed correctly.
 
 ```
 refactor(tutorial): Simplify signal connections in TutorialManager.
+```
+
+```
+chore(console): Rename the tower placement debug command to snake_case.
 ```
 
 ### Branches :
@@ -87,6 +92,7 @@ Les versions publiées sont marquées par des tags (`d0.1`, `d0.2`, `d0.3`).
 Quand une branche est prête à être fusionnée, une pull request doit être créée.
 
 - Les pull requests sont écrites en anglais, doivent être claires et détaillées.
+- Le job `check` de la [CI](/documentation/setup/ci/) (compilation des scripts et smoke test) doit être vert. Les mêmes commandes se lancent en local ([Vérifications headless](/documentation/development/guides/debugging/#vérifications-headless)).
 - Les développeurs travaillant sur la branche doivent être assignés à la pull request.
 - Le chef technique doit être assigné en tant que reviewer.
 - Les pull requests doivent être approuvées par le chef technique avant d'être fusionnées.

@@ -13,6 +13,14 @@ sidebar:
 
 Un script spécifique à une scène reste à côté d'elle dans `scenes/...`, un script transverse va dans `scripts/...` et un service global dans `scripts/autoloads/...`. Voir [Structure du projet](/documentation/development/guides/file-structure/).
 
+### Comment vérifier que le projet compile et démarre?
+
+Trois commandes headless, les mêmes que la CI: `godot --headless --path . --import`, puis `tools/check_scripts.tscn` (compile tous les scripts) et `tools/smoke_test.tscn` (charge le menu principal puis les 8 niveaux). Voir [Vérifications headless](/documentation/development/guides/debugging/#vérifications-headless).
+
+### Un uid ou un chemin renommé n'est plus trouvé, que faire?
+
+Un `.godot/uid_cache.bin` périmé associe des uids à d'anciens chemins. Le déplacer hors de `.godot/` puis relancer l'import: [Cache d'uid périmé](/documentation/development/guides/debugging/#cache-duid-périmé).
+
 ### Comment ajouter une commande de debug?
 
 Créer un script dans `res://scripts/commands/` qui étend `ICommand`: [Créer une commande](/documentation/development/guides/console-commands/).

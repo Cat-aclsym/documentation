@@ -1,6 +1,6 @@
 ---
-title: Intégration continue (APK Android)
-description: Les étapes du workflow GitHub Actions qui construit, patche et signe l'APK, et les secrets requis
+title: Intégration continue
+description: Les jobs check et export du workflow GitHub Actions, la signature de l'APK et les secrets requis
 sidebar:
   label: Intégration continue
   order: 7
@@ -8,20 +8,48 @@ sidebar:
 
 import {Steps} from '@astrojs/starlight/components';
 
-Le workflow `Build Cat'aclysm Android APK` (`.github/workflows/build.yml` du projet Godot) construit l'APK sur `ubuntu-latest` à chaque push sur `main`, `develop` et `feature/workflow`. L'export manuel est décrit dans [Exporter le jeu](/documentation/setup/exporting/).
+Le workflow `Build` (`.github/workflows/build.yml` du projet Godot) vérifie le projet puis exporte le jeu. Il tourne sur `ubuntu-24.04` avec Godot 4.7.2 en headless (variable `GODOT_VERSION`), à chaque push sur `main` et `develop`, à chaque pull request vers ces branches, et à la demande (`workflow_dispatch`). Un nouveau run annule le run en cours de la même branche (`concurrency`), et le token n'a que la permission `contents: read`.
 
-## Étapes
+Les actions sont épinglées par leur SHA de commit (`actions/checkout`, `actions/setup-java`, `actions/cache`, `actions/upload-artifact`, `chickensoft-games/setup-godot`), avec la version en commentaire.
+
+```mermaid
+flowchart LR
+	A[push, pull request ou dispatch] --> B[check]
+	B -->|pas une pull request| C[export]
+	C --> D[Cataclysm-windows]
+	C --> E[Cataclysm-android]
+```
+
+## Job `check`
+
+Il tourne à chaque déclenchement, pull request comprise (15 minutes maximum).
 
 <Steps>
 
-1. **Outils**: Java 17 (Temurin) et Godot 4.4.0 en headless (`chickensoft-games/setup-godot`, sans .NET). Les templates d'export 4.4-stable sont téléchargés et placés dans `~/.local/share/godot/export_templates/4.4.stable`.
-2. **Keystore**: le secret `KEYSTORE_BASE64` est décodé en `~/Cataclysm.keystore`, puis ses informations sont affichées avec `keytool` (le résultat n'arrête pas le workflow).
-3. **Signature dans le preset**: un script Python remplace `package/signed=true` dans `export_presets.cfg` par les chemins du keystore, l'utilisateur `Cataclysm` et le mot de passe du secret `KEYSTORE_PASSWORD`. Il échoue si cette ligne est absente du preset.
-4. **Import**: `godot --headless --import`, puis un passage en éditeur headless pour forcer l'import des ressources.
-5. **Export**: `godot --headless --export-release "Android" exports/Cataclysm.apk`. La commande est lancée deux fois, la première avec `|| true` et la seconde sans.
-6. **Patch Firebase**: `apktool` (2.9.3) décode l'APK, ajoute à la première activité du manifeste l'intent filter `com.google.intent.action.TEST_LOOP` et la meta-data `com.google.test.loops` (valeur 2), retire la référence `themed_icon` de `public.xml` et supprime `res/values-anydpi-v26/`, puis reconstruit l'APK (`Cataclysm_unsigned.apk`). Les scénarios sont dans [Firebase Test Lab](/documentation/setup/android-test-lab/).
-7. **Signature**: `apksigner` (build-tools 34.0.0) signe avec l'alias `Cataclysm` et écrit `exports/Cataclysm.apk`.
-8. **Artefact**: `exports/Cataclysm.apk` est publié sous le nom `Cataclysm-apk`.
+1. **Godot**: `chickensoft-games/setup-godot` installe Godot 4.7.2 sans .NET (`use-dotnet: false`).
+2. **Cache d'import**: `actions/cache` restaure et sauvegarde seulement `.godot/imported`, avec la clé `godot-import-<OS>-<version>-<hash des *.import et de project.godot>` et une clé de repli sur la version. `.godot/uid_cache.bin` n'est pas mis en cache: restauré depuis une clé de repli, il associerait des uids à des chemins renommés.
+3. **Import**: `godot --headless --path . --import`.
+4. **Scripts**: `godot --headless --path . --quit-after 3000 res://tools/check_scripts.tscn` compile tous les scripts, le job échoue si un script ne compile pas.
+5. **Smoke test**: `godot --headless --path . --quit-after 6000 res://tools/smoke_test.tscn` charge le menu principal puis les 8 niveaux, le job échoue sur toute erreur moteur.
+
+</Steps>
+
+Le fonctionnement des deux scènes est décrit dans [Vérifications headless](/documentation/development/guides/debugging/#vérifications-headless). Les mêmes commandes se lancent en local.
+
+## Job `export`
+
+Il dépend de `check` et ne tourne pas sur les pull requests (30 minutes maximum).
+
+<Steps>
+
+1. **Outils**: Java 17 (Temurin) et Godot 4.7.2 avec les templates d'export (`include-templates: true`).
+2. **Import**: même cache `.godot/imported` et même commande d'import que `check`.
+3. **Windows**: `godot --headless --path . --export-release "Windows Desktop" exports/windows/Cataclysm.exe`.
+4. **Keystore**: le secret `KEYSTORE_BASE64` est décodé en `$RUNNER_TEMP/Cataclysm.keystore` (droits `600`). S'il est vide, l'étape publie une annotation `notice` et l'APK n'est pas signé avec le keystore de release.
+5. **Android signé**: avec le keystore, `godot --headless --path . --export-release "Android" exports/android/Cataclysm.apk`. Godot lit sa signature dans trois variables d'environnement: `GODOT_ANDROID_KEYSTORE_RELEASE_PATH` (le keystore décodé), `GODOT_ANDROID_KEYSTORE_RELEASE_USER` (`Cataclysm`) et `GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD` (le secret `KEYSTORE_PASSWORD`). Le preset n'est pas modifié.
+6. **Android sans secret**: sans keystore, `godot --headless --path . --export-debug "Android" exports/android/Cataclysm.apk` exporte avec le keystore debug.
+7. **Vérification**: avec les derniers `build-tools` du SDK Android du runner, `apksigner verify` contrôle la signature et `zipalign -c -P 16 4` contrôle l'alignement des pages sur 16 Ko. Le job échoue si l'un des deux échoue.
+8. **Artefacts**: `Cataclysm-windows` (`exports/windows/Cataclysm.exe`) et `Cataclysm-android` (`exports/android/Cataclysm.apk`), conservés 14 jours. Le job échoue si un fichier manque (`if-no-files-found: error`).
 
 </Steps>
 
@@ -29,7 +57,7 @@ Le workflow `Build Cat'aclysm Android APK` (`.github/workflows/build.yml` du pro
 
 | Secret | Contenu |
 |---|---|
-| `KEYSTORE_BASE64` | Keystore de signature encodé en base64 |
-| `KEYSTORE_PASSWORD` | Mot de passe du keystore, utilisé pour le preset et `apksigner` |
+| `KEYSTORE_BASE64` | Keystore de signature encodé en base64 (alias `Cataclysm`) |
+| `KEYSTORE_PASSWORD` | Mot de passe du keystore, transmis à Godot par `GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD` |
 
-La CI ne construit que l'APK Android: le preset Windows n'est pas exporté.
+Le workflow ne produit que des APK: l'AAB du Play Store n'est pas possible avec un export sans Gradle ([Exporter le jeu](/documentation/setup/exporting/#format-apk-et-aab)).

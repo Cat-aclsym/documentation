@@ -10,7 +10,7 @@ import {Steps} from '@astrojs/starlight/components';
 ## Prérequis
 
 - Installer [Git](https://git-scm.com/downloads)
-- Installer [Godot 4.4](https://godotengine.org/download), en version standard (le projet est en GDScript, la version .NET n'est pas nécessaire). Le projet utilise le moteur de rendu Forward Plus.
+- Installer [Godot 4.7.2](https://godotengine.org/download), en version standard (le projet est en GDScript, la version .NET n'est pas nécessaire). La version est celle de `config/features` dans `project.godot` (`"4.7"`) et de la CI. Le projet utilise le moteur de rendu Forward Plus.
 
 ## Récupérer le projet
 
@@ -25,6 +25,18 @@ import {Steps} from '@astrojs/starlight/components';
 Dans l'éditeur, le projet s'appelle `Cat'aclsym` (nom défini dans `project.godot`).
 
 Dialogic est fourni dans le dépôt (`addons/dialogic/`) : il n'y a rien d'autre à installer.
+
+## Vérifier l'installation
+
+Depuis la racine du projet, avec l'exécutable Godot 4.7.2 (`godot`) dans le `PATH`:
+
+```bash
+godot --headless --path . --import
+godot --headless --path . --quit-after 3000 res://tools/check_scripts.tscn
+godot --headless --path . --quit-after 6000 res://tools/smoke_test.tscn
+```
+
+Le premier import génère le cache `.godot/` et les fichiers `assets/translations/translations.*.translation` (ignorés par Git). Les deux scènes de `tools/` sont les mêmes vérifications que la CI: [Vérifications headless](/documentation/development/guides/debugging/#vérifications-headless).
 
 ## Étapes suivantes
 
