@@ -1,6 +1,6 @@
 ---
 title: Intégration continue
-description: Les jobs check et export du workflow GitHub Actions, la signature de l'APK et les secrets requis
+description: Les jobs check (scripts, smoke test, tests unitaires) et export du workflow GitHub Actions, la signature de l'APK et les secrets requis
 sidebar:
   label: Intégration continue
   order: 7
@@ -31,10 +31,12 @@ Il tourne à chaque déclenchement, pull request comprise (15 minutes maximum).
 3. **Import**: `godot --headless --path . --import`.
 4. **Scripts**: `godot --headless --path . --quit-after 3000 res://tools/check_scripts.tscn` compile tous les scripts, le job échoue si un script ne compile pas.
 5. **Smoke test**: `godot --headless --path . --quit-after 6000 res://tools/smoke_test.tscn` charge le menu principal puis les 8 niveaux, le job échoue sur toute erreur moteur.
+6. **Tests unitaires** (étape « Unit tests »): `godot --headless --path . -s res://addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests -c --ignoreHeadlessMode -rd res://reports` lance toutes les suites gdUnit4 de `tests/`. Un échec (code de sortie `100`), des nœuds orphelins (`101`) ou une erreur de script (`105`) font échouer le job.
+7. **Rapport de test**: si le job échoue, `actions/upload-artifact` publie `reports/` dans l'artefact `test-report` (14 jours, sans erreur si le dossier est absent).
 
 </Steps>
 
-Le fonctionnement des deux scènes est décrit dans [Vérifications headless](/documentation/development/guides/debugging/#vérifications-headless). Les mêmes commandes se lancent en local.
+Le fonctionnement des deux scènes est décrit dans [Vérifications headless](/documentation/development/guides/debugging/#vérifications-headless), celui des tests et de leurs codes de sortie dans [Tests](/documentation/development/guides/testing/). Les mêmes commandes se lancent en local.
 
 ## Job `export`
 

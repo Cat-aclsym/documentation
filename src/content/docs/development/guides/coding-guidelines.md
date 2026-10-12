@@ -53,7 +53,7 @@ Les sections de fonctions sont séparées par des commentaires. Le code existant
 Exemple:
 
 ```gdscript
-class_name EnemySpawner
+class_name ZombieSpawner
 extends Node
 
 const MAX_WAVE_DELAY: float = 10.0
@@ -155,4 +155,8 @@ Aucun script ne pose ou ne lit un drapeau de pause: `Global.request_pause(&"sour
 
 ## Vérifier avant de pousser
 
-`tools/check_scripts.tscn` compile tous les scripts du projet et `tools/smoke_test.tscn` charge les niveaux: [Vérifications headless](/documentation/development/guides/debugging/#vérifications-headless). La CI exécute les mêmes.
+`tools/check_scripts.tscn` compile tous les scripts du projet et `tools/smoke_test.tscn` charge les niveaux: [Vérifications headless](/documentation/development/guides/debugging/#vérifications-headless). Les suites gdUnit4 de `tests/` se lancent avec `GdUnitCmdTool.gd` ([Tests](/documentation/development/guides/testing/#lancer-les-tests)). La CI exécute les trois.
+
+## Tests
+
+Un changement de comportement ajoute ou met à jour une suite de `tests/` (fichier `test_<nom>.gd` dans le dossier qui reprend celui de la source). Les mêmes règles de style s'appliquent aux tests. Conventions d'écriture: [Tests](/documentation/development/guides/testing/#conventions).

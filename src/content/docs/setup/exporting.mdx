@@ -8,7 +8,7 @@ sidebar:
 
 import {Steps} from '@astrojs/starlight/components';
 
-Le projet contient deux presets d'export (`export_presets.cfg`): **Android** et **Windows Desktop**. Il n'existe pas de preset iOS ni Web. Les deux presets partagent le même filtre d'exclusion, `*.aseprite, *.md, *.txt, tools/*`: les sources Aseprite, les fichiers texte et les scènes de [vérification headless](/documentation/development/guides/debugging/#vérifications-headless) ne sont pas dans les exports. Les sorties vont dans `exports/`, dossier ignoré par Git.
+Le projet contient deux presets d'export (`export_presets.cfg`): **Android** et **Windows Desktop**. Il n'existe pas de preset iOS ni Web. Les deux presets partagent le même filtre d'exclusion, `*.aseprite, *.md, *.txt, tools/*, tests/*, addons/gdUnit4/*`: les sources Aseprite, les fichiers texte, les scènes de [vérification headless](/documentation/development/guides/debugging/#vérifications-headless) (`tools/`), les suites de [tests](/documentation/development/guides/testing/) (`tests/`) et le framework gdUnit4 ne sont pas dans les exports. Les sorties vont dans `exports/`, dossier ignoré par Git.
 
 ## Exporter pour Android
 

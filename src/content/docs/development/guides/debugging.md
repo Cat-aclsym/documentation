@@ -17,7 +17,7 @@ Les outils de debug dépendent tous de `Global.debug`, qui vaut `OS.has_feature(
 
 ## Vérifications headless
 
-Deux scènes de `tools/` vérifient le projet sans fenêtre. Elles sont exclues des exports (`tools/*` dans le filtre d'exclusion des presets) et la [CI](/documentation/setup/ci/) les lance dans cet ordre, après l'import:
+Deux scènes de `tools/` vérifient le projet sans fenêtre. Elles sont exclues des exports (`tools/*`, comme `tests/*` et `addons/gdUnit4/*`, dans le filtre d'exclusion des presets) et la [CI](/documentation/setup/ci/) les lance dans cet ordre, après l'import:
 
 ```bash
 godot --headless --path . --import
@@ -53,6 +53,10 @@ Un garde-fou (`FRAME_BUDGET`, 5500 images) termine le test en erreur avant la li
 ### Cache d'uid périmé
 
 Après un renommage ou un déplacement d'assets, `.godot/uid_cache.bin` peut associer des uids à d'anciens chemins: les scènes ne trouvent plus leurs ressources. Déplacer ce fichier hors de `.godot/` puis relancer l'import (`godot --headless --path . --import`) le régénère. La CI met seulement `.godot/imported` en cache pour la même raison ([Intégration continue](/documentation/setup/ci/#job-check)).
+
+### Tests unitaires et mesures
+
+Les suites gdUnit4 de `tests/` se lancent avec `GdUnitCmdTool.gd` (étape « Unit tests » de la CI). `tools/golden_run.tscn` (digest JSON déterministe d'un niveau, pour vérifier qu'un refactor ne change pas le comportement) et `tools/bench_combat.tscn` (médiane et écart-type du temps de script d'un combat chargé) servent aux refactors et aux optimisations. Tout est décrit dans [Tests unitaires et outils de mesure](/documentation/development/guides/testing/).
 
 ## Watcher
 

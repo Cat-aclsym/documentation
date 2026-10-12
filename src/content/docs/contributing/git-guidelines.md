@@ -92,7 +92,8 @@ Les versions publiées sont marquées par des tags (`d0.1`, `d0.2`, `d0.3`).
 Quand une branche est prête à être fusionnée, une pull request doit être créée.
 
 - Les pull requests sont écrites en anglais, doivent être claires et détaillées.
-- Le job `check` de la [CI](/documentation/setup/ci/) (compilation des scripts et smoke test) doit être vert. Les mêmes commandes se lancent en local ([Vérifications headless](/documentation/development/guides/debugging/#vérifications-headless)).
+- Le job `check` de la [CI](/documentation/setup/ci/) (compilation des scripts, smoke test et tests unitaires gdUnit4) doit être vert. Les mêmes commandes se lancent en local ([Vérifications headless](/documentation/development/guides/debugging/#vérifications-headless), [Tests](/documentation/development/guides/testing/#lancer-les-tests)).
+- Un changement de comportement s'accompagne d'un test dans `tests/` ([Tests](/documentation/development/guides/testing/)).
 - Les développeurs travaillant sur la branche doivent être assignés à la pull request.
 - Le chef technique doit être assigné en tant que reviewer.
 - Les pull requests doivent être approuvées par le chef technique avant d'être fusionnées.
