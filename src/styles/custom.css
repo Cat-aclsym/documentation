@@ -48,6 +48,39 @@
 		max-width: none;
 	}
 
+	.home-gallery {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+		gap: calc(var(--spacing) * 4);
+	}
+
+	.home-gallery a {
+		display: flex;
+		flex-direction: column;
+		gap: calc(var(--spacing) * 2);
+		margin: 0;
+		color: var(--foreground);
+		font-size: var(--sl-text-sm);
+		font-weight: 500;
+		text-decoration: none;
+	}
+
+	.home-gallery a:hover {
+		color: var(--sl-color-accent);
+	}
+
+	.home-gallery img {
+		width: 100%;
+		height: auto;
+		margin: 0;
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+	}
+
+	.home-gallery a:hover img {
+		border-color: var(--sl-color-accent);
+	}
+
 	/** Arc backgrounds are 1440x960 screenshots: keep them as thumbnails in tables. */
 	.sl-markdown-content td img[src*='/_astro/arc-'] {
 		width: 14rem;
