@@ -40,7 +40,7 @@ Le build échoue si un lien interne ou une ancre est cassé.
 
 ## Déploiement
 
-Fusionner une modification sur la branche `main` déclenche automatiquement le déploiement via GitHub Actions.
+Fusionner une modification sur la branche `main` déclenche automatiquement le déploiement via GitHub Actions. Il se relance aussi à la main depuis l'onglet Actions (**Run workflow**).
 
 Le workflow de déploiement se trouve dans [.github/workflows/deploy.yml](https://github.com/Cat-aclsym/documentation/blob/main/.github/workflows/deploy.yml).
 
