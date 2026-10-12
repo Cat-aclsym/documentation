@@ -53,7 +53,7 @@ export default defineConfig({
 			expressiveCode: {themes: ['github-light', 'dracula'], plugins: [pluginCollapsibleSections()]},
 			plugins: [
 				lucode({
-					navLinks: [{label: 'Documentation', link: `${base}/dashboard/`}],
+					navLinks: [{label: 'Documentation', link: '/dashboard/'}],
 					footerText: copyright,
 					/** Our Footer override wraps the theme's footer to add the copyright line on doc pages. */
 					warnOverrides: false,
