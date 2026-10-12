@@ -6,6 +6,8 @@ sidebar:
   order: 30
 ---
 
+import {Icon} from '@astrojs/starlight/components';
+
 Le joueur construit des bâtiments (`IBuilding`: tours et pièges) depuis le menu de construction. `BuildPlacement` affiche un aperçu, valide la tuile et pose le bâtiment. Les modèles [Tour](/documentation/development/models/tower-model/) et [Piège](/documentation/development/models/trap-model/) décrivent les bâtiments eux-mêmes.
 
 ```mermaid
@@ -74,9 +76,9 @@ L'aperçu est teinté (`COLOR_OK` ou `COLOR_KO`) et le bouton de validation se d
 
 | Règle | Tour | Piège |
 |---|---|---|
-| Pièces du niveau >= `cost` | oui | oui |
-| Tuile libre (pas dans les cellules invalides) | oui | oui |
-| Cellule peinte dans `IMap.placement_tilemap` | oui | non |
+| Pièces du niveau >= `cost` | <Icon name="approve-check" class="inline-icon" /> oui | <Icon name="approve-check" class="inline-icon" /> oui |
+| Tuile libre (pas dans les cellules invalides) | <Icon name="approve-check" class="inline-icon" /> oui | <Icon name="approve-check" class="inline-icon" /> oui |
+| Cellule peinte dans `IMap.placement_tilemap` | <Icon name="approve-check" class="inline-icon" /> oui | <Icon name="close" class="inline-icon" /> non |
 | À moins de 12,5 px d'un chemin | refusé | requis |
 
 ## Tuiles de placement

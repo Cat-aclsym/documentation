@@ -17,9 +17,10 @@ hero:
       variant: secondary
 ---
 
-import {Card, CardGrid, LinkCard} from '@astrojs/starlight/components';
+import {Card, CardGrid, Icon} from '@astrojs/starlight/components';
 import {Image} from 'astro:assets';
 import {ContainerSection} from 'lucode-starlight/components';
+import IconLinkCard from '../../components/IconLinkCard.astro';
 import levelSelection from '../../assets/home/level-selection.png';
 import buildMenu from '../../assets/home/build-menu.png';
 import armory from '../../assets/home/armory-selected.png';
@@ -30,10 +31,10 @@ import victory from '../../assets/home/victory.png';
 ## Par où commencer
 
 <CardGrid>
-	<LinkCard title="Présentation du jeu" description="Boucle de jeu, arcs, niveaux et systèmes principaux." href="/documentation/introduction/overview/" />
-	<LinkCard title="Installation" description="Cloner le projet et le lancer dans Godot 4.4." href="/documentation/introduction/installation/" />
-	<LinkCard title="Architecture" description="Autoloads, signaux et sources de données." href="/documentation/development/guides/architecture/" />
-	<LinkCard title="Ajouter du contenu" description="Recettes pour un ennemi, une tour, un défi ou un niveau." href="/documentation/development/guides/recipes/" />
+	<IconLinkCard icon="rocket" title="Présentation du jeu" description="Boucle de jeu, arcs, niveaux et systèmes principaux." href="/documentation/introduction/overview/" />
+	<IconLinkCard icon="download" title="Installation" description="Cloner le projet et le lancer dans Godot 4.4." href="/documentation/introduction/installation/" />
+	<IconLinkCard icon="database" title="Architecture" description="Autoloads, signaux et sources de données." href="/documentation/development/guides/architecture/" />
+	<IconLinkCard icon="add-document" title="Ajouter du contenu" description="Recettes pour un ennemi, une tour, un défi ou un niveau." href="/documentation/development/guides/recipes/" />
 </CardGrid>
 
 </ContainerSection>
@@ -45,19 +46,19 @@ import victory from '../../assets/home/victory.png';
 <div class="home-gallery">
 	<a href="/documentation/development/guides/levels-and-arcs/">
 		<Image src={levelSelection} alt="Sélection de niveau de l'arc 1 avec les défis du niveau 2" data-zoom-off />
-		<span>Sélection de niveau</span>
+		<span><Icon name="list-format" />Sélection de niveau</span>
 	</a>
 	<a href="/documentation/development/guides/building-placement/">
 		<Image src={buildMenu} alt="Menu de construction ouvert en jeu, avec les cartes des tours" data-zoom-off />
-		<span>Construction</span>
+		<span><Icon name="pencil" />Construction</span>
 	</a>
 	<a href="/documentation/development/models/armory-model/">
 		<Image src={armory} alt="Armurerie avec une amélioration sélectionnée et son panneau de description" data-zoom-off />
-		<span>Armurerie</span>
+		<span><Icon name="star" />Armurerie</span>
 	</a>
 	<a href="/documentation/development/user-flows/in-game/">
 		<Image src={victory} alt="Écran de victoire avec la vie restante et les défis du niveau" data-zoom-off />
-		<span>Fin de niveau</span>
+		<span><Icon name="approve-check-circle" />Fin de niveau</span>
 	</a>
 </div>
 
@@ -77,7 +78,7 @@ import victory from '../../assets/home/victory.png';
 	<Card title="Modèles" icon="puzzle">
 		[Niveau](/documentation/development/models/level-model/), [vagues](/documentation/development/models/wave-model/), [ennemis](/documentation/development/models/enemy-model/), [tours](/documentation/development/models/tower-model/), [pièges](/documentation/development/models/trap-model/) et [progression](/documentation/development/models/progression-model/).
 	</Card>
-	<Card title="Contribuer" icon="github">
+	<Card title="Contribuer" icon="code-branch">
 		[Branches Git](/documentation/contributing/git-workflow/), [conventions Git](/documentation/contributing/git-guidelines/) et [rédaction de la doc](/documentation/contributing/writing-guidelines/).
 	</Card>
 </CardGrid>
