@@ -26,17 +26,39 @@ Dans `ILevel`, le démarrage des vagues de `lev.01` est différé tant que le tu
 
 ### Objectifs
 
-Les timelines émettent des signaux Dialogic `tutorial:<objectif>` (par exemple `tutorial:open_build_menu`), et `TutorialManager` attend l'action correspondante du joueur (enum `Objective`):
+`TutorialManager` suit un objectif à la fois (enum `Objective`, `NONE` entre deux objectifs). Une timeline active un objectif par un signal Dialogic `tutorial:<objectif>`, puis le dialogue attend l'action du joueur.
 
-1. `OPEN_BUILD_MENU`: ouvrir le menu de construction
-2. `SELECT_BUILD_CARD`: choisir une carte de tour
-3. `PLACE_CONFIRM`: placer et confirmer la tour
-4. `SELECT_TOWER`: sélectionner la tour posée
-5. `PRESS_UPGRADE`: appuyer sur le bouton d'amélioration
-6. `CONFIRM_UPGRADE`: confirmer l'amélioration (flèche seule, sans dialogue)
-7. `PAUSE_AND_RESUME`: mettre en pause puis reprendre
+```mermaid
+stateDiagram-v2
+    [*] --> NONE
+    NONE --> OPEN_BUILD_MENU : signal open_build_menu
+    OPEN_BUILD_MENU --> NONE : menu de construction ouvert
+    NONE --> SELECT_BUILD_CARD : signal select_build_card
+    SELECT_BUILD_CARD --> NONE : curseur en état BUILD
+    NONE --> PLACE_CONFIRM : signal place_confirm
+    PLACE_CONFIRM --> NONE : bâtiment posé, vagues lancées
+    NONE --> SELECT_TOWER : 5 ennemis tués
+    SELECT_TOWER --> PRESS_UPGRADE : menu radial ouvert
+    PRESS_UPGRADE --> SELECT_TOWER : menu radial fermé
+    PRESS_UPGRADE --> CONFIRM_UPGRADE : menu d'amélioration ouvert
+    CONFIRM_UPGRADE --> SELECT_TOWER : menu fermé sans confirmer
+    CONFIRM_UPGRADE --> NONE : amélioration confirmée
+    NONE --> PAUSE_AND_RESUME : signal pause_and_resume
+    PAUSE_AND_RESUME --> NONE : pause puis reprise
+    NONE --> [*] : fin de la timeline
+```
 
-Une fois la tour posée, l'étape de sélection de la tour s'active après 5 kills.
+| Objectif | Action attendue |
+|---|---|
+| `OPEN_BUILD_MENU` | Ouvrir le menu de construction |
+| `SELECT_BUILD_CARD` | Choisir une carte de tour |
+| `PLACE_CONFIRM` | Placer et confirmer la tour. Le `TutorialPlacementHint` indique la tuile et `ILevel.start_wave_flow()` démarre les vagues |
+| `SELECT_TOWER` | Sélectionner la tour posée. Activé par `TutorialManager` après `KILLS_TO_ACTIVATE_UPGRADE` (5) ennemis tués depuis la pose, pas par un signal |
+| `PRESS_UPGRADE` | Appuyer sur le bouton d'amélioration |
+| `CONFIRM_UPGRADE` | Confirmer l'amélioration (flèche seule, sans dialogue) |
+| `PAUSE_AND_RESUME` | Mettre en pause puis reprendre |
+
+À la fin de la timeline, le tutoriel s'arrête et `ProgressionManager.mark_tutorial_completed()` est appelé.
 
 ## Introduction de l'armurerie
 

@@ -80,3 +80,5 @@ La scène `scenes/narrative/example/` lance une timeline `example` qui n'existe 
 - Commande de console : `scripts/commands/...`
 - Niveau, arc ou challenge : `resources/...`
 - Stats d'une tour, d'un piège ou d'un ennemi : `assets/resources/configs/stats.json`
+
+Les étapes pour ajouter un ennemi, une tour, un piège, un niveau, un défi ou une commande sont dans [Recettes](/documentation/development/guides/recipes/).

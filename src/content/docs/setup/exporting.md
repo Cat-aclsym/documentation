@@ -30,13 +30,4 @@ Ouvrir `Project` > `Export`, sélectionner le preset Windows Desktop puis export
 
 ## Build CI Android
 
-Le workflow GitHub Actions `Build Cat'aclysm Android APK` (`.github/workflows/build.yml` du projet Godot) construit l'APK à chaque push sur `main`, `develop` et `feature/workflow`.
-
-Il enchaîne:
-
-1. Installation de Java 17 (Temurin) et de Godot 4.4.0 en mode headless, puis des templates d'export 4.4.
-2. Décodage du keystore depuis le secret `KEYSTORE_BASE64`, et injection de ses identifiants (secret `KEYSTORE_PASSWORD`) dans `export_presets.cfg`.
-3. Import du projet et export de l'APK avec le preset `Android`.
-4. Injection dans l'APK de l'intent filter Firebase Game Loop (`com.google.intent.action.TEST_LOOP`) avec `apktool`.
-5. Signature de l'APK avec `apksigner` (build-tools 34.0.0).
-6. Publication de `exports/Cataclysm.apk` dans l'artefact `Cataclysm-apk`.
+Un workflow GitHub Actions construit, patche et signe l'APK à chaque push sur `main`, `develop` et `feature/workflow`. Les étapes et les secrets sont décrits dans [Intégration continue](/documentation/setup/ci/).

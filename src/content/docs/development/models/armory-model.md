@@ -15,6 +15,19 @@ L'armurerie est la méta-progression basée sur les étoiles gagnées via les d�
 
 La source de vérité est `res://resources/armory/armory.json`.
 
+```mermaid
+flowchart LR
+	D["Défis complétés (LevelData)"] -->|1 étoile chacun| E[Étoiles disponibles]
+	J["armory.json"] --> M[ArmoryManager]
+	E --> M
+	M -->|purchase_node| P["ProgressionData.armory_purchased"]
+	M -->|effets unlock| U["TowerData / TrapData unlocked"]
+	U --> C[BuildCard déverrouillée]
+	M -->|filter_upgrade_ids| G[Upgrades proposées par ITower]
+```
+
+Les étoiles gagnées sont le nombre total de défis complétés, tous niveaux confondus.
+
 ## Structure JSON
 
 ### Node

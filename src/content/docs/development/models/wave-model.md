@@ -8,6 +8,37 @@ sidebar:
 
 Un niveau est une liste de vagues (`Wave`), chacune étant une liste d'étapes (`WaveStep`). `ILevel` dépile les étapes une par une jusqu'à la fin de la vague, puis passe à la suivante. Le diagramme de classes est dans [Niveau et carte](/documentation/development/models/level-model/#diagramme-de-classes).
 
+## Du JSON à l'ennemi
+
+```mermaid
+sequenceDiagram
+	participant L as ILevel
+	participant W as Wave
+	participant S as WaveStep
+	participant P as WaveStepSpawn
+	participant E as EnemySpawner
+	participant I as IEnemy
+	participant C as ChallengeManager
+
+	L->>W: Wave.new(données JSON)
+	W->>S: WaveStep.build(étape)
+	S-->>W: WaveStepSpawn ou WaveStepWait
+	loop à chaque cycle de l'horloge
+		opt pas d'étape courante
+			L->>W: pop()
+			W-->>L: étape suivante
+		end
+		L->>P: exec()
+		P->>E: spawn_enemy(path, enemy)
+		E-->>L: ennemi compté (_on_enemy_spawn)
+	end
+	I->>I: die (mort ou fin de chemin)
+	I->>C: notify_enemy_died(enemy, damage_type)
+	I-->>L: die, ennemi décompté (_on_enemy_die)
+```
+
+`ILevel` exécute l'étape courante à chaque cycle jusqu'à ce que `is_over()` soit vrai, puis en dépile une autre. Le signal `die` est émis aussi bien à la mort qu'à l'arrivée au bout du chemin: `ChallengeManager.notify_enemy_died` est donc appelé dans les deux cas.
+
 ## Contrat public
 
 ### Wave

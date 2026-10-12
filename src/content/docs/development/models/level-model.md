@@ -1,6 +1,6 @@
 ---
 title: Niveau et carte (ILevel, IMap)
-description: Propriétés d'un niveau et de sa carte, stats de session, création d'un niveau et arcs
+description: Propriétés d'un niveau et de sa carte, stats de session, horloge et machine d'états du niveau
 sidebar:
   label: Niveau et carte
   order: 10
@@ -19,11 +19,7 @@ Propriétés exportées:
 - `arc_id`: arc auquel appartient le niveau (`arc.XX`)
 - `map_scene`: scène de la map (`IMap`)
 
-Les niveaux sont composés de **vagues**, elles-mêmes composées d'**étapes**.
-
-**ILevel** utilise le nœud **Clock** afin d'exécuter son code métier à intervalle régulier, par défaut tous les **5 ticks** (*10 ticks = 1 seconde*).
-
-Les types d'étapes sont décrits dans [Vagues](/documentation/development/models/wave-model/).
+Les niveaux sont composés de **vagues**, elles-mêmes composées d'**étapes** ([Vagues](/documentation/development/models/wave-model/)). Les fichiers d'un niveau, les arcs et la création d'un niveau sont dans [Créer un niveau](/documentation/development/guides/levels-and-arcs/). Les états du niveau sont dans [Machine d'états](/documentation/development/models/state-machine/#états-dun-niveau).
 
 ## Diagramme de classes
 
@@ -110,45 +106,19 @@ Le signal `stats_updated` est émis après chaque changement de `coins` ou de `h
 
 Ces stats sont des stats de session (niveau en cours), distinctes de la sauvegarde (`ProgressionData`).
 
-## Créer un niveau "from scratch"
+## Horloge (Clock)
 
-Dans l'ordre :
+`Clock` (`scenes/gameplay/world/clock/clock.gd`) est un nœud enfant d'`ILevel` qui appelle des callbacks à intervalle régulier. Un tick dure `tick_rate` secondes (0,1 par défaut, donc 10 ticks = 1 seconde).
 
-### Map
+| Méthode | Rôle |
+|---|---|
+| `subscribe(callback, tick_count = 1) -> int` | Appelle `callback` tous les `tick_count` ticks, renvoie l'identifiant de l'abonnement |
+| `unsubscribe(id) -> bool` | Retire l'abonnement |
+| `start()` et `stop()` | Démarrent et arrêtent le `Timer` interne |
 
-1. Godot > Scenes > New inherited scene... > `res://scenes/gameplay/world/map/i_map.tscn`
-2. Sauvegarder la nouvelle map dans `res://scenes/gameplay/world/map/maps/arc.XX/map.XX.tscn` (exemples: `arc.01/map.01` à `arc.01/map.04`)
-3. Dessiner la map depuis la TileMapPlains
-4. Ajouter autant de node `Path2D` que nécessaire au node `Paths` puis dessiner les chemins
+`ILevel.start_wave_flow()` abonne `_process_tick` tous les 5 ticks (toutes les 0,5 s) puis démarre l'horloge. À chaque cycle, `_process_tick` exécute le callback de l'état courant de la machine à états. `ILevel` arrête l'horloge à la fin du niveau.
 
-### Level
-
-1. Godot > Scenes > New inherited scene... > `res://scenes/gameplay/world/level/i_level.tscn`
-2. Sauvegarder le niveau dans `res://scenes/gameplay/world/level/levels/`. Le nom du fichier doit être `<level_id>.tscn` (exemple: `lev.01.tscn`)
-3. Sélectionner le node `ILevel` nouvellement créé et configurer ses propriétés exportées. `map_scene` pointe vers la map, par exemple `res://scenes/gameplay/world/map/maps/arc.01/map.01.tscn` pour `lev.01`.
-
-### Waves
-
-Créer `res://resources/levels/<level_id>.json` avec les clés `challenges` (ids des [défis](/documentation/development/models/challenge-model/) du niveau), `status` (`done`, `current` ou `locked` dans les niveaux existants) et `waves`. Le format des vagues et des étapes est décrit dans [Vagues](/documentation/development/models/wave-model/).
-
-```json
-{
-	"challenges": ["cha.000", "cha.001"],
-	"status": "done",
-	"waves": [
-		[
-			{"enemy_id": "ene.01", "count": 1, "spawner": 0},
-			{"wait_s": 5.25}
-		]
-	]
-}
+```gdscript
+clock.subscribe(_process_tick, 5)
+clock.start()
 ```
-
-## Arcs
-
-Les niveaux sont regroupés en arcs, décrits dans `res://resources/arcs/`:
-
-- `arc.01.json` (« Chat'lanques de Nyarseille »): `lev.01` à `lev.05`
-- `arc.02.json` (« La mer Nyaditerranée »): `lev.06` à `lev.08`
-
-Un fichier d'arc contient `id`, `next` (arc suivant), `name` et `levels` (statut de chaque niveau).

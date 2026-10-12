@@ -8,6 +8,18 @@ sidebar:
 
 `Challenge` représente un défi: un objectif optionnel attaché à un niveau. Cycle de vie: initialisation (`_init(p_id, p_title, p_desc, p_diff)`), début de monitoring (`start_monitoring`), puis échec ou complétion (`fail` / `complete`).
 
+```mermaid
+stateDiagram-v2
+    [*] --> Surveillé : start_monitoring()
+    Surveillé --> Échoué : fail()
+    Surveillé --> Complété : complete()
+    Complété --> Sauvegardé : ProgressionManager.complete_challenge
+    Échoué --> [*]
+    Sauvegardé --> [*]
+```
+
+`complete()` est appelé par `ChallengeManager.check_victory_conditions()` à la victoire quand `check_completion()` vaut `true`, ou par la logique du défi. `fail()` vient des méthodes `on_*` de la logique du défi.
+
 ## Contrat public
 
 ### Propriétés clés

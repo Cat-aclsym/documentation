@@ -14,17 +14,40 @@ Les autoloads de `project.godot` sont accessibles partout par leur nom:
 
 | Autoload | Rôle |
 |---|---|
-| `Global` | Références vers la caméra, l'UI, la console et le curseur |
-| `SoundManager` | Lecture audio et volumes |
-| `ScenesLoader` | Transitions entre scènes |
+| `Global` | Références vers la caméra, l'UI, le HUD, la console et le curseur |
+| `SoundManager` | Volumes par groupe ([Audio](/documentation/development/guides/audio/)) |
+| `ScenesLoader` | Scènes préchargées (menu de fin de partie, ennemis, tours) et cache `enemies_scene` |
 | `Dialogic` | Système de dialogues (addon) |
 | `ProgressionManager` | Sauvegarde et progression du joueur |
 | `StatsDB` | Statistiques des tours, pièges et ennemis (voir [Stats](/documentation/development/models/stats-model/)) |
 | `ChallengeManager` | Suivi des challenges |
 | `ArmoryManager` | Armurerie et achats par étoiles |
-| `FirebaseTestLab` | Intégration Firebase Test Lab |
+| `FirebaseTestLab` | Intégration Firebase Test Lab ([Firebase Test Lab](/documentation/setup/android-test-lab/)) |
 
 Le niveau en cours est accessible par la variable statique `ILevel.current_level`.
+
+### Sources de données
+
+```mermaid
+flowchart LR
+	S["assets/resources/configs/stats.json"] --> StatsDB
+	A["resources/armory/armory.json"] --> ArmoryManager
+	CJ["resources/challenges/*.json"] --> ChallengeManager
+	LJ["resources/levels/*.json"] --> ChallengeManager
+	LJ --> ILevel
+	F["user://progression.dat"] <--> ProgressionManager
+	ArmoryManager -->|déblocages| ProgressionManager
+	ChallengeManager -->|défis complétés| ProgressionManager
+	ProgressionManager -->|apply_settings| SoundManager
+```
+
+| Source | Chargée par |
+|---|---|
+| `stats.json` | `StatsDB` ([Statistiques](/documentation/development/models/stats-model/)) |
+| `armory.json` | `ArmoryManager` ([Armurerie](/documentation/development/models/armory-model/)) |
+| JSON de défis et de niveaux (clé `challenges`) | `ChallengeManager` |
+| JSON de niveaux (clé `waves`) | `ILevel` ([Vagues](/documentation/development/models/wave-model/)) |
+| Sauvegarde | `ProgressionManager` ([Progression](/documentation/development/models/progression-model/)) |
 
 ## Observer
 
@@ -35,6 +58,8 @@ SignalUtil.connects([
 	{SignalUtil.WHO: enemy, SignalUtil.WHAT: "die", SignalUtil.TO: _on_enemy_die},
 ])
 ```
+
+`SignalUtil.connects(signals: Array[Dictionary])` est statique. Chaque dictionnaire doit contenir les trois clés `WHO` (l'émetteur), `WHAT` (le nom du signal) et `TO` (le callback), sinon un `assert` échoue.
 
 Exemples de signaux:
 

@@ -125,13 +125,4 @@ Exemple:
 ## Internationalisation
 
 - Toute chaîne visible par le joueur passe par `tr()` (labels, boutons, messages, tooltips). Les identifiants techniques, logs et noms de commande ne sont pas traduits.
-- Les clés de traduction sont en majuscules, séparées par des points, au format `DOMAINE.SUJET.TYPE` (par exemple `HOME.PLAY.BUTTON`). Elles sont définies dans `assets/translations/translations.csv`.
-
-Exemple:
-
-```gdscript
-play_button.text = tr("HOME.PLAY.BUTTON")
-title_label.text = tr("ENDGAMEMENU.LEVEL.TITLE.WIN")
-```
-
-Le filtrage `Nearest` des textures 2D est déjà réglé dans le projet ([Configurer l'éditeur Godot](/documentation/setup/godot-configuration/#paramètres-du-projet)).
+- Format des clés, fichier CSV et choix de la langue: [Traductions et langues](/documentation/development/guides/i18n/).
