@@ -1,14 +1,14 @@
 ---
-title: ILevel et IMap
-description: Modèle de niveau (ILevel), map, vagues et stats joueur
+title: Niveau et carte (ILevel, IMap)
+description: Propriétés d'un niveau et de sa carte, stats de session, création d'un niveau et arcs
 sidebar:
-  label: Levels and Maps
-  order: 20
+  label: Niveau et carte
+  order: 10
 ---
 
 ## Description
 
-Le nœud **ILevel** est un élément de base utilisé pour créer et paramétrer les niveaux.
+Le nœud **ILevel** est la base de tous les niveaux.
 La référence du niveau en cours est accessible par la variable statique `ILevel.current_level`.
 
 Propriétés exportées:
@@ -23,7 +23,78 @@ Les niveaux sont composés de **vagues**, elles-mêmes composées d'**étapes**.
 
 **ILevel** utilise le nœud **Clock** afin d'exécuter son code métier à intervalle régulier, par défaut tous les **5 ticks** (*10 ticks = 1 seconde*).
 
-Les seules étapes disponibles sont `SPAWN` et `WAIT`. L'architecture permet d'en ajouter facilement de nouvelles, voir la classe **WaveStep**.
+Les types d'étapes sont décrits dans [Vagues](/documentation/development/models/wave-model/).
+
+## Diagramme de classes
+
+```mermaid
+classDiagram
+    class ILevel {
+        <<Node2D>>
+        +String level_id
+        +String level_name
+        +String level_description
+        +String arc_id
+        +PackedScene map_scene
+        +ILevel current_level$
+        +IMap map
+        +StateMachine state_machine
+        +Array~Wave~ waves
+        +WaveStep current_step
+        +int current_wave
+        +float start_time
+        +float end_time
+        +int coins
+        +int health
+        +signal stats_updated()
+        +signal wave_started(wave_number: int)
+        +start_level()
+        +start_wave_flow()
+        +pause()
+        +resume_from_pause()
+    }
+    class IMap {
+        <<Node2D>>
+        +TileMap tilemap
+        +TileMap placement_tilemap
+        +TileMap props_tilemap
+        +Array~Path2D~ paths
+        +Dictionary special_tiles
+        +float special_tile_percentage
+        +play_special_tiles_intro_sequence()
+        +get_tower_by_name(tower_name: String) ITower
+        +activate_path(path_index: int) bool
+        +deactivate_path(path_index: int) bool
+        +get_active_paths() Array~Path2D~
+        +get_random_active_path() Path2D
+        +is_path_active(path_index: int) bool
+        +set_active_paths_only(path_indices: Array~int~)
+        +is_tile_buildable(coords: Vector2i) bool
+    }
+    class Wave {
+        +Array~WaveStep~ steps
+        +peak() WaveStep
+        +pop() WaveStep
+    }
+    class WaveStep {
+        +build(in_data: Dictionary) WaveStep$
+        +data() Dictionary
+        +exec()
+        +is_over() bool
+        +order() Order
+    }
+    class WaveStepSpawn
+    class WaveStepWait
+    class StateMachine
+
+    ILevel *-- IMap : map
+    ILevel o-- Wave : waves
+    ILevel --> WaveStep : current_step
+    ILevel *-- StateMachine : state_machine
+    Wave *-- WaveStep : steps
+    WaveStepSpawn --|> WaveStep
+    WaveStepWait --|> WaveStep
+```
 
 ## Stats joueur
 
@@ -58,69 +129,26 @@ Dans l'ordre :
 
 ### Waves
 
-1. Créer un fichier `res://resources/levels/<level_id>.json`
-2. Remplir le fichier selon les standards suivants :
+Créer `res://resources/levels/<level_id>.json` avec les clés `challenges` (ids des [défis](/documentation/development/models/challenge-model/) du niveau), `status` (`done`, `current` ou `locked` dans les niveaux existants) et `waves`. Le format des vagues et des étapes est décrit dans [Vagues](/documentation/development/models/wave-model/).
 
-- **base**: les clés `challenges` (ids des challenges du niveau, voir [Challenge](/documentation/development/models/challenge-model/)), `status` et `waves`:
 ```json
 {
 	"challenges": ["cha.000", "cha.001"],
 	"status": "done",
 	"waves": [
-		// waves
-	]
-}
-```
-
-- **vagues**:
-```json
-{
-	"waves": [
 		[
-			// steps
+			{"enemy_id": "ene.01", "count": 1, "spawner": 0},
+			{"wait_s": 5.25}
 		]
 	]
 }
 ```
-
-- **step**:
-```json
-{
-	"waves": [
-		[
-			{
-				"enemy_id": "ene.01",
-				"count": 1,
-				"spawner": 0
-			},
-			{
-				"wait_s": 5.25
-			}
-		]
-	]
-}
-```
-
-> Ici, le niveau contient une seule vague composée de deux étapes : faire apparaître 1 ennemi `ene.01` sur le spawner 0 (les index de spawner commencent à 0), puis attendre 5.25 secondes.
-
-Le champ `spawner` désigne un chemin actif de la map:
-
-- `-1`: chemin actif choisi au hasard
-- un index invalide: repli sur un chemin actif au hasard, avec un log `WARN`
-- l'index d'un chemin inactif: l'ennemi n'apparaît pas (log `ERROR`)
-
-> Exemples complets dans `resources/levels/` du projet Godot.
 
 ## Arcs
 
 Les niveaux sont regroupés en arcs, décrits dans `res://resources/arcs/`:
 
-- `arc.01.json`: `lev.01` à `lev.05`
-- `arc.02.json`: `lev.06` à `lev.08`
+- `arc.01.json` (« Chat'lanques de Nyarseille »): `lev.01` à `lev.05`
+- `arc.02.json` (« La mer Nyaditerranée »): `lev.06` à `lev.08`
 
 Un fichier d'arc contient `id`, `next` (arc suivant), `name` et `levels` (statut de chaque niveau).
-
-## Voir aussi
-
-- [Wave and WaveStep Models](/documentation/development/models/wave-model/)
-- [Challenge Model](/documentation/development/models/challenge-model/)

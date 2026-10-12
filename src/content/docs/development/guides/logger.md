@@ -1,103 +1,76 @@
 ---
-title: Logger
-description: Système de logs runtime et debug de Cat'aclysm
+title: Système de logs
+description: Utiliser Log.trace, niveaux, format de sortie et emplacement des fichiers de logs
 sidebar:
-  order: 20
+  label: Logs
+  order: 10
 ---
 
-Le système de logs centralise les messages techniques du projet et les redirige vers plusieurs sorties.
-
-Code source principal: `res://scripts/log/log.gd`.
-
-## API utilisée dans le projet
-
-Méthode standard:
+Le système de logs est la classe statique `Log` (`res://scripts/log/log.gd`). Elle remplace `print()` pour tout message technique.
 
 ```gdscript
 Log.trace(Log.Level.INFO, "Wave started")
-```
-
-La méthode accepte un message simple ou une liste de fragments, joints par un espace.
-`Log.init()` est appelé une seule fois au démarrage, par l'autoload `Global`.
-
-## Niveaux de log
-
-- `Log.Level.DEBUG`
-- `Log.Level.INFO`
-- `Log.Level.WARN`
-- `Log.Level.ERROR`
-- `Log.Level.FATAL`
-
-Exemples:
-
-```gdscript
-Log.trace(Log.Level.DEBUG, "Spawn tick")
 Log.trace(Log.Level.WARN, "Missing file: %s" % file_path)
 Log.trace(Log.Level.ERROR, ["Cannot load wave id", wave_id])
 ```
 
-## Format de sortie
+`Log.trace` accepte un message simple ou une liste de fragments, joints par un espace. `Log.init()` est appelé une seule fois, par l'autoload `Global`.
 
-Format général:
+```mermaid
+classDiagram
+    class Log {
+        <<Node>>
+        +Dictionary PREFIXS$
+        +init()$
+        +trace(level: Log.Level, args: Variant)$
+        +save_message(message: String)$
+    }
+    class Level["Log.Level"] {
+        <<enumeration>>
+        DEBUG
+        INFO
+        WARN
+        ERROR
+        FATAL
+    }
+    class Console {
+        +push_text(text: String, save: bool)
+    }
+
+    Log --> Level
+    Log ..> Console : Global.console.push_text
+    Log ..> Global : Global.debug
+```
+
+## Niveaux
+
+`WARN` signale un comportement dégradé, `ERROR` un échec qui n'arrête pas le jeu, `FATAL` un problème bloquant. `DEBUG` n'est affiché que si `Global.debug` vaut `true`, c'est-à-dire dans l'éditeur et les exports debug (`OS.has_feature("debug")`).
+
+## Format de sortie
 
 ```log
 [LEVEL] h:m:s.ms - fichier.gd::ligne@fonction - message
 ```
 
-Le fichier est indiqué par son nom seul (pas de chemin `res://`), et l'heure n'est pas complétée par des zéros.
-Le champ `ms` vaut `Time.get_ticks_msec() % 1000`: les millisecondes écoulées depuis le démarrage du moteur, pas celles de l'horloge.
-
-Exemple:
+Le fichier est indiqué par son nom seul, et l'heure n'est pas complétée par des zéros. Le champ `ms` vaut `Time.get_ticks_msec() % 1000`: les millisecondes écoulées depuis le démarrage du moteur, pas celles de l'horloge.
 
 ```log
 [ INFO] 13:19:39.485 - log.gd::47@init - Logger initialized!
 ```
 
-## Où vont les logs?
+## Sorties
 
-Les logs sont redirigés vers:
+Chaque message part vers:
 
-1. La console standard Godot
-2. La console debug in-game (voir [Console](/documentation/development/guides/console/))
-3. Un fichier dans `res://log/`
+1. la sortie standard de Godot (`print`);
+2. la [console de debug](/documentation/development/guides/console/), si elle existe;
+3. un fichier `res://log/YYYY_MM_DD-hh_mm.log`, créé au démarrage (par exemple `2026_04_12-18_43.log`).
 
-Nommage des fichiers de session:
+Le dossier `log/` est ignoré par Git. `res://` n'est pas modifiable dans un export (Android compris): les fichiers de logs n'existent donc que quand le jeu tourne depuis l'éditeur. Sur un téléphone, lire la sortie Godot ([Test sur Android](/documentation/setup/android-testing/)).
 
-- `YYYY_MM_DD-hh_mm.log`
-- exemple: `2026_04_12-18_43.log`
+## Écrire de bons logs
 
-## Filtrage DEBUG
+- Ajouter le contexte utile (id, état, valeur): `"Wave data is null for id: %s" % wave_id` plutôt que `"ok"`.
+- Éviter de logger à chaque frame dans `_process`.
 
-Si `Global.debug` est à `false`, les logs `DEBUG` ne sont pas affichés.
-
-`Global.debug` vaut `OS.has_feature("debug")`: `true` dans l'éditeur et dans les exports debug, `false` dans un export release. Cette règle permet de garder une sortie propre en build release.
-
-## Bonnes pratiques
-
-- Un message doit aider à diagnostiquer rapidement un problème.
-- Ajouter du contexte utile (id, état, ressource, valeur).
-- Utiliser le bon niveau (`WARN` pour un comportement dégradé, `ERROR` pour un échec, `FATAL` pour un problème bloquant).
-- Éviter le spam dans `_process` sans garde.
-
-Exemple recommandé:
-
-```gdscript
-if wave_data == null:
-	Log.trace(Log.Level.ERROR, "Wave data is null for id: %s" % wave_id)
-	return
-```
-
-Exemple à éviter:
-
-```gdscript
-Log.trace(Log.Level.INFO, "ok")
-```
-
-## Snippet IDE
-
-Pour accélérer l'écriture, utiliser le snippet décrit dans [Snippets](/documentation/development/guides/snippets/).
-
-## Liens liés
-
-- [Directives de code](/documentation/development/guides/coding-guidelines/)
-- [Console](/documentation/development/guides/console/)
+Le snippet de l'IDE génère l'appel ([Snippets](/documentation/setup/snippets/)).

@@ -2,6 +2,7 @@ import starlight from '@astrojs/starlight';
 import {defineConfig} from 'astro/config';
 import mermaid from 'astro-mermaid';
 import {pluginCollapsibleSections} from '@expressive-code/plugin-collapsible-sections';
+import lucode from 'lucode-starlight';
 import starlightImageZoom from 'starlight-image-zoom';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightLlmsTxt from 'starlight-llms-txt';
@@ -36,24 +37,29 @@ export default defineConfig({
 				{tag: 'meta', attrs: {property: 'og:image:height', content: '630'}},
 				{tag: 'meta', attrs: {name: 'twitter:image', content: socialCard}},
 			],
+			/** lucode keeps these themes and plugins and only adds its styleOverrides. */
 			expressiveCode: {themes: ['github-light', 'dracula'], plugins: [pluginCollapsibleSections()]},
-			plugins: [starlightImageZoom(), starlightLinksValidator(), starlightLlmsTxt()],
+			plugins: [
+				lucode({
+					navLinks: [{label: 'Documentation', link: `${base}/dashboard/`}],
+					footerText: `Copyright © ${new Date().getFullYear()} A7 Studio, Inc.`,
+					/** Our Footer override wraps the theme's footer to add the copyright line on doc pages. */
+					warnOverrides: false,
+				}),
+				starlightImageZoom(),
+				starlightLinksValidator(),
+				starlightLlmsTxt(),
+			],
+			/** One level deep: the lucode mobile drawer only lists the links of top-level groups. */
 			sidebar: [
 				{slug: 'dashboard'},
 				{label: 'Introduction', items: [{autogenerate: {directory: 'introduction'}}]},
-				{label: 'Setup', items: [{autogenerate: {directory: 'setup'}}]},
-				{
-					label: 'Development',
-					items: [
-						{label: 'Guides', items: [{autogenerate: {directory: 'development/guides'}}]},
-						{label: 'Models', items: [{autogenerate: {directory: 'development/models'}}]},
-						{label: 'User Flows', items: [{autogenerate: {directory: 'development/user-flows'}}]},
-					],
-				},
-				{slug: 'git-workflow'},
-				{slug: 'useful-links'},
-				{slug: 'writing-guidelines'},
-				{slug: 'faq'},
+				{label: 'Mise en place', items: [{autogenerate: {directory: 'setup'}}]},
+				{label: 'Guides', items: [{autogenerate: {directory: 'development/guides'}}]},
+				{label: 'Modèles', items: [{autogenerate: {directory: 'development/models'}}]},
+				{label: 'Parcours joueur', items: [{autogenerate: {directory: 'development/user-flows'}}]},
+				{label: 'Contribuer', items: [{autogenerate: {directory: 'contributing'}}]},
+				{label: 'Ressources', items: [{slug: 'useful-links'}, {slug: 'faq'}]},
 			],
 		}),
 	],

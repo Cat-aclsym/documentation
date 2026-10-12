@@ -1,25 +1,14 @@
 ---
-title: Guide Dialogic 2
-description: Utiliser Dialogic 2 dans Cat'aclysm
+title: Dialogues avec Dialogic
+description: Utiliser Dialogic 2 pour les dialogues, le tutoriel et l'armurerie de Cat'aclysm
 sidebar:
-  label: Guide Dialogic
-  order: 30
+  label: Dialogic
+  order: 20
 ---
 
-Dialogic est utilisé pour créer des dialogues interactifs (narration, tutoriels, interactions contextuelles) dans Godot.
+Dialogic porte les dialogues du tutoriel et de l'armurerie. La [documentation officielle](https://docs.dialogic.pro/) couvre l'éditeur et la syntaxe des timelines.
 
-## Références officielles
-
-- [Getting started Dialogic](https://docs.dialogic.pro/getting-started.html)
-- [Documentation complète](https://docs.dialogic.pro/)
-- [Releases GitHub](https://github.com/dialogic-godot/dialogic/releases)
-
-## Plugin vendored
-
-Dialogic 2.0-Alpha-19 (Godot 4.4+) est fourni dans `addons/dialogic/` et activé dans le projet: il n'y a rien à télécharger ni à installer.
-`Dialogic` est un autoload du projet (`addons/dialogic/Core/DialogicGameHandler.gd`).
-
-Ne pas modifier `addons/` sauf pour une mise à jour explicite du plugin.
+Le plugin (2.0-Alpha-19, Godot 4.4+) est fourni dans `addons/dialogic/` et activé: rien à installer. `Dialogic` est un autoload (`addons/dialogic/Core/DialogicGameHandler.gd`).
 
 ## Fichiers du projet
 
@@ -28,14 +17,10 @@ Les ressources narratives sont dans `res://assets/narrative/`:
 - `armory_intro.en.dtl` et `armory_intro.fr.dtl`: dialogue d'introduction de l'armurerie
 - `tutorial_level_01.en.dtl` et `tutorial_level_01.fr.dtl`: tutoriel du premier niveau
 - `character1.dch`: personnage du guide
+- `whiskas.png`, `whiskas_amazed.png`, `whiskas_worry.png`: portraits du personnage
 - `style.tres`: style et layout
 
-Toutes les ressources `.dtl` et `.dch` sont enregistrées dans `project.godot`, sous `[dialogic]`, dans `directories/dtl_directory` et `directories/dch_directory`.
-Godot génère un fichier `.uid` à côté de chacune.
-
-## Interface Dialogic
-
-L'onglet Dialogic de l'éditeur permet de créer des timelines et des personnages, et de prévisualiser le rendu.
+Chaque `.dtl` et `.dch` est enregistré dans `project.godot`, sous `[dialogic]`, dans `directories/dtl_directory` et `directories/dch_directory`. Le fichier `scenes/narrative/example/dialogic_example.gd` démarre une timeline `example` qui n'existe pas: cette scène d'exemple ne fonctionne pas.
 
 ## Écrire une timeline
 
@@ -48,8 +33,6 @@ leave character1 [animation="Fade Out" wait="true"]
 [end_timeline]
 ```
 
-Référence: [Writing texts](https://docs.dialogic.pro/writing-texts.html)
-
 ## Signaux depuis une timeline
 
 Une timeline peut notifier le code avec un événement signal, nommé `namespace:event`:
@@ -58,11 +41,13 @@ Une timeline peut notifier le code avec un événement signal, nommé `namespace
 [signal arg="tutorial:open_build_menu"]
 ```
 
-Le code écoute `Dialogic.signal_event` et `Dialogic.timeline_ended`.
+Le code écoute `Dialogic.signal_event` et `Dialogic.timeline_ended`. Le `TutorialManager` écoute aussi `Dialogic.event_handled`.
 
 ## Intégration GDScript
 
-Une timeline par langue (`.en.dtl`, `.fr.dtl`): le code choisit le fichier selon `TranslationServer.get_locale()` et retombe sur l'anglais si le fichier n'existe pas (extrait de `armory.gd`):
+Le projet utilise une timeline par langue (`.en.dtl`, `.fr.dtl`). Deux scripts choisissent le fichier de façon différente.
+
+L'armurerie choisit le fichier selon `TranslationServer.get_locale()` et retombe sur l'anglais si le fichier de la langue n'existe pas (extrait de `armory.gd`):
 
 ```gdscript
 func _get_armory_intro_path() -> String:
@@ -76,31 +61,40 @@ func _on_help_button_pressed() -> void:
 	Dialogic.start(_get_armory_intro_path())
 ```
 
+Le tutoriel ne teste pas l'existence du fichier : `TutorialManager` choisit entre deux constantes, le français si la langue commence par `fr`, l'anglais sinon :
+
+```gdscript
+func _get_timeline_path() -> String:
+	return TIMELINE_FR_PATH if TranslationServer.get_locale().to_lower().begins_with("fr") else TIMELINE_EN_PATH
+```
+
+`Dialogic.start` accepte un chemin (armurerie) ou une ressource de timeline déjà chargée (tutoriel : `Dialogic.start(load(path))`).
+
 Écoute des signaux, comme dans `TutorialManager`:
 
 ```gdscript
 SignalUtil.connects([
 	{SignalUtil.WHO: Dialogic, SignalUtil.WHAT: "signal_event", SignalUtil.TO: _on_dialogic_signal_event},
 	{SignalUtil.WHO: Dialogic, SignalUtil.WHAT: "timeline_ended", SignalUtil.TO: _on_dialogic_timeline_ended},
+	{SignalUtil.WHO: Dialogic, SignalUtil.WHAT: "event_handled", SignalUtil.TO: _on_dialogic_event_handled},
 ])
 ```
 
+### Pause d'un dialogue
+
+`Dialogic.paused` suspend le déroulement de la timeline. Le tutoriel le passe à `true` pendant qu'il attend une action du joueur (par exemple l'ouverture du menu de construction), puis à `false` pour reprendre le dialogue.
+
+### Layout
+
+Le `TutorialManager` règle le layout Dialogic au démarrage du tutoriel : si c'est un `CanvasLayer`, `layer = 100` ; sinon `z_index = 9000`. Il est ainsi affiché au-dessus de l'interface du niveau.
+
 Voir aussi le [Tutoriel](/documentation/development/guides/tutorial/).
 
-## Bonnes pratiques projet
+## Traductions des dialogues
 
-- Ne jamais écrire de texte de dialogue dans le GDScript: tout passe par des fichiers `.dtl`.
-- Un fichier `.dtl` par langue.
-- Nommer les signaux `namespace:event` (exemple: `tutorial:open_build_menu`).
-- Enregistrer toute nouvelle ressource dans `project.godot`.
-- Quand le layout Dialogic est un `CanvasLayer`, régler son ordre d'affichage avec `.layer` et non `.z_index`.
-- Éviter les blocs de texte trop longs sans interaction.
+Le projet utilise un fichier `.dtl` par langue (voir ci-dessus). La traduction de Dialogic est en plus activée dans `project.godot` (`translation/enabled=true`, `translation/original_locale="fr"`, langues `en` et `fr`, dossier `res://assets/translations`) : les deux mécanismes coexistent.
 
-## Dépannage rapide
+## Conventions
 
-- Timeline ne démarre pas: vérifier le chemin `res://...` et l'enregistrement dans `project.godot`.
-- Effet non appliqué: vérifier la syntaxe exacte des tags Dialogic.
-## Liens liés
-
-- [Directives de code](/documentation/development/guides/coding-guidelines/)
-- [Structure des fichiers](/documentation/development/guides/file-structure/)
+- Aucun texte de dialogue dans le GDScript: tout passe par des fichiers `.dtl`, un par langue.
+- Signaux de timeline nommés `namespace:event` (par exemple `tutorial:open_build_menu`).

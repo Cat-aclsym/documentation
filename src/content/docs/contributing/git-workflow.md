@@ -1,29 +1,21 @@
 ---
-title: Gitflow Workflow
-description: Modèle de branches Gitflow du projet
+title: Modèle de branches (Gitflow)
+description: Modèle de branches Gitflow du projet et passage par les pull requests
 sidebar:
-  label: Git Workflow
+  label: Branches Git
+  order: 1
 ---
 
-## Qu'est-ce que Gitflow ?
+Le projet suit Gitflow: chaque fonctionnalité vit dans sa branche jusqu'à ce qu'elle soit complète. Toute fusion dans `develop` ou `main` passe par une pull request ([Conventions Git](/documentation/contributing/git-guidelines/#pull-requests)).
 
-Gitflow est un modèle de branchement Git alternatif qui repose sur l'utilisation de branches de fonctionnalités et de plusieurs branches principales.
+## Branches principales
 
-Sous Gitflow, les développeurs créent une branche de fonctionnalité et retardent la fusion avec la branche principale jusqu'à ce que la fonctionnalité soit complète.
+- `main` stocke l'historique des versions officielles.
+- `develop` intègre les nouvelles fonctionnalités.
 
-Ce workflow définit des rôles spécifiques pour chaque branche et comment elles doivent interagir.
+## Branches de fonctionnalité
 
----
-
-## Branches principales : develop et main
-
-Gitflow utilise deux branches principales pour gérer l'historique du projet :
-- La branche `main` stocke l'historique des versions officielles.
-- La branche `develop` est utilisée pour intégrer les nouvelles fonctionnalités.
-
-## Branches de fonctionnalité (feature branches)
-
-Chaque nouvelle fonctionnalité doit être développée dans sa propre branche, basée sur develop. Lorsque la fonctionnalité est complète, elle est fusionnée dans develop. Les branches de fonctionnalité n'interagissent jamais directement avec main.
+Chaque fonctionnalité est développée dans sa propre branche, basée sur `develop`, puis fusionnée dans `develop` par pull request. Elle n'interagit jamais directement avec `main`.
 
 ### Créer une branche de fonctionnalité
 
@@ -35,43 +27,44 @@ git checkout -b feature/nom_fonctionnalité
 
 ### Fusionner une branche de fonctionnalité
 
-Une fois la fonctionnalité terminée, il est temps de la fusionner dans develop.
+Une fois la fonctionnalité terminée, publier la branche et ouvrir une pull request vers `develop`.
+
+```bash
+git push -u origin feature/nom_fonctionnalité
+```
+
+Après la fusion de la pull request, supprimer la branche locale :
 
 ```bash
 git checkout develop
-git merge feature/nom_fonctionnalité
+git pull --rebase
 git branch -d feature/nom_fonctionnalité
 ```
 
 ## Branches de release
 
-Lorsque la branche develop contient suffisamment de nouvelles fonctionnalités pour une version ou qu'une date de publication approche, une branche de release est créée à partir de develop. 
+Quand `develop` contient assez de fonctionnalités pour une version, une branche de release (par exemple `release/mateo`) est créée à partir de `develop`. Seules les corrections de bugs et les tâches liées à la release y sont autorisées.
 
-À partir de ce moment, seules les corrections de bugs et les tâches liées à la release sont autorisées sur cette branche.
-
-## Créer une branche de release
+### Créer une branche de release
 
 ```bash
 git checkout develop
 git checkout -b release/nom_release
+git push -u origin release/nom_release
 ```
 
-## Finaliser une branche de release
+### Finaliser une branche de release
 
-Une fois prête, la branche de release est fusionnée dans main et develop, puis supprimée.
+Une fois prête, la branche de release est fusionnée dans `main` puis dans `develop`, chaque fois par une pull request. Elle est ensuite supprimée.
 
 ```bash
-git checkout main
-git merge release/nom_release
-git checkout develop
-git merge release/nom_release
+git push origin --delete release/nom_release
+git branch -d release/nom_release
 ```
 
 ## Branches de hotfix
 
-Les branches de hotfix sont utilisées pour appliquer rapidement des correctifs sur la production. 
-
-Elles sont créées à partir de main, et une fois le correctif terminé, elles sont fusionnées dans main et develop.
+Une branche de hotfix corrige rapidement la production. Elle est créée à partir de `main`, puis fusionnée dans `main` et dans `develop` par deux pull requests. Le dépôt du jeu ne contient aucune branche de hotfix à ce jour.
 
 ### Créer une branche de hotfix
 
@@ -82,12 +75,8 @@ git checkout -b hotfix/nom_hotfix
 
 ### Finaliser une branche de hotfix
 
-Lorsque le correctif est prêt, il est fusionné dans main et develop.
+Lorsque le correctif est prêt, ouvrir une pull request vers `main` et une vers `develop`, puis supprimer la branche après leur fusion.
 
 ```bash
-git checkout main
-git merge hotfix/nom_hotfix
-git checkout develop
-git merge hotfix/nom_hotfix
 git branch -d hotfix/nom_hotfix
 ```

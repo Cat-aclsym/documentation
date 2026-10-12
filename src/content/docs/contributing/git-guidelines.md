@@ -1,8 +1,8 @@
 ---
-title: Git Guidelines
+title: Conventions Git
 description: Conventions de commits, de branches et de pull requests
 sidebar:
-  order: 5
+  order: 2
 ---
 
 ## GitHub
@@ -51,7 +51,7 @@ refactor(tutorial): Simplify signal connections in TutorialManager.
 
 ### Branches :
 
-Pour une explication de l'utilisation des branches, veuillez suivre le [Gitflow Workflow](/documentation/git-workflow/).
+Pour une explication de l'utilisation des branches, veuillez suivre le [modèle de branches Gitflow](/documentation/contributing/git-workflow/).
 
 #### Branch naming :
 
@@ -82,7 +82,7 @@ release/mateo
 
 Les versions publiées sont marquées par des tags (`d0.1`, `d0.2`, `d0.3`).
 
-### Pull requests :
+### Pull requests
 
 Quand une branche est prête à être fusionnée, une pull request doit être créée.
 

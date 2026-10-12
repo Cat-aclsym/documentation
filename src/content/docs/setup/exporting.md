@@ -2,15 +2,15 @@
 title: Exporter le jeu
 description: Exporter le jeu pour Android et Windows
 sidebar:
-  order: 40
+  label: Export
+  order: 5
 ---
 
-Cette page décrit l'export du projet avec Godot 4.4.
 Le projet contient deux presets d'export (`export_presets.cfg`): **Android** et **Windows Desktop**. Il n'existe pas de preset iOS ni Web.
 
 ## Exporter pour Android
 
-Pour exporter le jeu pour Android, vous devez d'abord installer les outils nécessaires.
+Installer d'abord les outils nécessaires:
 
 1. Installer [Android Studio](https://developer.android.com/studio).
 2. Installer Java 17 ou plus récent.
@@ -20,29 +20,17 @@ Pour exporter le jeu pour Android, vous devez d'abord installer les outils néce
 
 Le preset **Android** exporte vers `exports/Cat-aclsym_Claw_of_the_dead.apk`, sans build Gradle, pour les architectures `arm64-v8a` et `x86_64`.
 
-Ensuite, exportez le projet:
-
-1. Ouvrir `Project` > `Export` et sélectionner le preset Android.
-2. Exporter le projet.
-
-Vous pouvez suivre le tutoriel officiel de Godot pour cela : [Exporter pour Android](https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_android.html).
+Ensuite, ouvrir `Project` > `Export`, sélectionner le preset Android et exporter. Tutoriel officiel: [Exporter pour Android](https://docs.godotengine.org/en/4.4/tutorials/export/exporting_for_android.html).
 
 ## Exporter pour Windows
 
 Le preset **Windows Desktop** exporte vers `exports/Cat-aclsym_Claw_of_the_dead.exe`, en `x86_64` avec le `.pck` embarqué.
 
-Étapes recommandées:
-
-1. Ouvrir `Project` > `Export` et sélectionner le preset Windows Desktop.
-2. Vérifier l'icône, le nom d'exécutable et les options d'architecture.
-3. Exporter en mode release pour les tests de build.
-4. Tester le lancement sur une machine propre.
-
-Tutoriel officiel: [Exporter pour Windows](https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_windows.html).
+Ouvrir `Project` > `Export`, sélectionner le preset Windows Desktop puis exporter. Tutoriel officiel: [Exporter pour Windows](https://docs.godotengine.org/en/4.4/tutorials/export/exporting_for_windows.html).
 
 ## Build CI Android
 
-Le workflow GitHub Actions `Build Cat'aclysm Android APK` (`.github/workflows/build.yml` du projet Godot) construit l'APK à chaque push sur `main` et `develop`.
+Le workflow GitHub Actions `Build Cat'aclysm Android APK` (`.github/workflows/build.yml` du projet Godot) construit l'APK à chaque push sur `main`, `develop` et `feature/workflow`.
 
 Il enchaîne:
 

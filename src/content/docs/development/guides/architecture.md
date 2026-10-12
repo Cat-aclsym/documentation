@@ -2,6 +2,7 @@
 title: Architecture et patterns
 description: Singletons, signaux et factories utilisés dans le code de Cat'aclysm
 sidebar:
+  label: Architecture
   order: 3
 ---
 

@@ -1,19 +1,12 @@
 ---
-title: Challenge Model
-description: Modèle de challenge de niveau (condition, statut, complétion)
+title: Défis (Challenge)
+description: Objectif optionnel d'un niveau, cycle de vie, notifications et définitions JSON
 sidebar:
-  order: 50
+  label: Défis
+  order: 80
 ---
 
-## Description
-
-Le modèle `Challenge` représente un objectif optionnel attaché à un niveau.
-
-Il expose un cycle de vie simple:
-
-1. Initialisation (`id`, `title`, `description`, `difficulty`)
-2. Début de monitoring (`start_monitoring`)
-3. Échec ou complétion (`fail` / `complete`)
+`Challenge` représente un défi: un objectif optionnel attaché à un niveau. Cycle de vie: initialisation (`_init(p_id, p_title, p_desc, p_diff)`), début de monitoring (`start_monitoring`), puis échec ou complétion (`fail` / `complete`).
 
 ## Contrat public
 
@@ -49,7 +42,12 @@ Le `ChallengeManager` relaie les événements de jeu aux challenges actifs (via 
 - `notify_enemy_hit(enemy, source)`
 - `notify_enemy_died(enemy, damage_type, source)`
 
-Le signal `challenge_status_updated(challenge_id, is_completed, is_failed)` est émis quand le statut d'un challenge change.
+Autres membres du `ChallengeManager`:
+
+- `challenge_status_updated(challenge_id, is_completed, is_failed)`: signal émis quand le statut d'un défi change.
+- `challenges_loaded`: signal émis une fois les défis du niveau chargés.
+- `get_active_challenges() -> Array[Challenge]`: défis actifs du niveau en cours.
+- `emit_runtime_status()`: émet `challenge_status_updated` pour chaque défi actif.
 
 ## Flux d'exécution
 
@@ -72,15 +70,16 @@ Chaque challenge est décrit par un JSON dans `res://resources/challenges`:
 }
 ```
 
+Le champ `script` pointe vers la logique du défi. Les défis non implémentés (`cha.005`, `cha.106`, `cha.201`, `cha.203`, `cha.204`) utilisent `logics/impossible.gd` (`ChallengeImpossible`), qui échoue dès `start_monitoring()` et ne peut jamais être complété. Les 12 autres ont leur propre `cha.XXX.gd`.
+
 ## Dépendances
 
 - `ChallengeManager`
 - `ILevel.current_level`
 - `ProgressionManager`
-- Scripts métier de `res://scripts/challenges/logics/*.gd`
+- Scripts de `res://scripts/challenges/logics/*.gd`
 
 ## Points de vigilance
 
-- Un challenge ne peut pas être complété et échoué en même temps.
-- Toujours protéger les appels de persistance avec les garde-fous (`is_completed` / `is_failed`).
-- Le script logique doit rester idempotent sur les notifications de gameplay.
+- `complete()` et `fail()` sont sans effet si le défi est déjà complété ou échoué: un défi ne peut pas être les deux.
+- Le script de logique doit rester idempotent sur les notifications de gameplay.

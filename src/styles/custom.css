@@ -1,11 +1,15 @@
-:root {
-	--sl-color-accent-low: #0b3d33;
-	--sl-color-accent: #25c2a0;
-	--sl-color-accent-high: #4fddbf;
-}
+@layer lucode {
+	:root[data-theme='dark'] {
+		--sl-color-accent-low: #0b3d33;
+		--sl-color-accent: #25c2a0;
+		--sl-color-accent-high: #4fddbf;
+		--ring: var(--sl-color-accent);
+	}
 
-:root[data-theme='light'] {
-	--sl-color-accent-low: #c8ecd8;
-	--sl-color-accent: #2e8555;
-	--sl-color-accent-high: #205d3b;
+	:root[data-theme='light'] {
+		--sl-color-accent-low: #c8ecd8;
+		--sl-color-accent: #2e8555;
+		--sl-color-accent-high: #205d3b;
+		--ring: var(--sl-color-accent);
+	}
 }

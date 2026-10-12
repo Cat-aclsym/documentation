@@ -1,11 +1,10 @@
 ---
-title: Stats Model
-description: StatsDB et stats.json, source des statistiques de combat
+title: Statistiques (StatsDB)
+description: Structure de stats.json et API de StatsDB, source des statistiques de combat
 sidebar:
-  order: 100
+  label: Statistiques
+  order: 70
 ---
-
-## Description
 
 `StatsDB` (autoload) charge `res://assets/resources/configs/stats.json` au démarrage et expose les statistiques des tours, pièges, ennemis et upgrades.
 
@@ -58,7 +57,7 @@ Une upgrade contient `bullet_stats`, `tower_stats`, `changes`, `next` (upgrades 
 }
 ```
 
-Les pièges sont décrits dans [Trap Model](/documentation/development/models/trap-model/).
+Les pièges sont décrits dans [Piège](/documentation/development/models/trap-model/).
 
 ## API StatsDB
 

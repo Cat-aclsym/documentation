@@ -1,13 +1,12 @@
 ---
-title: Configuration Starlight
-description: Installer, tester et déployer la documentation Starlight
+title: Site de documentation (Starlight)
+description: Installer, tester et déployer le site de documentation Starlight
 sidebar:
-  order: 10
+  label: Site de doc
+  order: 4
 ---
 
-Cet article décrit comment installer, tester, et déployer la documentation [Starlight](https://starlight.astro.build/), le thème de documentation d'[Astro](https://astro.build/).
-
----
+Le site est construit avec [Starlight](https://starlight.astro.build/), le thème de documentation d'[Astro](https://astro.build/).
 
 ## Prérequis
 
@@ -54,23 +53,17 @@ Il:
 
 ## Configuration
 
-- `astro.config.ts`: URL du site, base `/documentation`, barre latérale, lien d'édition, dernière mise à jour et intégration Mermaid.
-- `src/content/docs/`: pages Markdown de la documentation.
+- `astro.config.ts`: URL du site, base `/documentation`, barre latérale, lien d'édition, dernière mise à jour, intégration Mermaid et plugins (thème `lucode-starlight`, zoom d'images, validation des liens, `llms.txt`).
+- `src/content/docs/`: pages Markdown de la documentation. Chaque dossier est un groupe de la barre latérale : `introduction`, `setup`, `development/guides`, `development/models`, `development/user-flows` et `contributing`.
 - `src/assets/`: images référencées par les pages.
-- `src/styles/custom.css`: couleurs d'accentuation.
+- `src/components/Footer.astro`: ajoute la ligne de copyright au pied de page du thème.
+- `src/styles/custom.css`: couleurs d'accentuation, déclarées dans la couche `lucode` du thème.
 
 ## Workflow
 
-1. Mettre à jour la doc : `git pull --rebase`
-2. Créer une branche, modifier ou ajouter des pages
-3. [Tester](#test) les modifications
-4. Vérifier le workflow GitHub Actions si le déploiement doit être ajusté
-5. Commit, push, puis ouvrir une pull request
+1. `git pull --rebase`, puis créer une branche.
+2. Modifier ou ajouter des pages ([règles de rédaction](/documentation/contributing/writing-guidelines/)).
+3. [Tester](#test) les modifications.
+4. Commit, push, puis ouvrir une pull request (par exemple `docs(contributing): Update starlight configuration page.`).
 
-```bash
-git add .
-git commit -m "docs(setup): Update starlight configuration page."
-git push origin feature/doc-update
-```
-
-Voir les [Git Guidelines](/documentation/development/guides/git-guidelines/) pour les conventions de commits, de branches et de pull requests.
+Voir les [Conventions Git](/documentation/contributing/git-guidelines/) pour les conventions de commits, de branches et de pull requests.

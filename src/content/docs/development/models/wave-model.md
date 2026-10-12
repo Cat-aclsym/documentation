@@ -1,18 +1,12 @@
 ---
-title: Wave and WaveStep Models
-description: Modèle des vagues et étapes (spawn/wait)
+title: Vagues (Wave, WaveStep)
+description: Vagues et étapes de spawn ou d'attente décrites dans le JSON d'un niveau
 sidebar:
-  order: 60
+  label: Vagues
+  order: 20
 ---
 
-## Description
-
-Le système de vague est composé de deux modèles:
-
-- `Wave`: encapsule une liste d'étapes (`Array[WaveStep]`)
-- `WaveStep`: classe de base d'une étape (spawn, wait, etc.)
-
-Le niveau (`ILevel`) dépile les étapes une par une jusqu'à la fin de la vague, puis passe à la suivante.
+Un niveau est une liste de vagues (`Wave`), chacune étant une liste d'étapes (`WaveStep`). `ILevel` dépile les étapes une par une jusqu'à la fin de la vague, puis passe à la suivante. Le diagramme de classes est dans [Niveau et carte](/documentation/development/models/level-model/#diagramme-de-classes).
 
 ## Contrat public
 
@@ -25,59 +19,49 @@ Le niveau (`ILevel`) dépile les étapes une par une jusqu'à la fin de la vague
 
 ### WaveStep
 
-- `enum Order { UNDEFINED, COMMAND, SPAWN, WAIT, DIALOG }`
-- `build(in_data: Dictionary) -> WaveStep`: fabrique `WaveStepSpawn` ou `WaveStepWait`.
-- `data() -> Dictionary`: donne accès aux données brutes de l'étape.
-- `exec()`: exécute la logique de l'étape.
+- `enum Order { UNDEFINED, COMMAND, SPAWN, WAIT, DIALOG }`. `COMMAND` et `DIALOG` ne sont pas implémentés: `build()` ne crée que des étapes `SPAWN` et `WAIT`.
+- `build(in_data: Dictionary) -> WaveStep`: renvoie un `WaveStepSpawn` si les clés `enemy_id`, `count` et `spawner` sont présentes, un `WaveStepWait` si `wait_s` l'est, sinon `null` avec un log `ERROR`.
+- `data() -> Dictionary`: données brutes de l'étape.
+- `exec()`: exécute l'étape.
 - `is_over() -> bool`: indique si l'étape est terminée.
-- `order() -> WaveStep.Order`: renvoie le type d'étape.
+- `order() -> WaveStep.Order`: type de l'étape.
 
-## Types d'étapes supportés
+## Étapes
 
 ### Spawn
 
-Format:
-
 ```json
-{
-  "enemy_id": "ene.01",
-  "count": 5,
-  "spawner": 0
-}
+{"enemy_id": "ene.01", "count": 5, "spawner": 0}
 ```
 
-Execution:
+`enemy_id` est le nom de la scène dans `scenes/gameplay/entities/enemy/enemies/` (`ene.01` charge `ene.01.tscn`). Chaque `exec()` fait apparaître un ennemi sur le chemin `spawner` de la carte et décrémente `count`. L'étape est terminée quand `count == 0`.
 
-- charge la scène ennemi si nécessaire
-- instantie un ennemi
-- le place sur le path correspondant au spawner
-- décrémente `count`
+`spawner` désigne un chemin de la carte (index à partir de 0):
 
-Fin d'étape: `count == 0`.
+- `-1`: chemin actif choisi au hasard
+- un index invalide: repli sur un chemin actif au hasard, avec un log `WARN`
+- l'index d'un chemin inactif: l'ennemi n'apparaît pas (log `ERROR`)
+
+À la première rencontre d'un ennemi, `ProgressionManager` le marque comme vu et l'interface affiche le popup de nouvel ennemi.
 
 ### Wait
 
-Format:
-
 ```json
-{
-  "wait_s": 3
-}
+{"wait_s": 3}
 ```
 
-Execution:
+Le premier `exec()` mémorise l'heure de départ, l'étape se termine quand `wait_s` secondes se sont écoulées.
 
-- mémorise un `start` lors du premier `exec()`
-- attend que le temps écoulé soit `>= wait_s`
+## Exemple
 
-## Exemple niveau
+Une vague qui attend 1 seconde, puis fait apparaître 5 ennemis `ene.01` sur le chemin 0:
 
 ```json
 {
   "waves": [
     [
-      { "wait_s": 1 },
-      { "enemy_id": "ene.01", "count": 5, "spawner": 0 }
+      {"wait_s": 1},
+      {"enemy_id": "ene.01", "count": 5, "spawner": 0}
     ]
   ]
 }
@@ -85,16 +69,13 @@ Execution:
 
 ## Dépendances
 
-- `ILevel` (pilotage des étapes et transitions)
-- `EnemySpawner`
-- `ScenesLoader`
-- `ProgressionManager` (marquage des ennemis vus)
+- `ILevel` pilote les étapes et les transitions.
+- `EnemySpawner` place l'ennemi sur le chemin.
+- `ScenesLoader` met en cache les scènes d'ennemis déjà chargées (`enemies_scene`).
+- `ProgressionManager` retient les ennemis vus.
 
-## Extension recommandée
+## Ajouter un type d'étape
 
-Pour ajouter un nouveau type d'étape:
-
-1. Créer une classe dérivée de `WaveStep`
-2. Étendre la détection dans `WaveStep.build(...)`
-3. Ajouter la grammaire JSON correspondante
-4. Ajouter des exemples de niveau et tests manuels en jeu
+1. Créer une classe dérivée de `WaveStep`.
+2. Étendre la détection des clés dans `WaveStep.build()`.
+3. Documenter la clé JSON correspondante ici.

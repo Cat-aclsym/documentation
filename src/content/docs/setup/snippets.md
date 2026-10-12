@@ -1,9 +1,12 @@
 ---
-title: Snippets
-description: Snippets et templates IDE pour GDScript
+title: Snippets et templates GDScript
+description: Snippets VSCode et templates Jetbrains pour écrire du GDScript conforme aux conventions
 sidebar:
-  order: 10
+  label: Snippets
+  order: 3
 ---
+
+Les modèles ci-dessous produisent un fichier qui respecte l'en-tête et l'ordre des sections décrits dans [Conventions de code](/documentation/development/guides/coding-guidelines/).
 
 ## VSCode
 
@@ -37,11 +40,15 @@ sidebar:
 		"body": [
 			"## © [2026] A7 Studio. All rights reserved. Trademark.",
 			"",
-			"extends ${1:Node}",
+			"class_name ${1:ClassName}",
+			"extends ${2:Node}",
+			"",
+			"",
+			"# Built-in functions",
+			"$0",
 			"",
 			"",
 			"# Public functions",
-			"$0",
 			"",
 			"",
 			"# Private functions",
@@ -79,24 +86,7 @@ Variables:
 
 ### Exemple: Fichier de base GDScript
 
-Abbreviation: `gdscript`
-Description: `Base structure for gdscript file`
-Code:
-```gdscript
-## © [2026] A7 Studio. All rights reserved. Trademark.
-
-extends Node
-
-
-# Public functions
-
-
-# Private functions
-```
-
-:::tip
-Pour cet exemple, il serait préférable d'utiliser un File Template plutôt qu'un Live Template.
-:::
+Un File Template convient mieux à ce cas qu'un Live Template, voir la section suivante.
 
 ## File Templates
 
@@ -118,7 +108,11 @@ Code:
 ```gdscript
 ## © [2026] A7 Studio. All rights reserved. Trademark.
 
+class_name ${CLASS_NAME}
 extends Node
+
+
+# Built-in functions
 
 
 # Public functions

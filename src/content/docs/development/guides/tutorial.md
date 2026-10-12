@@ -1,8 +1,9 @@
 ---
-title: Tutoriel
-description: Tutoriel du premier niveau et introduction de l'armurerie
+title: Tutoriel du premier niveau
+description: Tutoriel guidé de lev.01 et introduction de l'armurerie
 sidebar:
-  order: 40
+  label: Tutoriel
+  order: 21
 ---
 
 Le jeu contient un tutoriel guidé sur `lev.01` et un dialogue d'introduction à l'armurerie. Les deux utilisent [Dialogic](/documentation/development/guides/dialogic-guide/).
@@ -21,7 +22,7 @@ Le jeu contient un tutoriel guidé sur `lev.01` et un dialogue d'introduction à
 `ui.gd` appelle `TutorialManager.on_level_started(level)` au démarrage d'un niveau, et `on_level_ended()` à sa fin.
 Le tutoriel ne démarre que si `level_id == "lev.01"` et que `ProgressionManager.is_tutorial_completed()` est `false`.
 
-Dans `ILevel`, le démarrage des vagues de `lev.01` est différé tant que le tutoriel n'est pas terminé.
+Dans `ILevel`, le démarrage des vagues de `lev.01` est différé tant que le tutoriel n'est pas terminé : le `TutorialManager` appelle `start_wave_flow()` une fois l'objectif de placement validé.
 
 ### Objectifs
 
@@ -39,10 +40,6 @@ Une fois la tour posée, l'étape de sélection de la tour s'active après 5 kil
 
 ## Introduction de l'armurerie
 
-Au premier affichage du menu armurerie, `armory.gd` vérifie `ProgressionManager.is_armory_intro_seen()`. Si l'intro n'a pas été vue, il appelle d'abord `mark_armory_intro_seen()`, puis `Dialogic.start` sur `armory_intro.<langue>.dtl`.
-Si aucun fichier n'existe pour la langue courante, `armory_intro.en.dtl` est utilisé.
-Le bouton d'aide de l'armurerie relance le dialogue.
+Au premier affichage du menu armurerie, `armory.gd` vérifie `ProgressionManager.is_armory_intro_seen()`. Si l'intro n'a pas été vue, il appelle `mark_armory_intro_seen()` puis lance `armory_intro.<langue>.dtl` (choix du fichier: [Dialogic](/documentation/development/guides/dialogic-guide/#intégration-gdscript)). Le bouton d'aide de l'armurerie relance le dialogue.
 
-## Voir aussi
-
-- [Progression Model](/documentation/development/models/progression-model/) pour `tutorial_completed` et `armory_intro_seen`
+Les drapeaux `tutorial_completed` et `armory_intro_seen` sont décrits dans [Progression et sauvegarde](/documentation/development/models/progression-model/).

@@ -1,97 +1,38 @@
 ---
-title: FAQ
-description: Questions fréquentes sur Cat'aclysm et sa documentation
+title: Questions fréquentes
+description: Réponses courtes aux questions les plus fréquentes, avec le lien vers la page qui détaille
 sidebar:
-  order: 999
+  label: FAQ
 ---
 
-## Onboarding
+### Je suis nouveau sur le projet, je commence par quoi?
 
-### Je suis nouveau sur le projet. Je commence par quoi?
-
-Ordre recommandé:
-
-1. [Présentation](/documentation/introduction/overview/)
-2. [Installation](/documentation/introduction/installation/)
-3. [Directives de code](/documentation/development/guides/coding-guidelines/)
-4. [Structure des fichiers](/documentation/development/guides/file-structure/)
-
-### Où sont les conventions GDScript officielles du projet?
-
-Dans [Directives de code](/documentation/development/guides/coding-guidelines/).
-
-## Développement
-
-### Où créer une nouvelle commande de debug?
-
-Dans `res://scripts/commands/`, en héritant de `ICommand`.
-Voir le guide: [Console debug](/documentation/development/guides/console/).
-
-### Où logger proprement un événement de gameplay?
-
-Utiliser `Log.trace(...)` au lieu de `print()`.
-Voir [Logger](/documentation/development/guides/logger/).
+[Présentation](/documentation/introduction/overview/), [Installation](/documentation/introduction/installation/), puis [Conventions de code](/documentation/development/guides/coding-guidelines/) et [Structure du projet](/documentation/development/guides/file-structure/).
 
 ### Où placer un nouveau script?
 
-- Script lié à une scène spécifique: au plus proche de la scène dans `scenes/...`
-- Script transverse/réutilisable: `scripts/...`
-- Service global: `scripts/autoloads/...`
+Un script spécifique à une scène reste à côté d'elle dans `scenes/...`, un script transverse va dans `scripts/...` et un service global dans `scripts/autoloads/...`. Voir [Structure du projet](/documentation/development/guides/file-structure/).
 
-Référence: [Structure des fichiers](/documentation/development/guides/file-structure/).
+### Comment ajouter une commande de debug?
 
-### Comment gérer les textes affichés aux joueurs?
+Créer un script dans `res://scripts/commands/` qui étend `ICommand`: [Créer une commande](/documentation/development/guides/console-commands/).
 
-Toute chaîne visible en jeu doit passer par `tr()`.
+### Comment logger un événement?
 
-Exemple:
+`Log.trace(Log.Level.INFO, "message")` au lieu de `print()`: [Logs](/documentation/development/guides/logger/).
+
+### Comment afficher un texte au joueur?
+
+Toute chaîne visible passe par `tr()` avec une clé de `assets/translations/translations.csv`:
 
 ```gdscript
-title_label.text = tr("UI_MAIN_MENU_TITLE")
+play_button.text = tr("HOME.PLAY.BUTTON")
 ```
 
-## Documentation
+### Comment créer une page de documentation?
 
-### Je veux créer une nouvelle page de doc, il y a une convention?
+Suivre [Rédiger la documentation](/documentation/contributing/writing-guidelines/), puis lancer `bun run build` pour valider les liens et les ancres.
 
-Oui, suivre [Guide d'écriture](/documentation/writing-guidelines/):
+### Quelle branche et quelles conventions pour une modification?
 
-- front matter propre
-- structure lisible
-- exemples concrets
-- liens internes vers les pages liées
-
-### Comment vérifier qu'une modif de doc est valide?
-
-Construire le site en local:
-
-```bash
-bun run build
-```
-
-Si le build passe, la doc est généralement saine (liens, ancres, markdown).
-
-## Outils
-
-### Quels guides sont les plus utiles au quotidien?
-
-- [Directives de code](/documentation/development/guides/coding-guidelines/)
-- [Structure des fichiers](/documentation/development/guides/file-structure/)
-- [Logger](/documentation/development/guides/logger/)
-- [Console debug](/documentation/development/guides/console/)
-- [Snippets](/documentation/development/guides/snippets/)
-
-### Dialogic est documenté où?
-
-Dans [Guide Dialogic](/documentation/development/guides/dialogic-guide/).
-
-## Git et collaboration
-
-### Quelle page pour le workflow de branches et de merge?
-
-- [Workflow Git](/documentation/git-workflow/)
-- [Guidelines Git](/documentation/development/guides/git-guidelines/)
-
-### Je corrige juste une faute de doc, je dois ouvrir une PR?
-
-Oui. Même pour une petite correction, garder un historique clair des changements est important pour l'équipe.
+Voir [Branches Git](/documentation/contributing/git-workflow/) et [Conventions Git](/documentation/contributing/git-guidelines/). Toute modification passe par une pull request, même une correction de faute.

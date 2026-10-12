@@ -1,20 +1,12 @@
 ---
-title: Tower Model
-description: Modèle de tour (ciblage, tir, upgrades)
+title: Tour (ITower)
+description: Ciblage, tir, états et upgrades d'une tour
 sidebar:
-  order: 30
+  label: Tour
+  order: 40
 ---
 
-## Description
-
-`ITower` est le modèle runtime d'une tour. Elle hérite de `IBuilding`, la classe de base des éléments posés via `BuildPlacement` (tours et pièges).
-
-Il gère:
-
-- détection des ennemis en portée
-- logique de ciblage
-- tir des projectiles
-- application des upgrades
+`ITower` est le modèle runtime d'une tour. Elle hérite de `IBuilding`, la classe de base des éléments posés via `BuildPlacement` (tours et pièges). Elle gère la détection des ennemis en portée, le ciblage, le tir des projectiles ([Projectile](/documentation/development/models/projectile-model/)) et l'application des upgrades.
 
 ## Contrat public
 
@@ -29,6 +21,7 @@ Il gère:
 - `level: int`
 - `sell_price: int`
 - `target_type: TargetType` (`FIRST`, `LAST`, `STRONGEST`, `WEAKEST`, `RANDOM`)
+- `state: TowerState` (`BUILDING`, `UPGRADING`, `ACTIVE`, `DISABLED`)
 - `fire_rate: float`
 - `shoot_range: float`
 - `projectile_count: int`
@@ -44,6 +37,7 @@ Il gère:
 - `apply_upgrade()`
 - `apply_special_modifier(modifiers: Dictionary)`
 - `sell_tower()`
+- `disable_tower()` et `enable_tower()`: un `EnemyProjectile` désactive une tour (le timer de tir s'arrête, état `DISABLED`).
 - `show_range(p_show: bool, smooth: bool = true)`
 - `get_display_bullet_stats() -> Dictionary`
 
@@ -56,9 +50,7 @@ Les achats de l'[armurerie](/documentation/development/models/armory-model/) mod
 
 ## Source des stats
 
-Les stats de base et upgrades viennent de `assets/resources/configs/stats.json` via `StatsDB`.
-
-Champs clés:
+Les stats de base et les upgrades viennent de `assets/resources/configs/stats.json` via `StatsDB` ([Statistiques](/documentation/development/models/stats-model/)):
 
 - `towers.<tower_id>.base`
 - `towers.<tower_id>.upgrades`
@@ -68,5 +60,5 @@ Champs clés:
 
 - `StatsDB`
 - `ArmoryManager`
-- `ILevel` (coins disponibles)
-- `IBullet` (scene projectile)
+- `ILevel` (pièces disponibles)
+- `IBullet` (scène du projectile)

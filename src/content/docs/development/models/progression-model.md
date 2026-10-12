@@ -1,23 +1,12 @@
 ---
-title: Progression Model
-description: Modèle racine de sauvegarde (enemies, levels, towers, traps, settings, armory)
+title: Progression et sauvegarde
+description: ProgressionData, sous-modèles de sauvegarde et flux de ProgressionManager
 sidebar:
-  order: 70
+  label: Progression
+  order: 90
 ---
 
-## Description
-
-`ProgressionData` est le modèle racine de la sauvegarde du joueur.
-
-Il centralise:
-
-- progression de niveaux et challenges
-- découverte ennemi/tour
-- unlocks de tours et pièges
-- paramètres globaux
-- état de l'armurerie méta
-
-Le manager associé est `ProgressionManager` (autoload), qui charge et sauvegarde `user://progression.dat`.
+`ProgressionData` est le modèle racine de la sauvegarde du joueur: progression des niveaux et des défis, ennemis et tours découverts, unlocks de tours et de pièges, paramètres et état de l'armurerie. `ProgressionManager` (autoload) la charge et la sauvegarde dans `user://progression.dat`.
 
 ## Structure principale
 
@@ -85,6 +74,5 @@ Si une vieille sauvegarde ne contient pas de bloc `armory`, le système active `
 
 ## Bonnes pratiques
 
-- Garder les `from_dictionary` tolérants (valeurs par défaut).
-- Ne jamais supposer qu'une clé existe dans la sauvegarde.
-- Isoler toute migration dans `ProgressionManager` pour éviter de complexifier les modèles.
+- Les `from_dictionary` restent tolérants: valeurs par défaut, aucune clé supposée présente.
+- Toute migration vit dans `ProgressionManager`, pas dans les modèles.

@@ -24,7 +24,7 @@ astro.config.ts        configuration du site, de la barre latérale et de Mermai
 ```
 
 Les diagrammes Mermaid s'écrivent dans des blocs de code ```` ```mermaid ````.
-Les conventions d'écriture des pages sont décrites dans `src/content/docs/writing-guidelines.md`.
+Les conventions d'écriture des pages sont décrites dans `src/content/docs/contributing/writing-guidelines.md`.
 
 ## Déploiement
 

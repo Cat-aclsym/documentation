@@ -1,18 +1,14 @@
 ---
-title: Trap Model
-description: Modèle des pièges (stats runtime + progression d'unlock)
+title: Piège (ITrap)
+description: Stats runtime, comportement d'un piège et état d'unlock sauvegardé
 sidebar:
-  order: 90
+  label: Piège
+  order: 60
 ---
 
-## Description
+Le modèle de piège a deux couches: les stats gameplay de `stats.json` (runtime) et l'état d'unlock de `TrapData` (progression).
 
-Le modèle de piège se compose de deux couches:
-
-- couche runtime: définition de stats gameplay dans `stats.json`
-- couche progression: état d'unlock dans `TrapData`
-
-## Contrat runtime (stats)
+## Stats runtime
 
 Dans `assets/resources/configs/stats.json`, chaque piège expose:
 
@@ -30,45 +26,37 @@ Dans `assets/resources/configs/stats.json`, chaque piège expose:
 }
 ```
 
-Champs principaux:
-
 - `name`: libellé UI
 - `scene`: scène instanciée
-- `base`: stats de base (cost + stats spécifiques selon le type)
+- `base`: `cost`, `trap_type` (0 = `PASSIVE`, 1 = `LIMITED`), `effect_duration` et `max_durability` (lus par `ITrap`), plus les clés propres à chaque piège (`slow_amount`, `damage`, `explosion_range`...)
 
-## Contrat runtime (ITrap)
+`apply_stats_from_db()` copie ces valeurs dans le piège quand `trap_id` est renseigné. Une sous-classe lit ses clés supplémentaires en surchargeant `_apply_trap_stats_extension(base: Dictionary)`.
 
-`ITrap` hérite de `IBuilding`. Propriétés exportées:
+## ITrap
+
+`ITrap` hérite de `IBuilding`, qui porte `cost` et `BuildingKind` (`TOWER`, `TRAP`). Propriétés exportées:
 
 - `trap_type: TrapType`: `PASSIVE` (effet continu tant que l'ennemi est sur le piège) ou `LIMITED` (effet déclenché par ennemi jusqu'à épuisement de la durabilité)
 - `effect_duration: float`: durée de l'effet par ennemi (type `LIMITED`)
 - `max_durability: int`: durabilité maximale (type `LIMITED`)
 - `trap_id: String`: clé sous `traps` dans `stats.json`
 
+`state: TrapState` vaut `BUILDING` pendant la pose puis `ACTIVE`.
+
 Méthodes à surcharger ou à utiliser:
 
 - `apply_effect(enemy: IEnemy)`
 - `remove_effect(enemy: IEnemy)`
-- `disable_temporarily(duration: float)`
+- `disable_temporarily(duration: float)`: suspend le piège. Un ennemi `minesweeper` qui entre dans la zone désactive le piège pendant `MINESWEEPER_DISABLE_DURATION_SECONDS` (5 s).
 
-## Contrat progression (save)
+## Progression
 
-`TrapData`:
-
-- `unlocked: bool`
-- `save() -> Dictionary`
-- `from_dictionary(d: Dictionary) -> void`
-
-`ProgressionManager` contrôle l'accès via `is_trap_unlocked(trap_id)`.
+`TrapData` porte `unlocked: bool`, `save() -> Dictionary` et `from_dictionary(d: Dictionary)`. `ProgressionManager.is_trap_unlocked(trap_id)` contrôle l'accès.
 
 ## Dépendances
 
-- `StatsDB` pour charger les définitions runtime
-- `ProgressionManager` pour unlock / persistance
-- `ArmoryManager` / armory nodes pour débloquer les pièges méta
+- `StatsDB`: définitions runtime
+- `ProgressionManager`: unlock et persistance
+- `ArmoryManager`: déblocage des pièges depuis l'armurerie
 
-## Bonnes pratiques
-
-- Garder `trap_id` identique entre `stats.json`, armurerie et sauvegarde.
-- Ajouter des valeurs par défaut côté code si une stat optionnelle manque.
-- Documenter tout nouveau champ `base` dans cette page.
+Garder `trap_id` identique entre `stats.json`, l'armurerie et la sauvegarde.

@@ -1,23 +1,22 @@
 ---
-title: Tester en direct sur le Téléphone
-description: Tester le jeu en direct sur un téléphone
+title: Tester sur un téléphone Android
+description: Lancer le jeu directement sur un téléphone Android depuis l'éditeur Godot
 sidebar:
-  order: 30
+  label: Test sur Android
+  order: 4
 ---
 
-Il est possible de tester le jeu directement sur un téléphone Android depuis l'éditeur Godot.
+L'éditeur Godot peut installer et lancer le jeu directement sur un téléphone Android.
 
 ## Prérequis
 
-- Avoir un téléphone Android
-- Avoir un câble USB pour connecter le téléphone à l'ordinateur
-- Avoir le projet Godot d'installé sur l'ordinateur
-- Avoir mis en place le système [d'exportation pour Android](/documentation/setup/exporting/#exporter-pour-android)
+- Un téléphone Android et un câble USB
+- Le projet ouvert dans Godot
+- L'[export Android](/documentation/setup/exporting/#exporter-pour-android) configuré
 
 ## Mode développeur
 
-Pour pouvoir tester le jeu en direct sur un téléphone, il faut activer le mode développeur sur le téléphone.
-Pour ce faire :
+Activer le mode développeur sur le téléphone:
 1. Allez dans les paramètres du téléphone
 2. Allez dans la section "À propos du téléphone"
 3. Cherchez la section "Numéro de build" et appuyez dessus plusieurs fois jusqu'à ce qu'un message vous indique que le mode développeur est activé
@@ -27,15 +26,20 @@ Pour ce faire :
 ## Tester le jeu
 
 1. Connectez le téléphone à l'ordinateur avec le câble USB
-2. Activez le partage de fichiers via la connexion USB
-3. Ouvrez le projet Godot
-4. Cliquez sur le bouton "Débogage Distant" en haut à droite de l'interface
-5. Sélectionner votre téléphone
+2. Ouvrez le projet Godot
+3. Cliquez sur le bouton de déploiement à distance (`Remote Deploy` dans l'interface anglaise) en haut à droite de l'interface
+4. Sélectionnez votre téléphone
 
-![Exemple de lancement sur téléphone depuis l'éditeur Godot](../../../../assets/img/run-on-phone.png)
+![Exemple de lancement sur téléphone depuis l'éditeur Godot](../../../assets/img/run-on-phone.png)
 
-L'application va s'installer, puis se lancer sur le téléphone, vous pourrez voir les logs de l'application dans l'éditeur Godot.
-Si vous modifiez le code ou les ressources, l'application se mettra à jour automatiquement sur le téléphone.
+L'application s'installe, puis se lance sur le téléphone. Les logs de l'application s'affichent dans la sortie de l'éditeur Godot.
+Le dossier `res://log` n'est pas accessible dans un build Android: sur téléphone, la sortie de Godot est la seule source de logs ([Logs](/documentation/development/guides/logger/#sorties)).
+
+Le téléphone applique les modifications du code ou des ressources sans réinstaller l'application si `Debug` > `Synchronize Script Changes` et `Synchronize Scene Changes` sont activés, ou avec un déploiement par système de fichiers réseau (`Small Deploy with Network Filesystem`).
+
+:::tip
+Avec ADB, activer le partage de fichiers via la connexion USB du téléphone n'est en général pas nécessaire. Si le téléphone n'est pas détecté, essayez ce mode.
+:::
 
 :::note
 Il se peut que l'application ne soit plus lançable une fois déconnectée du câble USB, il faudra alors la réinstaller depuis un export.
@@ -43,10 +47,10 @@ Il se peut que l'application ne soit plus lançable une fois déconnectée du c�
 
 ## Problèmes courants
 
-### Bouton "Débogage Distant" grisé
+### Le téléphone n'apparaît pas dans la liste
 
-Si le bouton "Débogage Distant" est grisé, cela signifie que Godot n'a pas trouvé de périphérique Android connecté.
-Vérifiez bien d'avoir activé le mode développeur et le débogage USB sur le téléphone, et que le téléphone est bien connecté à l'ordinateur en mode partage de fichiers.
+Si Godot ne propose aucun appareil, il n'a pas trouvé de périphérique Android connecté.
+Vérifiez bien d'avoir activé le mode développeur et le débogage USB sur le téléphone, et que le téléphone est bien connecté à l'ordinateur.
 
 ### Impossible d'installer l'application
 

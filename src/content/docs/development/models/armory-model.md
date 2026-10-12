@@ -1,15 +1,12 @@
 ---
-title: Armory Model
-description: Modèle de progression méta par étoiles (nodes, prérequis, effets)
+title: Armurerie (ArmoryManager)
+description: Graphe de nœuds achetés avec des étoiles, prérequis, effets et persistance
 sidebar:
-  order: 80
+  label: Armurerie
+  order: 100
 ---
 
-## Description
-
-L'armurerie est un modèle de méta-progression basé sur les étoiles gagnées via les challenges.
-
-Elle combine:
+L'armurerie est la méta-progression basée sur les étoiles gagnées via les défis. Elle combine:
 
 - un graphe de nœuds à acheter (`nodes`)
 - des contraintes de prérequis (`prerequisites`)
@@ -86,8 +83,4 @@ L'état joueur est stocké dans `ProgressionData`:
 - Le joueur doit avoir assez d'étoiles (`cost_stars`).
 - Les upgrades verrouillées doivent vérifier la gate avant d'être proposées.
 
-## Bonnes pratiques
-
-- Garder les ids stables (utilisés par la sauvegarde).
-- Éviter de renommer un `id` sans migration.
-- Ajouter toute nouvelle catégorie ou tout nouvel effet avec un fallback explicite dans le code.
+Les ids de nœuds sont stockés dans la sauvegarde: ne pas en renommer sans migration.
