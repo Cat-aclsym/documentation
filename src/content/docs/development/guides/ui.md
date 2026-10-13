@@ -27,7 +27,7 @@ L'interface se compose du menu d'accueil, de ses sous-menus et, en niveau, du HU
 
 Signaux: `pause_requested`, `build_menu_opened`, `build_menu_closed`.
 
-Le bouton d'accélération passe `Engine.time_scale` de `DEFAULT_TIME_SCALE` (1) à `SKIP_TIME_SCALE` (3). Il est ignoré tant que le temps est gelé (`Global.is_time_frozen()`): `ILevel` restaure l'échelle de temps qu'il a gelée à la reprise, un changement fait pendant le gel serait perdu.
+Le bouton d'accélération (`FastForwardButton`, glyphe `FAST_FORWARD`) passe `Engine.time_scale` de `DEFAULT_TIME_SCALE` (1) à `FAST_FORWARD_TIME_SCALE` (3) et allume son `rainbow` (voir [États](#états)). Le HUD aligne le bouton sur `Engine.time_scale` à chaque image (pressé et `rainbow` au-dessus de x1), donc le bouton suit aussi la remise à x1 par `ILevel.start_wave_flow` au début d'un niveau et la commande `set_time_scale` de la console. Il est ignoré tant que le temps est gelé (`Global.is_time_frozen()`): `ILevel` restaure l'échelle de temps qu'il a gelée à la reprise, un changement fait pendant le gel serait perdu.
 
 ## Menus
 
@@ -170,7 +170,7 @@ Changer `shape` après `_ready()` reconstruit le fond (`_apply_shape()`). Avec `
 
 `GameButton.Palette` compte six valeurs, dans l'ordre des lignes de `assets/ui/buttons/palette.png`: `BLUE` (le bleu sarcelle, valeur par défaut), `GREEN`, `ORANGE`, `RED`, `SAND` et `GREY` (neutre ou désactivé). `palette.png` fait 13 colonnes sur 6 lignes (une ligne par `Palette`, un test le vérifie): les colonnes 0 à 6 sont celles des bases de boutons, les colonnes 7 et suivantes recolorent d'autres bases grises (voir ci-dessous).
 
-Les bases sont en niveaux de gris: le canal rouge de chaque pixel est un numéro de colonne de la palette (0 contour, 1 ombre, 2 corps, 3 reflet, etc.). Le shader `palette_swap.gdshader` lit ce niveau, va chercher la couleur à la colonne `niveau` et à la ligne `palette_row` de `palette.png` (`texelFetch`), garde l'alpha de la base et la couleur de sommet (`modulate`). Les uniforms `brightness` et `saturation` portent les états du bouton. Changer une couleur ou le dessin d'une base revient donc à éditer un seul PNG, sans toucher aux scènes.
+Les bases sont en niveaux de gris: le canal rouge de chaque pixel est un numéro de colonne de la palette (0 contour, 1 ombre, 2 corps, 3 reflet, etc.). Le shader `palette_swap.gdshader` lit ce niveau, va chercher la couleur à la colonne `niveau` et à la ligne `palette_row` de `palette.png` (`texelFetch`), garde l'alpha de la base et la couleur de sommet (`modulate`). Les uniforms `brightness`, `saturation` et `rainbow` portent les états du bouton. Changer une couleur ou le dessin d'une base revient donc à éditer un seul PNG, sans toucher aux scènes.
 
 Le même shader recolore des bases qui ne sont pas des boutons, avec un `ShaderMaterial` local à la scène (`resource_local_to_scene`) dont `palette_row` est une valeur de `GameButton.Palette`. Une base de ce type garde son numéro de colonne dans le canal rouge de tous ses pixels (transparents compris) et s'importe sans `fix_alpha_border`, pour que le filtrage ne mélange jamais deux numéros:
 
@@ -202,8 +202,11 @@ Un bouton en `toggle_mode` peut changer de glyphe et de palette tant que `button
 | Survol | Luminosité x 1,15 (`BRIGHTNESS_HOVER`) |
 | Appui | Luminosité x 0,8 (`BRIGHTNESS_PRESSED`) |
 | Désactivé | Saturation à 0, glyphe à 0,6 de luminosité (`GLYPH_BRIGHTNESS_DISABLED`) |
+| `rainbow` | Une vague d'arc-en-ciel parcourt la base en diagonale et un reflet blanc la traverse, pour un mode allumé par le joueur (l'accélération du HUD) |
 
-Une bascule verrouillée qui a un échange (`game_icon_pressed` ou `palette_pressed` renseigné) n'est pas assombrie: l'échange est son apparence appuyée, seul le survol l'éclaircit. Les états passent par `disabled` et `palette`, jamais par `modulate`.
+Le `rainbow` ne change que la teinte des niveaux propres à la palette (ombre, corps, reflet et second reflet, niveaux 1, 2, 3 et 6): chaque niveau garde sa valeur (le V de HSV), donc l'ombrage pixel reste, et le contour, le liseré blanc et l'encre (niveaux 0, 4 et 5, communs à toutes les palettes) gardent la forme du bouton. Le glyphe garde sa teinte. L'animation suit le `TIME` des shaders, qui suit `Engine.time_scale`: elle est réglée pour la vitesse x3 et s'arrête quand le temps est gelé.
+
+Une bascule verrouillée qui a un échange (`game_icon_pressed` ou `palette_pressed` renseigné) ou un `rainbow` n'est pas assombrie: c'est son apparence appuyée, seul le survol l'éclaircit. Les états passent par `disabled`, `palette` et `rainbow`, jamais par `modulate`.
 
 ### Boutons textuels
 
