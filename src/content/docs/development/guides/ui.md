@@ -67,14 +67,20 @@ Cliquer sur une tour ajoute un `RadialTowerUpgradeMenu` (enfant de la tour) avec
 | `TowerInfo` | `&"tower_info"` | Barres de statistiques courantes, fermé par un clic hors du panneau |
 | `TowerUpgradeMenu` | `&"upgrade_menu"` | Un onglet par amélioration disponible. Le bouton de confirmation affiche `StatsDB.get_upgrade_price(id)` (`TOWER.UPGRADE.PRICE`) et est grisé quand `ILevel.coins` ne suffit pas. Confirmer émet `upgrade_confirmed` puis appelle `tower.start_upgrade(id)` |
 
-Ces deux sources ne sont ni dans `Global.TREE_PAUSING_SOURCES` ni dans `Global.TIME_RUNNING_SOURCES`: elles gèlent le gameplay et le temps sans mettre l'arbre en pause. `StatBar` (`stat_bar.gd`) dessine une statistique: icône, nom et jauge de `TICK_COUNT` (15) graduations, la valeur maximale de référence étant `MAX_STAT_VALUE` (200). Le nom vient de la clé `STAT.<NOM EN MAJUSCULES>` (`tr("STAT.%s" % stat_name.to_upper())`), l'icône d'une table de `assets/ui/stats/`. Les statistiques purement visuelles (`SKIP_BULLET_STATS`) ne s'affichent pas.
+Ces deux sources ne sont ni dans `Global.TREE_PAUSING_SOURCES` ni dans `Global.TIME_RUNNING_SOURCES`: elles gèlent le gameplay et le temps sans mettre l'arbre en pause. `StatBar` (`stat_bar.gd`) dessine une statistique: icône, nom et jauge de `TICK_COUNT` (15) graduations, la valeur maximale de référence étant `MAX_STAT_VALUE` (200). Le nom vient de la clé `STAT.<NOM EN MAJUSCULES>` (`tr("STAT.%s" % stat_name.to_upper())`), l'icône de `StatIcon.for_stat(stat_name)` (sans icône, celle de la scène reste). Les statistiques purement visuelles (`SKIP_BULLET_STATS`) ne s'affichent pas.
 
 ## Widgets
 
 - `ButtonEffects.apply(button: Control, process_when_paused: bool = true)` (`ui/components/button_effects.gd`, un `RefCounted` statique): réduit le bouton à 95 % (`CLICK_SCALE`) pendant l'appui (tween de `TWEEN_DURATION`, 0,1 s, qui tourne aussi sous une pause de l'arbre), et centre le pivot avec `pivot_offset_ratio = Vector2(0.5, 0.5)` (`PIVOT_RATIO`), qui suit la taille du bouton sans code de recentrage. Avec `process_when_paused` à `true`, le `process_mode` du bouton passe à `PROCESS_MODE_ALWAYS` pour qu'il fonctionne en pause, sinon il reste tel quel. Les scènes qui animent l'échelle d'un contrôle (libellé de pièces du HUD, bandeau de vague) posent aussi `pivot_offset_ratio` dans le `.tscn` au lieu de calculer `pivot_offset` en code. L'appel est idempotent: la méta `APPLIED_META_KEY` (`&"button_effects"`) marque le bouton, une seconde application ne fait rien.
 - `GameButton` appelle `ButtonEffects.apply` lui-même dans `_ready()` (hors éditeur). Les contrôles qui ne sont pas des `GameButton` l'appellent explicitement: les cartes de construction (`BuildCard`), les zones d'onglets de l'encyclopédie et les indicateurs de niveau (`LevelIndicator`).
 - Thème global: `ui/theme/generic.tres` (`gui/theme/custom` dans `project.godot`). Police: `dotgothic16_regular.ttf` (`assets/fonts/dotgothic/`).
-- `SpritePreview` (`ui/components/sprite_preview.gd`, un `RefCounted`): `SpritePreview.from_scene(scene)` instancie la scène d'une tour, d'un piège ou d'un ennemi et lit son sprite (`texture`, `frames`, `animation`, `fps`, `scale`, `modulate`). La recherche essaie les nœuds `Sprite`, `AnimatedSprite2D` et `Sprite2D`, puis le premier `AnimatedSprite2D` ou `Sprite2D` de la scène. Elle renvoie un aperçu vide quand la scène est nulle ou sans sprite. L'armurerie et l'encyclopédie l'utilisent toutes les deux.
+- `SpritePreview` (`ui/components/sprite_preview.gd`, un `RefCounted`): `SpritePreview.from_scene(scene)` instancie la scène d'une tour, d'un piège ou d'un ennemi et lit son sprite (`texture`, `frames`, `animation`, `fps`, `scale`, `modulate`). `SpritePreview.from_node(root)` lit une instance déjà créée et la laisse intacte. La recherche essaie les nœuds `Sprite`, `AnimatedSprite2D` et `Sprite2D`, puis le premier `AnimatedSprite2D` ou `Sprite2D` de la scène. Elle renvoie un aperçu vide quand la scène est nulle ou sans sprite. L'armurerie, l'encyclopédie et les cartes de construction l'utilisent.
+- `StatIcon` (`ui/components/stat_icon/stat_icon.gd`, un `RefCounted` marqué `@tool`) découpe `assets/ui/stats/stat_icons.png` (une ligne de 20 cellules de 16 px) comme `GameIcon` découpe ses glyphes: la cellule de `id` est `id - 1` dans l'ordre de l'enum `StatIcon.Id` (`NONE` n'a pas de cellule). `StatIcon.texture(id)` renvoie un `AtlasTexture` partagé (`null` pour `NONE`), `StatIcon.region(id)` la zone en pixels, `StatIcon.key(id)` le nom de l'id et `StatIcon.for_stat(stat_name)` l'icône d'une clé de `stats.json` (`null` si elle n'en a pas). La table `StatIcon.BY_STAT` associe chaque clé à son id, `ZOMBIE_SPEED` (vitesse d'un ennemi, utilisée par l'encyclopédie) n'a pas de clé. Ajouter une icône: une cellule à la fin de la feuille, un id à la fin de l'enum et une entrée de `BY_STAT`.
+
+```gdscript
+var attack: AtlasTexture = StatIcon.texture(StatIcon.Id.ATTACK)
+var burn: AtlasTexture = StatIcon.for_stat("burn_damage_base")
+```
 
 ### Variations de thème
 
@@ -119,9 +125,18 @@ Changer `shape` après `_ready()` reconstruit le fond (`_apply_shape()`). Avec `
 
 ### Palettes et échange de palette (`palette`)
 
-`GameButton.Palette` compte six valeurs, dans l'ordre des lignes de `assets/ui/buttons/palette.png`: `BLUE` (le bleu sarcelle, valeur par défaut), `GREEN`, `ORANGE`, `RED`, `SAND` et `GREY` (neutre ou désactivé). `palette.png` fait 7 colonnes sur 6 lignes (une ligne par `Palette`, un test le vérifie).
+`GameButton.Palette` compte six valeurs, dans l'ordre des lignes de `assets/ui/buttons/palette.png`: `BLUE` (le bleu sarcelle, valeur par défaut), `GREEN`, `ORANGE`, `RED`, `SAND` et `GREY` (neutre ou désactivé). `palette.png` fait 13 colonnes sur 6 lignes (une ligne par `Palette`, un test le vérifie): les colonnes 0 à 6 sont celles des bases de boutons, les colonnes 7 et suivantes recolorent d'autres bases grises (voir ci-dessous).
 
 Les bases sont en niveaux de gris: le canal rouge de chaque pixel est un numéro de colonne de la palette (0 contour, 1 ombre, 2 corps, 3 reflet, etc.). Le shader `palette_swap.gdshader` lit ce niveau, va chercher la couleur à la colonne `niveau` et à la ligne `palette_row` de `palette.png` (`texelFetch`), garde l'alpha de la base et la couleur de sommet (`modulate`). Les uniforms `brightness` et `saturation` portent les états du bouton. Changer une couleur ou le dessin d'une base revient donc à éditer un seul PNG, sans toucher aux scènes.
+
+Le même shader recolore des bases qui ne sont pas des boutons, avec un `ShaderMaterial` local à la scène (`resource_local_to_scene`) dont `palette_row` est une valeur de `GameButton.Palette`. Une base de ce type garde son numéro de colonne dans le canal rouge de tous ses pixels (transparents compris) et s'importe sans `fix_alpha_border`, pour que le filtrage ne mélange jamais deux numéros:
+
+| Base | Colonnes | Utilisée par |
+|---|---|---|
+| `assets/ui/cards/card_frame.png` | 7 (cadre de carte) | `BuildCard` (ligne `GREEN`) et `ArmoryItem` (`GREEN` possédée, `GREY` bloquée par un prérequis, `BLUE` sinon) |
+| `assets/ui/level_selection/level_dot.png` | 8 à 12 (5 teintes, du plus sombre au plus clair) | `LevelIndicator.ROWS` (`CURRENT` orange, `COMPLETED` vert, `LOCKED` bleu sarcelle) |
+
+Un bouton ne lit que les colonnes 0 à 6, ajouter des colonnes ne change donc aucun `GameButton`.
 
 ### Glyphes (`game_icon`)
 
@@ -171,7 +186,7 @@ L'infobulle est `tooltip_text` traduit quand il est renseigné, sinon la traduct
 godot --path . res://debug/game_button_gallery.tscn
 ```
 
-À ouvrir après tout changement de `palette.png`, d'une base ou de `icons.png`. Les tests de `tests/ui/components/` (`test_game_button.gd`, `test_game_icon.gd`) couvrent les formes, les palettes, les bascules, les états, l'échelle, l'infobulle, l'atlas et le mode multicolore ([Tests](/documentation/development/guides/testing/)).
+À ouvrir après tout changement de `palette.png`, d'une base ou de `icons.png`. Les tests de `tests/ui/components/` (`test_game_button.gd`, `test_game_icon.gd`, `test_stat_icon.gd`, `test_palette_assets.gd`, `test_sprite_preview.gd`) couvrent les formes, les palettes, les bascules, les états, l'échelle, l'infobulle, les atlas, le mode multicolore et les colonnes de palette des bases de cadre et de point ([Tests](/documentation/development/guides/testing/)).
 
 ### Ajouter une icône
 
@@ -182,7 +197,7 @@ godot --path . res://debug/game_button_gallery.tscn
 
 ### Contrôles qui ne sont pas des `GameButton`
 
-Les cartes de construction (`TextureButton` des scènes `build_card_bat_XX`), les cartes de l'armurerie (`CardTextureButton`, dont le bouton d'achat est lui un `GameButton` `BANNER`), les zones d'onglets de l'encyclopédie (`TowersButton`, `EnemiesButton`) et les indicateurs de niveau (`LevelIndicator`) sont des `TextureButton` avec leur propre dessin. Ils reçoivent `ButtonEffects` directement.
+Les cartes de construction (`TextureButton` de l'unique scène `build_card.tscn`), les cartes de l'armurerie (`CardTextureButton`, dont le bouton d'achat est lui un `GameButton` `BANNER`), les zones d'onglets de l'encyclopédie (`TowersButton`, `EnemiesButton`) et les indicateurs de niveau (`LevelIndicator`) sont des `TextureButton` avec leur propre dessin. Ils reçoivent `ButtonEffects` directement.
 
 ## Popups
 

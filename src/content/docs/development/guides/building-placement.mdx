@@ -114,9 +114,9 @@ Les tuiles apparaissent avec une animation (`play_special_tiles_intro_sequence()
 
 ## Menu de construction
 
-Le bouton du HUD instancie `BuildSelection` (`ui/menus/build_selection/`) sous `Global.ui`. Il contient une `BuildCard` par bâtiment (`build_card_bat_01` à `build_card_bat_09`) et deux onglets, `Tab.TOWERS` et `Tab.TRAPS`.
+Le bouton du HUD instancie `BuildSelection` (`ui/menus/build_selection/`) sous `Global.ui`. Il contient une `BuildCard` par bâtiment et deux onglets, `Tab.TOWERS` et `Tab.TRAPS`. Les cartes sont créées au `_ready()` par `_build_cards()`, à partir de la liste `BuildSelection.CARD_IDS` qui fixe leur ordre (la tour `bat_09` précède `bat_08`, ce que l'ordre de `StatsDB` ne donnerait pas). La scène de chaque bâtiment vient du champ `scene` de `StatsDB` (tour ou piège); un id sans scène est ignoré avec un avertissement. Chaque carte est posée dans un `AspectRatioContainer` nommé `<Id>AspectRatioContainer` (par exemple `Bat01AspectRatioContainer`).
 
-`BuildCard` a un export `entity: PackedScene` (la scène de la tour ou du piège). À son `_ready()`, elle l'instancie, applique les stats de `StatsDB` et, pour une tour, les bonus de l'armurerie. Elle lit ensuite le coût sur l'instance.
+`BuildCard` (`build_card.tscn`) est l'unique scène de carte. Elle a un export `entity: PackedScene` (la scène de la tour ou du piège), posé avant son ajout à l'arbre. À son `_ready()`, elle l'instancie, applique les stats de `StatsDB` et, pour une tour, les bonus de l'armurerie. Elle lit ensuite le coût sur l'instance. Le titre vient de `StatsDB.name_key`, l'icône (texture et teinte) du sprite de l'instance par `SpritePreview.from_node`, et le cadre est `card_frame.png` recoloré par la palette `GREEN` ([Interface](/documentation/development/guides/ui/)).
 
 - Un bâtiment non débloqué ([Armurerie](/documentation/development/models/armory-model/)) affiche `BUILD.CARD.LOCKED` à la place du prix et la carte est inactive.
 - Une carte trop chère est assombrie et son prix passe en rouge.

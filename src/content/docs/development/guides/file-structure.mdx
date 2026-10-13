@@ -23,10 +23,11 @@ import {FileTree} from '@astrojs/starlight/components';
   - shaders/ fichiers `.gdshader`
   - sprites/ `enemies/`, `towers/`, `traps/` et `projectiles/`
   - translations/ translations.csv
-  - ui/ `backgrounds/`, `branding/`, `cards/`, `hud/`, `icons/`, `level_selection/` et `stats/`
+  - ui/ `backgrounds/`, `branding/`, `hud/`, `icons/`, `level_selection/` (`level_dot.png`) et `stats/` (`stat_icons.png`)
+    - cards/ `card_frame.png` (base grise du cadre de carte), `blue_background.svg` et `construction_tower_title.svg`
     - buttons/ art des `GameButton`
       - bases/ bases grises `rect.png`, `rect_short.png`, `hexa.png`, `panel.png` et `banner.png`
-      - palette.png une ligne de couleurs par `GameButton.Palette`
+      - palette.png une ligne de couleurs par `GameButton.Palette` (colonnes 0 à 6 pour les boutons, 7 pour le cadre de carte, 8 à 12 pour le point de niveau)
       - icons.png atlas des glyphes de `GameIcon` (cellules de 64 px)
 - autoloads/ services globaux (`Global`, `StatsDB`, `ProgressionManager`...)
 - core/ logique sans scène
@@ -63,8 +64,9 @@ import {FileTree} from '@astrojs/starlight/components';
   - ui/
 - tools/ vérifications headless (`check_scripts.tscn`, `smoke_test.tscn`), run déterministe (`golden_run.tscn`), benchmark (`bench_combat.tscn`) et `tool_buildings.gd`
 - ui/ interface
-  - components/ `button_effects.gd`, `sprite_preview.gd` et `game_button/`
+  - components/ `button_effects.gd`, `sprite_preview.gd`, `game_button/` et `stat_icon/`
     - game_button/ `game_button.tscn`, `game_button.gd`, `game_icon.gd` et `palette_swap.gdshader`
+    - stat_icon/ `stat_icon.gd` (`StatIcon`)
   - hud/
   - menus/ `home/`, `options/`, `pause/`, `end_game/`, `armory/`, `tower_upgrade/`, `level_selection/`, `build_selection/`, `encyclopedia/` et `challenges/`
   - popups/
@@ -98,7 +100,7 @@ Le workflow CI est dans `.github/workflows/build.yml`.
 | `autoloads/` | Services globaux, voir [Architecture](/documentation/development/guides/architecture/). |
 | `core/` | Logique sans scène: `challenges/` (classe `Challenge` et logiques dans `logics/cha.XXX.gd`), `log/`, `narrative/` (`Narrative`, `narrative.gd`: choix de la timeline par langue et dialogues joués une seule fois), `progression/`, `state_machine/` et `utilities/`. |
 | `game/` | Le gameplay: `buildings/` (`i_building.gd`, `placement/`, `towers/`, `traps/`), `camera/`, `enemies/`, `level/` (`ILevel`, `levels/` et `wave/`), `map/` (`IMap`, `tiles/` et `maps/`), `projectiles/` et `sound_entity/` (le script `sound_entity.gd`, voir [Audio](/documentation/development/guides/audio/#soundentity)). |
-| `ui/` | `ui.tscn`, `components/` (widgets partagés: `ButtonEffects`, `SpritePreview` et `game_button/` pour `GameButton`, `GameIcon` et le shader de palette), `hud/`, `menus/`, `popups/`, `tutorial/` et `theme/` (`generic.tres`, thème par défaut du projet), voir [Interface](/documentation/development/guides/ui/). |
+| `ui/` | `ui.tscn`, `components/` (widgets partagés: `ButtonEffects`, `SpritePreview`, `game_button/` pour `GameButton`, `GameIcon` et le shader de palette, et `stat_icon/` pour `StatIcon`), `hud/`, `menus/`, `popups/`, `tutorial/` et `theme/` (`generic.tres`, thème par défaut du projet), voir [Interface](/documentation/development/guides/ui/). |
 | `debug/` | `console/` et ses `commands/` ([Console de debug](/documentation/development/guides/console/)), `game_button_gallery.tscn` (galerie des boutons) et `stats_icons_debug.tscn` ([Outils de debug](/documentation/development/guides/debugging/#écrans-de-test)). |
 | `data/` | `stats.json`, la source des stats ([Statistiques](/documentation/development/models/stats-model/)), `levels/` (`lev.01.json` à `lev.08.json`), `challenges/` (`cha.XXX.json`) et `armory/armory.json`. Il n'y a pas de dossier `arcs/`: les arcs sont dans `level_selection_menu.tscn` ([Créer un niveau](/documentation/development/guides/levels-and-arcs/#arcs)). |
 | `assets/` | Ressources artistiques et audio. |

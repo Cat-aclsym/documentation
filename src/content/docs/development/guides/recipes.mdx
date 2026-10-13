@@ -53,7 +53,7 @@ Voir [Ennemi](/documentation/development/models/enemy-model/). La suite `test_en
 
 1. Créer `game/buildings/towers/bat_XX.tscn`, héritée de `i_tower.tscn`, avec `tower_id = "bat_XX"` et le `bullet_scene` du projectile.
 2. Ajouter `towers.bat_XX` dans `stats.json` (`base`, `level`, `scene`, `upgrades`) et les `upgrades.<id>` référencés ([Statistiques](/documentation/development/models/stats-model/)). Les clés de `bullet_stats` doivent figurer dans `ITower.PROJECTILE_GAMEPLAY_KEYS` pour être copiées sur le projectile.
-3. Créer `build_card_bat_XX.tscn` dans `ui/menus/build_selection/cards/` avec son export `entity`, puis l'ajouter à `build_selection.tscn` ([Construction](/documentation/development/guides/building-placement/#menu-de-construction)).
+3. Ajouter l'id `bat_XX` à `BuildSelection.CARD_IDS` à la place où la carte doit apparaître: la carte est créée à partir de `build_card.tscn` et du champ `scene` de `StatsDB` ([Construction](/documentation/development/guides/building-placement/#menu-de-construction)).
 4. Ajouter le nœud `unlock_bat_XX` dans `data/armory/armory.json`, avec l'effet `unlock_tower`. Sans lui, la tour reste verrouillée, sauf si son id est dans `ARMORY_STARTER_TOWER_IDS` ([Armurerie](/documentation/development/models/armory-model/)).
 5. Ajouter `TOWER.BAT_XX.NAME` au CSV.
 
