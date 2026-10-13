@@ -121,6 +121,7 @@ Le type de données `TypeScale` porte les 12 tailles. Toute taille du thème en 
 | `BookName` (et `BookNameTitleLarge`, `BookNameTitle`, `BookNameBodyLarge`, `BookNameBody`, `BookNameGiant`), `BookHeading`, `BookStatKey`, `BookStatValue` (et leurs variantes `Compact`) | `Label` | Texte brun de l'encyclopédie: la longueur du nom choisit la variation, un nombre de lignes de statistiques supérieur à 12 choisit les variantes `Compact` |
 | `BookStatsGrid`, `BookStatsGridCompact`, `BookStatRow`, `ChallengeLine` | `GridContainer`, `HBoxContainer` | Espacements des nœuds que les scripts créent |
 | `MenuPanel`, `MenuPanelDark`, `MenuPanelSliced`, `LevelPanel` | `PanelContainer` | Fonds de menu (`ui/theme/styles/`) |
+| `CardTitleTag` | `PanelContainer` | Étiquette verte du titre d'une carte de construction (`card_title_tag.tres`, découpée en 9 zones pour garder intacts le bout oblique et la marque du coin). Elle épouse la largeur du titre plus ses marges et reste centrée sur la carte |
 | `HealthBarBackground`, `HealthBarFill`, `HealthBarBorder` | `Panel` | Barre de vie des ennemis: le remplissage est blanc et teinté par `self_modulate` |
 | `DebugButton` | `Button` | Bouton de debug |
 
@@ -206,7 +207,7 @@ Une bascule verrouillée qui a un échange (`game_icon_pressed` ou `palette_pres
 
 ### Boutons textuels
 
-Avec un `text`, la base est étirée par sa découpe en 9 zones à la taille du bouton. Le texte (une clé de traduction, par exemple `HOME.PLAY.BUTTON`) est de la couleur d'encre du thème, blanc sur la palette `RED`: le bouton passe à la variation `Inverse` de sa forme en jeu (jamais dans l'éditeur, qui l'écrirait dans la scène) et revient à la variation de base en quittant `RED`, sans toucher aux surcharges posées sur l'instance. `PANEL` utilise la variation avec la police `dotgothic_variation.tres` et son contour.
+Avec un `text`, la base est étirée par sa découpe en 9 zones à la taille du bouton. Le texte (une clé de traduction, par exemple `HOME.PLAY.BUTTON`) est de la couleur d'encre du thème, blanc sur la palette `RED`: le bouton passe à la variation `Inverse` de sa forme en jeu (jamais dans l'éditeur, qui l'écrirait dans la scène) dès que `palette` ou `palette_pressed` change et à chaque bascule d'un bouton à bascule (un `set_pressed_no_signal` est rattrapé au dessin suivant), et revient à la variation de base en quittant `RED`, sans toucher aux surcharges posées sur l'instance. `PANEL` utilise la variation avec la police `dotgothic_variation.tres` et son contour.
 
 `text_style` (`DEFAULT`, `SMALL`, `MEDIUM`, `LARGE`, `HERO`, `WAVE`) règle la taille du texte: le bouton copie la taille `font_size` du type `ButtonText*` correspondant (une valeur de `TypeScale`) dans ses surcharges de police, et la police seulement quand le type en a une (`WAVE`, grasse), donc `PANEL` garde son espacement de glyphes. `DEFAULT` retire les surcharges. L'éditeur ne les applique pas, pour que la sauvegarde d'une scène ne les écrive pas: `_validate_property` n'atteint pas les propriétés `theme_override_*`.
 
