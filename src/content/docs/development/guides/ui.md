@@ -73,7 +73,7 @@ Ces deux sources ne sont ni dans `Global.TREE_PAUSING_SOURCES` ni dans `Global.T
 
 - `ButtonEffects.apply(button: Control, process_when_paused: bool = true)` (`ui/components/button_effects.gd`, un `RefCounted` statique): réduit le bouton à 95 % (`CLICK_SCALE`) pendant l'appui (tween de `TWEEN_DURATION`, 0,1 s, qui tourne aussi sous une pause de l'arbre), et centre le pivot avec `pivot_offset_ratio = Vector2(0.5, 0.5)` (`PIVOT_RATIO`), qui suit la taille du bouton sans code de recentrage. Avec `process_when_paused` à `true`, le `process_mode` du bouton passe à `PROCESS_MODE_ALWAYS` pour qu'il fonctionne en pause, sinon il reste tel quel. Les scènes qui animent l'échelle d'un contrôle (libellé de pièces du HUD, bandeau de vague) posent aussi `pivot_offset_ratio` dans le `.tscn` au lieu de calculer `pivot_offset` en code. L'appel est idempotent: la méta `APPLIED_META_KEY` (`&"button_effects"`) marque le bouton, une seconde application ne fait rien.
 - `GameButton` appelle `ButtonEffects.apply` lui-même dans `_ready()` (hors éditeur). Les contrôles qui ne sont pas des `GameButton` l'appellent explicitement: les cartes de construction (`BuildCard`), les zones d'onglets de l'encyclopédie et les indicateurs de niveau (`LevelIndicator`).
-- Thème global: `ui/theme/generic.tres` (`gui/theme/custom` dans `project.godot`). Police: `dotgothic16_regular.ttf` (`assets/fonts/dotgothic/`).
+- Thème global: `ui/theme/generic.tres` (`gui/theme/custom` dans `project.godot`), le seul thème du jeu: aucune scène ne pose de `theme =`. Police par défaut: `dotgothic16_regular.ttf` (`assets/fonts/dotgothic/`). Voir [Variations de thème](#variations-de-thème).
 - `SpritePreview` (`ui/components/sprite_preview.gd`, un `RefCounted`): `SpritePreview.from_scene(scene)` instancie la scène d'une tour, d'un piège ou d'un ennemi et lit son sprite (`texture`, `frames`, `animation`, `fps`, `scale`, `modulate`). `SpritePreview.from_node(root)` lit une instance déjà créée et la laisse intacte. La recherche essaie les nœuds `Sprite`, `AnimatedSprite2D` et `Sprite2D`, puis le premier `AnimatedSprite2D` ou `Sprite2D` de la scène. Elle renvoie un aperçu vide quand la scène est nulle ou sans sprite. L'armurerie, l'encyclopédie et les cartes de construction l'utilisent.
 - `StatIcon` (`ui/components/stat_icon/stat_icon.gd`, un `RefCounted` marqué `@tool`) découpe `assets/ui/stats/stat_icons.png` (une ligne de 20 cellules de 16 px) comme `GameIcon` découpe ses glyphes: la cellule de `id` est `id - 1` dans l'ordre de l'enum `StatIcon.Id` (`NONE` n'a pas de cellule). `StatIcon.texture(id)` renvoie un `AtlasTexture` partagé (`null` pour `NONE`), `StatIcon.region(id)` la zone en pixels, `StatIcon.key(id)` le nom de l'id et `StatIcon.for_stat(stat_name)` l'icône d'une clé de `stats.json` (`null` si elle n'en a pas). La table `StatIcon.BY_STAT` associe chaque clé à son id, `ZOMBIE_SPEED` (vitesse d'un ennemi, utilisée par l'encyclopédie) n'a pas de clé. Ajouter une icône: une cellule à la fin de la feuille, un id à la fin de l'enum et une entrée de `BY_STAT`.
 
@@ -84,13 +84,55 @@ var burn: AtlasTexture = StatIcon.for_stat("burn_damage_base")
 
 ### Variations de thème
 
-`generic.tres` déclare des variations de type, choisies par `theme_type_variation` sur le nœud:
+`generic.tres` déclare des variations de type, choisies par `theme_type_variation` sur le nœud. Les scènes et les scripts ne choisissent que des variations: un changement d'état à l'exécution (défi échoué, prix inabordable, difficulté, victoire ou défaite, taille du nom dans l'encyclopédie) change la variation au lieu de surcharger une couleur ou une taille. Une variation d'une variation (`CardTextFailed` sur `CardText`) ne pose que ce qui change. Seules les constantes de mise en page (`margin_*`, `separation`, `icon_max_width`) restent des surcharges de scène.
+
+#### Échelle des tailles
+
+Le type de données `TypeScale` porte les 12 tailles. Toute taille du thème en est une (un test le vérifie) et `default_font_size` vaut `title`. La police `DotGothic16` est une police de points de 16 px, sans lissage.
+
+| Rôle | Taille | Utilisation |
+|---|---|---|
+| `caption` | 11 | Prix du menu radial, étiquettes de la carte, bouton de debug |
+| `small` | 16 | Titre et prix des cartes de construction, onglets, bouton d'achat de l'armurerie, texte des défis |
+| `body` | 20 | Noms des statistiques, titre des défis, descriptions de l'armurerie, lignes de défi de fin de partie |
+| `body_large` | 24 | Description de niveau, vie du HUD, indicateurs de niveau, statistiques de l'encyclopédie |
+| `heading_small` | 24 | Titre de description de l'armurerie, `+X` de pièces |
+| `heading` | 28 | `HeaderLarge`, `HeaderMedium`, titre des défis |
+| `title` | 32 | Taille par défaut (tout texte sans variation), titres des fenêtres de tour |
+| `title_large` | 40 | Nom de niveau, titre de l'armurerie |
+| `display` | 48 | Nom de l'encyclopédie, titres de pause et de fin de partie |
+| `wave` | 56 | Bandeau de vague |
+| `hero` | 64 | Bouton Jouer, titre d'arc |
+| `giant` | 120 | Le `?` de l'encyclopédie |
+
+#### Variations
 
 | Variation | Base | Utilisation |
 |---|---|---|
 | `GameButtonRect`, `GameButtonRectShort`, `GameButtonHexa`, `GameButtonPanel`, `GameButtonBanner`, `GameButtonNone` | `Button` | Une par `GameButton.Shape`: couleur du texte (encre) et marges de contenu. `PANEL` ajoute la police `dotgothic_variation.tres` (espacement des glyphes de 3) et un contour de 6 px. `GameButton.shape` les pose lui-même |
-| `HeaderLarge`, `HeaderMedium`, `HeaderSmall` | `Label` | Titres |
-| `UILabel` | `Label` | Textes du HUD et des cartes de défi |
+| `GameButtonRectInverse`, `GameButtonRectShortInverse`, `GameButtonHexaInverse`, `GameButtonPanelInverse`, `GameButtonBannerInverse`, `GameButtonNoneInverse` | la variation de la forme | Texte blanc, posées par `GameButton` sur la palette `RED` (`GameButton.INVERSE_VARIATIONS`) |
+| `HeaderLarge`, `HeaderMedium`, `HeaderSmall`, `HeaderSmallDark`, `HeaderDisplay` | `Label` | Titres (28, 28, 16, 16 noir, 48) |
+| `UILabel`, `UILabelLarge` | `Label` | Textes du HUD (contour sombre), vie du HUD en 24 |
+| `Caption`, `MapCaption`, `SmallText`, `SmallTight`, `BodyText`, `BodyLargeText`, `SubtitleText`, `TitleText`, `TitleLargeText` | `Label` | Un rôle de l'échelle chacune (`MapCaption` ajoute un contour noir, `SmallTight` un interligne de -8) |
+| `VictoryTitle`, `DefeatTitle`, `ArcTitle` | `Label` | Titres colorés de fin de partie et d'arc |
+| `DamagePopup`, `ScorePopup` | `Label` | Chiffres flottants (contour noir de 4 et de 6 px) |
+| `CardTitle`, `CardText`, `CardTitleFailed`, `CardTextFailed`, `DifficultyEasy`, `DifficultyMedium`, `DifficultyHard`, `DifficultyImpossible` | `Label` | Cartes de défi: `ChallengeCard` change de variation quand le défi échoue (`ChallengeCard.DIFFICULTY_VARIATIONS`) |
+| `PriceLabel`, `PriceLabelUnaffordable`, `PriceLabelLocked` | `Label` | Prix d'une carte de construction. La police `dotgothic_price_variation.tres` réduit la hauteur de ligne pour que le prix tienne dans la bande verte du cadre |
+| `BookName` (et `BookNameTitleLarge`, `BookNameTitle`, `BookNameBodyLarge`, `BookNameBody`, `BookNameGiant`), `BookHeading`, `BookStatKey`, `BookStatValue` (et leurs variantes `Compact`) | `Label` | Texte brun de l'encyclopédie: la longueur du nom choisit la variation, un nombre de lignes de statistiques supérieur à 12 choisit les variantes `Compact` |
+| `BookStatsGrid`, `BookStatsGridCompact`, `BookStatRow`, `ChallengeLine` | `GridContainer`, `HBoxContainer` | Espacements des nœuds que les scripts créent |
+| `MenuPanel`, `MenuPanelDark`, `MenuPanelSliced`, `LevelPanel` | `PanelContainer` | Fonds de menu (`ui/theme/styles/`) |
+| `HealthBarBackground`, `HealthBarFill`, `HealthBarBorder` | `Panel` | Barre de vie des ennemis: le remplissage est blanc et teinté par `self_modulate` |
+| `DebugButton` | `Button` | Bouton de debug |
+
+Les types `ButtonTextSmall`, `ButtonTextMedium`, `ButtonTextLarge`, `ButtonTextHero` et `ButtonTextWave` ne portent que `font_size` (et la police grasse pour `ButtonTextWave`): `GameButton.text_style` les copie.
+
+#### Infobulles
+
+Les infobulles ont leur propre fenêtre mais prennent le thème du projet: `TooltipPanel` (fond ardoise, bordure teal de 2 px, sans arrondi) et `TooltipLabel` (blanc, taille `small`).
+
+#### Garde
+
+`tests/ui/theme/test_theme.gd` vérifie que toute variation choisie par une scène ou un script existe avec la bonne base, que chaque taille est une valeur de `TypeScale`, que les variations `Inverse` sont blanches sur un bouton en jeu, que les styles de `ui/theme/styles/` se chargent, et qu'aucune scène ni aucun script de `ui/` et `game/` ne surcharge police, taille, couleur ou style (seul `game_button.gd` le fait pour `text_style`).
 
 ## Boutons (GameButton)
 
@@ -164,7 +206,9 @@ Une bascule verrouillée qui a un échange (`game_icon_pressed` ou `palette_pres
 
 ### Boutons textuels
 
-Avec un `text`, la base est étirée par sa découpe en 9 zones à la taille du bouton. Le texte (une clé de traduction, par exemple `HOME.PLAY.BUTTON`) est de la couleur d'encre du thème, blanc sur la palette `RED` (le bouton pose les six surcharges `font_*_color` en jeu, jamais dans l'éditeur, et les retire en quittant `RED`, ce qui efface aussi celles posées sur l'instance). `PANEL` utilise la variation avec la police `dotgothic_variation.tres` et son contour.
+Avec un `text`, la base est étirée par sa découpe en 9 zones à la taille du bouton. Le texte (une clé de traduction, par exemple `HOME.PLAY.BUTTON`) est de la couleur d'encre du thème, blanc sur la palette `RED`: le bouton passe à la variation `Inverse` de sa forme en jeu (jamais dans l'éditeur, qui l'écrirait dans la scène) et revient à la variation de base en quittant `RED`, sans toucher aux surcharges posées sur l'instance. `PANEL` utilise la variation avec la police `dotgothic_variation.tres` et son contour.
+
+`text_style` (`DEFAULT`, `SMALL`, `MEDIUM`, `LARGE`, `HERO`, `WAVE`) règle la taille du texte: le bouton copie la taille `font_size` du type `ButtonText*` correspondant (une valeur de `TypeScale`) dans ses surcharges de police, et la police seulement quand le type en a une (`WAVE`, grasse), donc `PANEL` garde son espacement de glyphes. `DEFAULT` retire les surcharges. L'éditeur ne les applique pas, pour que la sauvegarde d'une scène ne les écrive pas: `_validate_property` n'atteint pas les propriétés `theme_override_*`.
 
 ### Mise à l'échelle (`art_scale`)
 

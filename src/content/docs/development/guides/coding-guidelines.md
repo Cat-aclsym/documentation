@@ -148,6 +148,10 @@ Aucun script ne pose ou ne lit un drapeau de pause: `Global.request_pause(&"sour
 - `assert()` pour les nœuds obligatoires dans `_ready`.
 - Filtre de texture `Nearest` pour tous les sprites pixel art.
 
+## Thème
+
+Les polices, tailles, couleurs, contours et styles de panneau viennent d'une variation de thème (`theme_type_variation`, changée à l'exécution pour un changement d'état), jamais d'un `theme_override_*` ni d'un `add_theme_*_override`. Les marges et les séparations peuvent rester des surcharges de scène. Toute taille est une valeur de `TypeScale`. Un test (`tests/ui/theme/test_theme.gd`) refuse ces surcharges dans `ui/` et `game/`, sauf dans `game_button.gd` ([Interface](/documentation/development/guides/ui/#variations-de-thème)).
+
 ## Internationalisation
 
 - Toute chaîne visible par le joueur passe par `tr()` (labels, boutons, messages, tooltips). Les identifiants techniques, logs et noms de commande ne sont pas traduits.

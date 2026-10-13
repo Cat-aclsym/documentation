@@ -70,7 +70,7 @@ import {FileTree} from '@astrojs/starlight/components';
   - hud/
   - menus/ `home/`, `options/`, `pause/`, `end_game/`, `armory/`, `tower_upgrade/`, `level_selection/`, `build_selection/`, `encyclopedia/` et `challenges/`
   - popups/
-  - theme/ `generic.tres` et les variations de la police
+  - theme/ `generic.tres` (thème du projet), `styles/` (styles de panneau, d'infobulle et de barre de vie) et les variations de la police
   - tutorial/
   - ui.tscn et ui.gd
 - default_bus_layout.tres bus audio `Music`, `SFX` et `UI`
@@ -100,7 +100,7 @@ Le workflow CI est dans `.github/workflows/build.yml`.
 | `autoloads/` | Services globaux, voir [Architecture](/documentation/development/guides/architecture/). |
 | `core/` | Logique sans scène: `challenges/` (classe `Challenge` et logiques dans `logics/cha.XXX.gd`), `log/`, `narrative/` (`Narrative`, `narrative.gd`: choix de la timeline par langue et dialogues joués une seule fois), `progression/`, `state_machine/` et `utilities/`. |
 | `game/` | Le gameplay: `buildings/` (`i_building.gd`, `placement/`, `towers/`, `traps/`), `camera/`, `enemies/`, `level/` (`ILevel`, `levels/` et `wave/`), `map/` (`IMap`, `tiles/` et `maps/`), `projectiles/` et `sound_entity/` (le script `sound_entity.gd`, voir [Audio](/documentation/development/guides/audio/#soundentity)). |
-| `ui/` | `ui.tscn`, `components/` (widgets partagés: `ButtonEffects`, `SpritePreview`, `game_button/` pour `GameButton`, `GameIcon` et le shader de palette, et `stat_icon/` pour `StatIcon`), `hud/`, `menus/`, `popups/`, `tutorial/` et `theme/` (`generic.tres`, thème par défaut du projet), voir [Interface](/documentation/development/guides/ui/). |
+| `ui/` | `ui.tscn`, `components/` (widgets partagés: `ButtonEffects`, `SpritePreview`, `game_button/` pour `GameButton`, `GameIcon` et le shader de palette, et `stat_icon/` pour `StatIcon`), `hud/`, `menus/`, `popups/`, `tutorial/` et `theme/` (`generic.tres`, thème du projet, et `styles/`), voir [Interface](/documentation/development/guides/ui/). |
 | `debug/` | `console/` et ses `commands/` ([Console de debug](/documentation/development/guides/console/)), `game_button_gallery.tscn` (galerie des boutons) et `stats_icons_debug.tscn` ([Outils de debug](/documentation/development/guides/debugging/#écrans-de-test)). |
 | `data/` | `stats.json`, la source des stats ([Statistiques](/documentation/development/models/stats-model/)), `levels/` (`lev.01.json` à `lev.08.json`), `challenges/` (`cha.XXX.json`) et `armory/armory.json`. Il n'y a pas de dossier `arcs/`: les arcs sont dans `level_selection_menu.tscn` ([Créer un niveau](/documentation/development/guides/levels-and-arcs/#arcs)). |
 | `assets/` | Ressources artistiques et audio. |
