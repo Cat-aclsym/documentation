@@ -1,57 +1,47 @@
 ---
 title: Machine d'états (StateMachine)
-description: États, transitions et builder de la machine d'états qui pilote le déroulement d'un niveau
+description: États, transitions autorisées et ticks de la machine d'états qui pilote le déroulement d'un niveau
 sidebar:
   label: Machine d'états
   order: 15
 ---
 
-`StateMachine` (`scripts/state_machine/`) est une machine d'états à transitions explicites: passer d'un état à un autre exige une transition déclarée. Seul `ILevel` l'utilise, pour le déroulement des vagues. Les fabriques et le builder sont présentés dans [Architecture](/documentation/development/guides/architecture/#factory).
+`StateMachine` (`core/state_machine/state_machine.gd`) est une machine d'états à transitions explicites: passer d'un état à un autre exige une transition déclarée avec `allow`. C'est une seule classe `RefCounted` qui porte les états et les transitions elle-même: ce n'est pas un nœud, elle est libérée avec sa dernière référence. Seul `ILevel` l'utilise, pour le déroulement des vagues.
 
 ```mermaid
 classDiagram
-    StateMachine *-- State : states
-    StateMachine *-- Transition : valid_transition
-    Transition --> State : from, to
-    StateMachineBuilder ..> StateMachine : build
-    StateMachineBuilder ..> StateFactory
-    StateMachineBuilder ..> TransitionFactory
-    StateFactory ..> State
-    TransitionFactory ..> Transition
+    class StateMachine {
+        +String current_state_id
+        +add_state(id, on_tick, initial)
+        +allow(from, to)
+        +toggle_state(id) bool
+        +tick()
+    }
+    ILevel *-- StateMachine : state_machine
 ```
 
-| Classe | Membres |
+| Membre | Rôle |
 |---|---|
-| `StateMachine` | `name`, `states`, signal `state_changed(state)`, `toggle_state(state_id)`, `toggle_initial_state()`, `handle_current_state(args)`, `get_current_state()`, `add_state`, `add_initial_state`, `add_transition` |
-| `State` | `name`, `callback`, `handle(args)` |
-| `Transition` | `from`, `to`, `callback`, `handle()` |
-| `StateMachineBuilder` | `build()`, `build_state`, `build_initial_state`, `build_transition`, chacun renvoie le builder |
-| `StateFactory` | `create(state_id, state_callback)` statique |
-| `TransitionFactory` | `create(tr_from, tr_to, new_callback)` statique |
+| `current_state_id: String` | Identifiant de l'état courant, vide tant que l'état initial n'est pas ajouté |
+| `add_state(id: String, on_tick: Callable = Callable(), initial: bool = false)` | Enregistre l'état `id`. `on_tick` s'exécute à chaque `tick()` tant que l'état est courant. La machine démarre dans l'état ajouté avec `initial = true` |
+| `allow(from: String, to: String)` | Autorise la transition de `from` vers `to` |
+| `toggle_state(id: String) -> bool` | Passe à l'état `id` et renvoie `true`. Renvoie `false` avec un log `ERROR` quand l'état est inconnu ou que la transition n'est pas autorisée |
+| `tick()` | Exécute le callback de l'état courant, sans rien faire quand l'état n'a pas de callback |
 
-## Fonctionnement
-
-- Un `State` porte un nom et un `Callable` qui reçoit un tableau d'arguments et renvoie un `bool`.
-- `toggle_state(state_id)` cherche la transition de l'état courant vers l'état demandé. Si elle existe, l'état courant change, le callback de la transition s'exécute et `state_changed` est émis. Sinon la méthode loggue une erreur `ERROR` et renvoie `false`. Un identifiant inconnu donne le même résultat.
-- `handle_current_state(args)` exécute le callback de l'état courant.
-- `toggle_initial_state()` émet `state_changed` pour l'état initial, sans exécuter son callback.
-- `add_state` et `add_transition` refusent les doublons (`assert`).
-
-Le builder enchaîne les appels:
+`add_state` refuse un identifiant déjà enregistré et `allow` refuse un état inconnu (`assert`). La machine n'émet aucun signal: l'appelant lit `toggle_state` et `current_state_id`. Un callback ne reçoit aucun argument et ne renvoie rien.
 
 ```gdscript
-var builder := StateMachineBuilder.new()
-builder.build_initial_state(STATE_CONFIGURING, _on_state_configuring)
-builder.build_state(STATE_WAVE_0, _on_state_wave)
-builder.build_transition(STATE_CONFIGURING, STATE_WAVE_0)
-state_machine = builder.build()
+var machine: StateMachine = StateMachine.new()
+machine.add_state("IDLE", Callable(), true)
+machine.add_state("RUN", _on_run_tick)
+machine.allow("IDLE", "RUN")
+machine.toggle_state("RUN") # true, une transition non autorisée renvoie false
+machine.tick() # appelle _on_run_tick
 ```
-
-Les deux états d'une transition doivent exister avant d'appeler `build_transition`.
 
 ## États d'un niveau
 
-`ILevel._build_state_machine()` crée les états `CONFIGURING` (initial), `WAVE_<i>` (un par vague), `PAUSE`, `VICTORY`, `DEFEAT`, `ERROR` et `END`. Le `Clock` du niveau appelle `handle_current_state` toutes les 5 ticks, donc le callback de l'état courant s'exécute à chaque cycle.
+`ILevel._build_state_machine()` appelle `add_state` pour `CONFIGURING` (initial), `VICTORY`, `DEFEAT`, `PAUSE`, `END` et `WAVE_<i>` (un par vague), puis `allow` pour chaque transition. Il n'existe pas d'état d'erreur. Le `WaveTickTimer` du niveau (un `Timer` de 0,5 s dans `i_level.tscn`) appelle `ILevel._process_tick()`, qui exécute `state_machine.tick()`: le callback de l'état courant s'exécute donc toutes les 0,5 s de temps de jeu ([Niveau et carte](/documentation/development/models/level-model/#tick-des-vagues)).
 
 ```mermaid
 stateDiagram-v2
@@ -60,8 +50,10 @@ stateDiagram-v2
     WAVE_0 --> WAVE_1 : vague suivante
     WAVE_1 --> WAVE_n : vague suivante
     WAVE_n --> VICTORY : dernière vague
+    CONFIGURING --> PAUSE : pause
     WAVE_1 --> PAUSE : depuis chaque vague
-    PAUSE --> WAVE_1 : vers la vague courante
+    PAUSE --> CONFIGURING : reprise
+    PAUSE --> WAVE_1 : reprise vers la vague en cours
     WAVE_1 --> DEFEAT : vie à 0, depuis chaque vague
     VICTORY --> END
     DEFEAT --> END
@@ -69,27 +61,32 @@ stateDiagram-v2
 
 `WAVE_n` est la dernière vague. Seule elle mène à `VICTORY`, et chaque vague mène uniquement à la suivante.
 
-| État | Callback |
+| État | Callback de tick |
 |---|---|
 | `CONFIGURING` | Passe aussitôt à `WAVE_0` |
 | `WAVE_<i>` | Exécute les étapes de la vague. Quand la vague est vide et qu'aucun ennemi n'est en vie, passe à la vague suivante ou à `VICTORY` |
-| `PAUSE` | Met `Engine.time_scale` à 0 et `Global.paused` à `true` |
+| `PAUSE` | Aucun: le gel du temps est appliqué tout de suite par `ILevel._on_pause_changed()` |
 | `VICTORY` | Lance `ChallengeManager.check_victory_conditions()` puis la fin de niveau (écran de victoire) |
 | `DEFEAT` | Fin de niveau (écran de défaite) |
-| `ERROR` | Loggue une erreur |
-| `END` | Sans callback |
+| `END` | Aucun |
 
 Autres transitions déclarées, non montrées ci-dessus:
 
-- `CONFIGURING` vers `DEFEAT` et `ERROR`.
-- Chaque `WAVE_<i>` vers `CONFIGURING` et `ERROR`.
-- `VICTORY` vers `CONFIGURING` et `ERROR`.
-- `DEFEAT` vers `PAUSE` et `ERROR`.
+- `CONFIGURING` vers `DEFEAT`.
+- Chaque `WAVE_<i>` vers `CONFIGURING`.
+- `VICTORY` vers `CONFIGURING`.
+- `DEFEAT` vers `PAUSE`.
 
-`ILevel.pause()` bascule vers `PAUSE` et `resume_from_pause()` revient à `WAVE_<current_wave>` ([Niveau et carte](/documentation/development/models/level-model/)).
+## Pause
+
+Il n'y a pas de méthodes `ILevel.pause()` ni `resume_from_pause()`. `ILevel` écoute `Global.pause_changed`: quand une source demande une pause pendant `CONFIGURING` ou `WAVE_<i>`, il mémorise l'état courant et bascule vers `PAUSE`. Quand toutes les sources ont libéré leur pause, il revient à l'état mémorisé. Les sources et le gel du temps sont décrits dans [Architecture](/documentation/development/guides/architecture/#pause-par-source) et [Niveau et carte](/documentation/development/models/level-model/#pause).
 
 ## Ajouter un état
 
-1. Écrire le callback (`func _on_state_x(_args = []) -> bool`).
-2. L'enregistrer avec `build_state`.
-3. Déclarer chaque transition avec `build_transition`: une transition absente est refusée au `toggle_state`.
+1. Écrire le callback (`func _on_state_x() -> void`).
+2. L'enregistrer avec `state_machine.add_state(id, _on_state_x)`.
+3. Déclarer chaque transition avec `allow(from, to)`, après l'enregistrement des deux états: une transition absente est refusée par `toggle_state`.
+
+## Tests
+
+`tests/core/utilities/test_state_machine.gd` couvre la machine seule et `tests/game/level/test_level_flow.gd` le déroulement d'un niveau ([Tests](/documentation/development/guides/testing/)).

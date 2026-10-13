@@ -1,6 +1,6 @@
 ---
 title: Structure du projet
-description: Dossiers du projet Godot, fichiers racine et emplacement des nouveaux fichiers
+description: Dossiers du projet Godot, fichiers racine, règle de placement et emplacement des nouveaux fichiers
 sidebar:
   label: Structure du projet
   order: 2
@@ -12,42 +12,70 @@ import {FileTree} from '@astrojs/starlight/components';
 
 <FileTree>
 
-- addons/ plugins externes (Dialogic), à modifier seulement pour un travail sur le plugin
-- assets/
-  - audio/
-  - environment/
-  - gameplay/
-  - narrative/ timelines et personnages Dialogic
-  - resources/ thèmes, shaders et configs/stats.json
+- addons/ plugins externes (Dialogic, gdUnit4), à modifier seulement pour un travail sur le plugin
+  - dialogic/
+  - gdUnit4/ framework de tests, exclu des exports
+- assets/ art, audio, polices, shaders, narration et traductions
+  - audio/ musique (`music/`)
+  - environment/ fonds, grille de placement, effets de tuiles et tilesets
+  - fonts/ police `dotgothic/`
+  - narrative/ timelines `<nom>.<locale>.dtl`, `character1.dch` et `style.tres`
+  - shaders/ fichiers `.gdshader`
+  - sprites/ `enemies/`, `towers/`, `traps/` et `projectiles/`
   - translations/ translations.csv
-  - ui/
-- resources/ données JSON (levels, arcs, challenges, armory)
-- scenes/
-  - gameplay/
-    - entities/ enemy, tower, trap, building, building_placement, bullet
-    - world/ clock, level, map
-  - ui/
-    - debug/
-    - menus/
-    - popup/
-    - tutorial/
-    - ui.gd
-  - utilities/ console, sound_entity
-  - watcher/ widget de debug
-  - main.tscn scène principale
-  - DebugScene.tscn
-- scripts/
-  - autoloads/
-  - camera/
-  - challenges/
-  - commands/
+  - ui/ `backgrounds/`, `branding/`, `hud/`, `icons/`, `level_selection/` (`level_dot.png`) et `stats/` (`stat_icons.png`)
+    - cards/ `card_frame.png` (base grise du cadre de carte), `blue_background.svg` et `construction_tower_title.svg`
+    - buttons/ art des `GameButton`
+      - bases/ bases grises `rect.png`, `rect_short.png`, `hexa.png`, `panel.png` et `banner.png`
+      - palette.png une ligne de couleurs par `GameButton.Palette` (colonnes 0 à 6 pour les boutons, 7 pour le cadre de carte, 8 à 12 pour le point de niveau)
+      - icons.png atlas des glyphes de `GameIcon` (cellules de 64 px)
+- autoloads/ services globaux (`Global`, `StatsDB`, `ProgressionManager`...)
+- core/ logique sans scène
+  - challenges/ classe `Challenge` et `logics/cha.XXX.gd`
   - log/
+  - narrative/
   - progression/
   - state_machine/
+  - utilities/ `json_util.gd`, `depth_sort.gd`, `vfx_util.gd` et `signals/signal_util.gd`
+- data/ données JSON
+  - armory/
+  - challenges/
+  - levels/
+  - stats.json stats de tous les ennemis, tours, pièges, projectiles et améliorations
+- debug/ console, galerie des boutons et scène des icônes de stats
+  - console/ `console.tscn`, `icommand.gd` et `commands/`
+  - game_button_gallery.tscn et game_button_gallery.gd aperçu de toutes les formes et palettes de `GameButton`
+  - stats_icons_debug.tscn et stats_icons_debug.gd icônes de stats avec leur clé
+- game/ gameplay, chaque scène avec son script
+  - buildings/ `i_building.gd`, `placement/`, `towers/` et `traps/`
+  - camera/
+  - enemies/ `i_enemy.tscn`, `health_bar.tscn` et une scène par ennemi
+  - level/ `i_level.tscn`, `levels/lev.XX.tscn` et `wave/`
+  - map/ `i_map.tscn`, `tile_map_*.tscn`, `tiles/` et `maps/` (`arc_01/map_0X.tscn`)
+  - projectiles/
+  - sound_entity/ `sound_entity.gd` (`SoundEntity`), script attaché au nœud `BackgroundMusic` de `ILevel`, sans scène
+- reports/ rapports gdUnit4 (`report_N/`), ignoré par Git
+- tests/ suites gdUnit4, même arborescence que les sources
+  - autoloads/
+  - core/
+  - data/
+  - game/
+  - support/ helpers de test (`test_enemies.gd`, `test_dialogic.gd`)
   - ui/
-  - utilities/
-  - wave/
+- tools/ vérifications headless (`check_scripts.tscn`, `smoke_test.tscn`), run déterministe (`golden_run.tscn`), benchmark (`bench_combat.tscn`) et `tool_buildings.gd`
+- ui/ interface
+  - components/ `button_effects.gd`, `sprite_preview.gd`, `game_button/` et `stat_icon/`
+    - game_button/ `game_button.tscn`, `game_button.gd`, `game_icon.gd` et `palette_swap.gdshader`
+    - stat_icon/ `stat_icon.gd` (`StatIcon`)
+  - hud/
+  - menus/ `home/`, `options/`, `pause/`, `end_game/`, `armory/`, `tower_upgrade/`, `level_selection/`, `build_selection/`, `encyclopedia/` et `challenges/`
+  - popups/
+  - theme/ `generic.tres` (thème du projet), `styles/` (styles de panneau, d'infobulle et de barre de vie) et les variations de la police
+  - tutorial/
+  - ui.tscn et ui.gd
+- default_bus_layout.tres bus audio `Music`, `SFX` et `UI`
 - export_presets.cfg
+- main.tscn scène principale
 - project.godot
 
 </FileTree>
@@ -56,34 +84,50 @@ La racine est `res://`.
 
 Le workflow CI est dans `.github/workflows/build.yml`.
 
+## Règle de placement
+
+- Une scène et son script partagent le même dossier.
+- Une logique sans scène va dans `core/`, `autoloads/` ou `ui/components/`.
+- Le nom du fichier de la scène d'une entité est son id de `stats.json`: `default_zombie.tscn`, `bat_01.tscn`.
+- Les données JSON, `stats.json` compris, sont dans `data/`.
+- `tests/` reprend l'arborescence des sources: un test de `game/enemies/` va dans `tests/game/enemies/`.
+- Les noms de fichiers sont en `snake_case`.
+
 ## Dossiers
 
 | Dossier | Contenu |
 |---|---|
-| `assets/` | Ressources artistiques et audio. Les nouveaux fichiers sont nommés en `snake_case` (certains existants ne le sont pas, par exemple `Button Close.svg`). |
-| `assets/narrative/` | Timelines `.dtl` (une par langue) et personnages, voir [Dialogic](/documentation/development/guides/dialogic-guide/). |
-| `assets/resources/` | Thèmes, shaders et `configs/stats.json`, la source des stats ([Statistiques](/documentation/development/models/stats-model/)). |
-| `resources/` | `levels/` (`lev.01.json` à `lev.08.json`), `arcs/` (`arc.01.json`, `arc.02.json`), `challenges/` (`cha.XXX.json`) et `armory/armory.json`. |
-| `scenes/` | Les `.tscn` par domaine. Un script spécifique à une scène reste à côté d'elle. |
-| `scripts/` | Logique transverse non attachée à une scène unique. |
-| `scripts/autoloads/` | Services globaux, voir [Architecture](/documentation/development/guides/architecture/). |
-| `scripts/challenges/` | Classe `Challenge` et logiques dans `logics/cha.XXX.gd`. |
-| `scripts/commands/` | Commandes de la console, voir [Console de debug](/documentation/development/guides/console/). |
-
-La scène `scenes/narrative/example/` lance une timeline `example` qui n'existe pas dans le projet.
+| `autoloads/` | Services globaux, voir [Architecture](/documentation/development/guides/architecture/). |
+| `core/` | Logique sans scène: `challenges/` (classe `Challenge` et logiques dans `logics/cha.XXX.gd`), `log/`, `narrative/` (`Narrative`, `narrative.gd`: choix de la timeline par langue et dialogues joués une seule fois), `progression/`, `state_machine/` et `utilities/`. |
+| `game/` | Le gameplay: `buildings/` (`i_building.gd`, `placement/`, `towers/`, `traps/`), `camera/`, `enemies/`, `level/` (`ILevel`, `levels/` et `wave/`), `map/` (`IMap`, `tiles/` et `maps/`), `projectiles/` et `sound_entity/` (le script `sound_entity.gd`, voir [Audio](/documentation/development/guides/audio/#soundentity)). |
+| `ui/` | `ui.tscn`, `components/` (widgets partagés: `ButtonEffects`, `SpritePreview`, `game_button/` pour `GameButton`, `GameIcon` et le shader de palette, et `stat_icon/` pour `StatIcon`), `hud/`, `menus/`, `popups/`, `tutorial/` et `theme/` (`generic.tres`, thème du projet, et `styles/`), voir [Interface](/documentation/development/guides/ui/). |
+| `debug/` | `console/` et ses `commands/` ([Console de debug](/documentation/development/guides/console/)), `game_button_gallery.tscn` (galerie des boutons) et `stats_icons_debug.tscn` ([Outils de debug](/documentation/development/guides/debugging/#écrans-de-test)). |
+| `data/` | `stats.json`, la source des stats ([Statistiques](/documentation/development/models/stats-model/)), `levels/` (`lev.01.json` à `lev.08.json`), `challenges/` (`cha.XXX.json`) et `armory/armory.json`. Il n'y a pas de dossier `arcs/`: les arcs sont dans `level_selection_menu.tscn` ([Créer un niveau](/documentation/development/guides/levels-and-arcs/#arcs)). |
+| `assets/` | Ressources artistiques et audio. |
+| `assets/ui/buttons/` | Art des `GameButton`: `bases/` (une base grise par forme), `palette.png` (une ligne par palette) et `icons.png` (atlas des glyphes), voir [Boutons](/documentation/development/guides/ui/#boutons-gamebutton). `cat_button.png` et `coin_button.png` (HUD) sont dans `assets/ui/icons/`. |
+| `assets/narrative/` | Timelines `<nom>.<locale>.dtl` (une par langue), `character1.dch` et `style.tres`, voir [Dialogic](/documentation/development/guides/dialogic-guide/). |
+| `assets/translations/` | `translations.csv` (clés `TOWER.*`, `TRAP.*`, `ENEMY.*`, `LEVEL.LEV_0X.*`, `ARC.0X.TITLE`, `STAT.*`, `TILE.*`, `CHALLENGE.CHA.*`), voir [Traductions](/documentation/development/guides/i18n/). |
+| `tools/` | Scènes et scripts lancés en ligne de commande sans interface: `check_scripts`, `smoke_test`, `golden_run`, `bench_combat` et le helper `tool_buildings.gd`. Exclu des exports. |
+| `tests/` | Suites gdUnit4 (`test_*.gd`) qui reprennent l'arborescence des sources, et `tests/support/`. Exclu des exports, voir [Tests](/documentation/development/guides/testing/). |
+| `addons/gdUnit4/` | Framework de tests gdUnit4 6.2.2. Exclu des exports. |
 
 ## Fichiers générés ou ignorés par Git
 
 - `log/` : écrit dans `res://log`, donc seulement depuis l'éditeur ([Logs](/documentation/development/guides/logger/)).
-- `*.translation` : générés à l'import, y compris `dialogic_translations.en.translation` et `dialogic_translations.fr.translation` à la racine, déclarés dans `project.godot`.
+- `*.translation` : générés à l'import à partir de `translations.csv`, déclarés dans `project.godot`. Dialogic ne génère pas de fichiers de traduction: les timelines sont une par langue.
+- `reports/`: rapports JUnit et HTML de gdUnit4.
 - `exports/` et `.godot/`.
 
 ## Où créer quoi
 
-- Entité, menu ou widget avec une scène : `scenes/...`
-- Service global : `scripts/autoloads/...`
-- Commande de console : `scripts/commands/...`
-- Niveau, arc ou challenge : `resources/...`
-- Stats d'une tour, d'un piège ou d'un ennemi : `assets/resources/configs/stats.json`
+- Entité du jeu (ennemi, tour, piège, projectile, carte, niveau) : `game/...`, avec son script dans le même dossier
+- Menu, widget ou popup : `ui/...`, avec son script dans le même dossier
+- Logique sans scène : `core/...`, `autoloads/...` ou `ui/components/...`
+- Service global : `autoloads/...`
+- Commande de console : `debug/console/commands/...`
+- Test unitaire : `tests/...`, dans le dossier qui reprend celui de la source testée
+- Niveau ou challenge : `data/levels/...` et `data/challenges/...` (les arcs sont dans `level_selection_menu.tscn`)
+- Stats d'une tour, d'un piège ou d'un ennemi : `data/stats.json`
+- Nom affiché d'une tour, d'un piège ou d'un ennemi : `assets/translations/translations.csv`
 
 Les étapes pour ajouter un ennemi, une tour, un piège, un niveau, un défi ou une commande sont dans [Recettes](/documentation/development/guides/recipes/).

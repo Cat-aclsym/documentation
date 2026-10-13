@@ -10,10 +10,10 @@ Une commande de la [console de debug](/documentation/development/guides/console/
 
 ## Emplacement des scripts
 
-- Interface de base: `res://scenes/utilities/console/icommand.gd`
-- Implémentations: `res://scripts/commands/`
+- Interface de base: `res://debug/console/icommand.gd`
+- Implémentations: `res://debug/console/commands/`
 
-Le nom du fichier est le token de commande tapé en jeu : `set_money.gd` expose la commande `set_money`. La console charge le script et crée une nouvelle instance à chaque exécution.
+Le nom du fichier est le token de commande tapé en jeu : `set_money.gd` expose la commande `set_money`, `debug_tower_placement.gd` la commande `debug_tower_placement` (nom en `snake_case`, sans tiret). La console charge tous les scripts du dossier au premier usage (`Console.get_commands()`), crée une seule instance par commande et la réutilise: une commande ne garde donc pas d'état entre deux exécutions sans le vouloir.
 
 ## Diagramme de classes
 
@@ -41,7 +41,7 @@ classDiagram
 | `description()` | texte d'aide de la commande |
 | `get_args()` | définition des arguments |
 | `get_args_dynamic(current_args)` | définition qui dépend des arguments déjà saisis |
-| `is_variable_args()` | `false` par défaut |
+| `get_signature(current_args, highlight_index)` | signature affichée par `help` et sous la saisie, par exemple `<tower_name: ingame_tower> [path: int]` |
 | `execute(console, args)` | valide les arguments puis appelle `_execute()` |
 | `_execute(console, args)` | comportement de la commande, à surcharger |
 | `type_to_string(t)` | nom d'un type d'argument |
@@ -60,10 +60,13 @@ Chaque commande:
 
 ## Exemple
 
-Extrait réel de `scripts/commands/set_money.gd`:
+Extrait réel de `debug/console/commands/set_money.gd`:
 
 ```gdscript
-## © [2024] A7 Studio. All rights reserved. Trademark.
+## © [2026] A7 Studio. All rights reserved. Trademark.
+##
+## Sets the player's in-game money amount.
+## Can only be used when a level is active. Updates the [member ILevel.coins] value.
 extends ICommand
 
 
@@ -126,8 +129,8 @@ Clés d'un argument:
 | `ARG_STRING` | toute chaîne | aucune |
 | `ARG_ENUM` | une valeur de `enum_values` (toute chaîne si la liste est vide) | les valeurs de `enum_values` |
 | `ARG_COMMAND` | toute chaîne | les commandes disponibles |
-| `ARG_LEVEL` | toute chaîne | les niveaux de `resources/levels/` |
-| `ARG_CHALLENGE` | toute chaîne | les défis de `resources/challenges/` |
+| `ARG_LEVEL` | toute chaîne | les niveaux de `data/levels/` |
+| `ARG_CHALLENGE` | toute chaîne | les défis de `data/challenges/` |
 | `ARG_ENEMY` | toute chaîne | les ennemis de `StatsDB` |
 | `ARG_TOWER` | toute chaîne | les tours de `StatsDB` |
 | `ARG_INGAME_TOWER` | toute chaîne | les tours posées sur la carte du niveau en cours |
@@ -143,12 +146,12 @@ Clés d'un argument:
 - chaque argument est validé selon son type, sinon `ERR_INVALID_ARGS_TYPES`;
 - si la définition est vide, aucune validation n'a lieu.
 
-`is_variable_args()` renvoie `false` par défaut. Sa documentation annonce que la validation du nombre d'arguments est ignorée quand elle renvoie `true`, mais `execute()` ne la lit pas.
+Les arguments sont des chaînes: `ARG_INT` et `ARG_FLOAT` valident le format, la commande convertit ensuite (`int(args[0])`) et contrôle les bornes elle-même (par exemple `set_money` refuse un montant négatif).
 
 ## Arguments dynamiques (sous-commandes)
 
 Quand les arguments dépendent des précédents (`progression unlock tower ...`), surcharger `get_args_dynamic(current_args: Array) -> Array[Dictionary]`. Par défaut, elle renvoie `get_args()`.
-Extrait de `scripts/commands/progression.gd`:
+Extrait de `debug/console/commands/progression.gd`:
 
 ```gdscript
 func get_args_dynamic(current_args: Array) -> Array[Dictionary]:
@@ -174,6 +177,7 @@ func get_args_dynamic(current_args: Array) -> Array[Dictionary]:
 - `OK` (`0`) en succès.
 - `ERR_INVALID_ARGS_TYPES` (`-1`) et `ERR_INVALID_ARGS_COUNT` (`-2`): renvoyés par `execute()` quand la validation échoue.
 - `ERR_UNKNOWN_BEHAVIOR` (`-3`): échec métier signalé par la commande.
+- `progression` renvoie `ERR_INVALID_PARAMETER`, la constante globale de Godot, pour une sous-commande ou un identifiant invalide.
 
 Quand le code n'est pas `OK`, la console affiche seulement le code numérique en rouge. Une commande qui échoue écrit donc aussi un message avec `console.push_error_(...)`.
 
@@ -183,6 +187,8 @@ Quand le code n'est pas `OK`, la console affiche seulement le code numérique en
 - `console.push_color(text, color)`: texte coloré.
 - `console.push_error_(text)`: message d'erreur en rouge (le nom finit par `_`).
 - `console.push_debug(text)`: message de debug en vert.
+
+Ces méthodes n'affichent que dans la console: pour écrire aussi dans le fichier de logs, passer par [`Log.trace`](/documentation/development/guides/logger/).
 
 ## Liens liés
 

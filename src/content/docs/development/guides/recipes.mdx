@@ -8,42 +8,54 @@ sidebar:
 
 import {Steps} from '@astrojs/starlight/components';
 
-Chaque recette liste les fichiers à créer ou à modifier. Les détails sont dans les pages liées.
+Chaque recette liste les fichiers à créer ou à modifier. Les détails sont dans les pages liées. Les traductions sont des lignes de `assets/translations/translations.csv` (colonnes `keys,en,fr`, voir [Traductions](/documentation/development/guides/i18n/)).
 
 ## Conventions d'identifiants
 
 | Contenu | Format | Exemple | Où |
 |---|---|---|---|
 | Tour ou piège | `bat_XX` | `bat_02`, `bat_03` | Clés de `stats.json`, `tower_id` et `trap_id` des scènes |
-| Scène d'ennemi | `ene.XX` ou nom de fichier | `ene.01`, `small_zombie` | Fichiers de `enemies/`, clé `enemy_id` des vagues |
-| Ennemi (stats) | `snake_case` | `default_zombie` | Clés de `stats.json`, export `enemy_id` de la scène |
+| Ennemi | `snake_case` | `default_zombie`, `big_daddy` | Clé de `stats.json`, export `enemy_id` de la scène, `enemy_id` des étapes de vague |
 | Niveau | `lev.XX` | `lev.01` | Scène, JSON, `level_id` |
-| Arc | `arc.XX` | `arc.01` | `arc_id` des niveaux |
+| Arc | `arc.XX` | `arc.01` | `arc_id` des niveaux, `ARC.XX.TITLE` |
 | Défi | `cha.XXX` | `cha.101` | JSON et logique de `challenges/` |
 | Nœud d'armurerie | `unlock_<bat_XX>` | `unlock_bat_02` | `armory.json` |
+| Clé de nom | `TOWER.<ID>.NAME`, `TRAP.<ID>.NAME`, `ENEMY.<ID>.NAME` | `TOWER.BAT_02.NAME`, `ENEMY.RAT.NAME` | CSV, l'id est en majuscules (`StatsDB.name_key(category, id)`) |
+
+Les entrées de `stats.json` n'ont pas de champ `name`.
 
 ## Ajouter un ennemi
 
 <Steps>
 
-1. Créer `scenes/gameplay/entities/enemy/enemies/<nom>.tscn`, une scène héritée de `i_enemy.tscn`. Renseigner l'export `enemy_id` (la clé `stats.json`) et, si besoin, `type`. Un comportement propre passe par un script qui étend `IEnemy` (`SmallZombie`, `SplitterZombie`, `BigDaddy`).
-2. Ajouter `enemies.<enemy_id>` dans `assets/resources/configs/stats.json`: `max_health`, `speed`, `reward`, `scene` et `extra` si besoin.
-3. Utiliser le nom du fichier comme `enemy_id` dans une étape de vague ([Vagues](/documentation/development/models/wave-model/)).
-4. Ajouter `ENEMY.<ID>.NAME` au CSV et l'identifiant à la table de noms de `encyclopedia.gd` ([Traductions](/documentation/development/guides/i18n/), [Interface](/documentation/development/guides/ui/#encyclopédie)).
+1. Créer `game/enemies/<nom>.tscn`, une scène héritée de `i_enemy.tscn`. Renseigner l'export `enemy_id` (la clé de `stats.json`) et, si besoin, `type`. Un comportement propre passe par un script qui étend `IEnemy` (`SmallZombie`, `SplitterZombie`, `BigDaddy`).
+2. Ajouter `enemies.<enemy_id>` dans `data/stats.json`: `max_health`, `speed`, `reward`, `escape_damage`, `scene` (le chemin de la scène du pas 1) et `extra` si besoin. Chaque clé d'`extra` est écrite par `StatsDB.apply_fields` dans la propriété du même nom: le script de l'ennemi la déclare (`var spawn_count: int`), sans surcharge de lecture. Une clé sans variable typée, ou la clé `speed`, est ignorée avec un log `ERROR`.
+3. Utiliser la clé `<enemy_id>` comme `enemy_id` dans une étape de vague ([Vagues](/documentation/development/models/wave-model/)): `StatsDB.get_enemy_scene(enemy_id)` charge la scène depuis le champ `scene`. Le nom du fichier de la scène est la clé de l'ennemi.
+4. Ajouter `ENEMY.<ID>.NAME` au CSV (par exemple `ENEMY.RAT.NAME`). L'encyclopédie liste tous les ennemis de `stats.json` d'après cette clé, sans autre déclaration ([Interface](/documentation/development/guides/ui/#encyclopédie)).
 
 </Steps>
 
-Voir [Ennemi](/documentation/development/models/enemy-model/).
+```json
+"rat": {
+	"escape_damage": 5,
+	"max_health": 25,
+	"reward": 5,
+	"scene": "res://game/enemies/rat.tscn",
+	"speed": 70
+}
+```
+
+Voir [Ennemi](/documentation/development/models/enemy-model/). La suite `test_entity_stats` vérifie que chaque scène d'ennemi et de piège reçoit les stats de `stats.json` ([Tests](/documentation/development/guides/testing/)).
 
 ## Ajouter une tour
 
 <Steps>
 
-1. Créer `scenes/gameplay/entities/tower/towers/bat_XX.tscn`, héritée de `i_tower.tscn`, avec `tower_id = "bat_XX"`.
-2. Ajouter `towers.bat_XX` dans `stats.json` (`base`, `level`, `name`, `scene`, `upgrades`) et les `upgrades.<id>` référencés ([Statistiques](/documentation/development/models/stats-model/)).
-3. Créer `build_card_bat_XX.tscn` dans `scenes/ui/menus/building_selection/building_cards/` avec son export `entity`, puis l'ajouter à `build_selection.tscn` ([Construction](/documentation/development/guides/building-placement/#menu-de-construction)).
-4. Ajouter le nœud `unlock_bat_XX` dans `resources/armory/armory.json`, avec l'effet `unlock_tower`. Sans lui, la tour reste verrouillée, sauf si son id est dans `ARMORY_STARTER_TOWER_IDS` ([Armurerie](/documentation/development/models/armory-model/)).
-5. Ajouter `TOWER.BAT_XX.NAME` au CSV si le nom doit être traduit.
+1. Créer `game/buildings/towers/bat_XX.tscn`, héritée de `i_tower.tscn`, avec `tower_id = "bat_XX"` et le `bullet_scene` du projectile.
+2. Ajouter `towers.bat_XX` dans `stats.json` (`base`, `level`, `scene`, `upgrades`) et les `upgrades.<id>` référencés ([Statistiques](/documentation/development/models/stats-model/)). Les clés de `bullet_stats` doivent figurer dans `ITower.PROJECTILE_GAMEPLAY_KEYS` pour être copiées sur le projectile.
+3. Ajouter l'id `bat_XX` à `BuildSelection.CARD_IDS` à la place où la carte doit apparaître: la carte est créée à partir de `build_card.tscn` et du champ `scene` de `StatsDB` ([Construction](/documentation/development/guides/building-placement/#menu-de-construction)).
+4. Ajouter le nœud `unlock_bat_XX` dans `data/armory/armory.json`, avec l'effet `unlock_tower`. Sans lui, la tour reste verrouillée, sauf si son id est dans `ARMORY_STARTER_TOWER_IDS` ([Armurerie](/documentation/development/models/armory-model/)).
+5. Ajouter `TOWER.BAT_XX.NAME` au CSV.
 
 </Steps>
 
@@ -53,24 +65,25 @@ Voir [Tour](/documentation/development/models/tower-model/).
 
 Comme une tour, avec ces différences:
 
-- Scène dans `scenes/gameplay/entities/trap/traps/bat_XX.tscn`, héritée de `i_trap.tscn`, avec `trap_id`.
-- Entrée sous `traps.bat_XX` dans `stats.json` (`base` avec `cost`, `trap_type`, et selon le piège `damage`, `max_durability`, etc.).
+- Scène dans `game/buildings/traps/bat_XX.tscn`, héritée de `i_trap.tscn`, avec `trap_id`. Un script qui étend `ITrap` surcharge `apply_effect` et `remove_effect`, et déclare une propriété par clé de `base` (`var slow_amount: float`): `StatsDB.apply_fields` les remplit, aucune surcharge de lecture des stats n'est nécessaire.
+- Entrée sous `traps.bat_XX` dans `stats.json` (`base` avec `cost`, `trap_type`, et selon le piège `damage`, `max_durability`, etc., plus `scene`).
 - Effet d'armurerie `unlock_trap`.
+- Nom: `TRAP.BAT_XX.NAME`.
 
 Voir [Piège](/documentation/development/models/trap-model/).
 
 ## Ajouter un niveau
 
-Scène de niveau, scène de carte, JSON de vagues et un `LevelFrame` dans le menu: voir [Créer un niveau](/documentation/development/guides/levels-and-arcs/#créer-un-niveau).
+Scène de niveau, scène de carte, JSON (`start_coins`, `max_health`, `waves`, `challenges`), clés `LEVEL.LEV_XX.NAME` et `LEVEL.LEV_XX.DESC` au CSV et un `LevelFrame` dans le menu: voir [Créer un niveau](/documentation/development/guides/levels-and-arcs/#créer-un-niveau).
 
 ## Ajouter un défi
 
 <Steps>
 
-1. Créer `resources/challenges/cha.XXX.json` avec `id`, `name`, `description` (clés de traduction), `difficulty` (`Easy`, `Medium`, `Hard` ou `Impossible`) et `script`.
-2. Créer la logique `scripts/challenges/logics/cha.XXX.gd`: une classe qui étend `Challenge` et implémente les méthodes `on_*` dont elle a besoin (`on_damage_taken`, `on_tower_placed`, `on_enemy_died`...).
+1. Créer `data/challenges/cha.XXX.json` avec `id`, `name`, `description` (clés de traduction), `difficulty` (`Easy`, `Medium` ou `Hard`) et `script`.
+2. Créer la logique `core/challenges/logics/cha.XXX.gd`: une classe qui étend `Challenge` et surcharge les hooks dont elle a besoin (`on_damage_taken`, `on_tower_placed`, `on_trap_placed`, `on_enemy_hit`, `on_enemy_died`, `on_enemy_escaped`), éventuellement `check_completion()`. Remettre son état à zéro dans `start_monitoring()` après `super.start_monitoring()`.
 3. Ajouter `CHALLENGE.CHA.XXX.NAME` et `CHALLENGE.CHA.XXX.DESC` au CSV.
-4. Ajouter `cha.XXX` à la clé `challenges` du JSON des niveaux concernés.
+4. Ajouter `cha.XXX` à la clé `challenges` du JSON des niveaux concernés (trois défis au plus sont affichés par niveau).
 
 </Steps>
 
@@ -83,17 +96,18 @@ func on_damage_taken(amount: int) -> void:
 		fail()
 ```
 
-Un défi non implémenté pointe vers `logics/impossible.gd`. Voir [Défis](/documentation/development/models/challenge-model/).
+Un défi qui compte des ennemis passés lit `on_enemy_escaped` (une arrivée n'est pas une mort). Chaque défi a son propre script de logique. Voir [Défis](/documentation/development/models/challenge-model/).
 
 ## Ajouter une commande de console
 
-Créer `scripts/commands/<nom>.gd` qui étend `ICommand`: le nom du fichier est le nom de la commande. Voir [Créer une commande](/documentation/development/guides/console-commands/).
+Créer `debug/console/commands/<nom>.gd` qui étend `ICommand`: le nom du fichier est le nom de la commande. Voir [Créer une commande](/documentation/development/guides/console-commands/).
 
 ## Où placer les fichiers
 
-- Entité, menu ou widget avec une scène: `scenes/...`
-- Service global: `scripts/autoloads/...`
-- Niveau, arc, défi ou armurerie: `resources/...`
-- Stats d'une tour, d'un piège ou d'un ennemi: `assets/resources/configs/stats.json`
+- Entité, menu ou widget avec une scène: `game/...` ou `ui/...`, le script à côté de la scène
+- Logique sans scène: `core/...`, `autoloads/...` ou `ui/components/...`
+- Niveau ou défi: `data/levels/` et `data/challenges/`; armurerie: `data/armory/`
+- Stats d'une tour, d'un piège ou d'un ennemi: `data/stats.json`
+- Noms et textes affichés: `assets/translations/translations.csv`
 
 L'arborescence complète est dans [Structure du projet](/documentation/development/guides/file-structure/).

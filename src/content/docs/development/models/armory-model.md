@@ -13,7 +13,7 @@ L'armurerie est la méta-progression basée sur les étoiles gagnées via les d�
 - des effets appliqués au jeu (`effects`)
 - des verrous d'upgrade (`upgrade_gates`)
 
-La source de vérité est `res://resources/armory/armory.json`.
+La source de vérité est `res://data/armory/armory.json`.
 
 ```mermaid
 flowchart TB
@@ -81,7 +81,9 @@ Au chargement, `armory.json` est validé: effets inconnus, ids invalides et cycl
 
 ## Tour de départ
 
-La tour `bat_01` est débloquée d'office (`ARMORY_STARTER_TOWER_IDS` dans `ProgressionManager`). Les autres bâtiments passent par l'armurerie.
+La tour `bat_01` est débloquée d'office (`ARMORY_STARTER_TOWER_IDS` dans `ProgressionManager`). `ARMORY_STARTER_TRAP_IDS` est vide: tous les pièges et les autres tours passent par l'armurerie. Les déblocages par défaut sont recalculés d'après les ids de `StatsDB` ([Progression](/documentation/development/models/progression-model/#flux-métier)).
+
+Le premier achat déclenche le dialogue `armory_first_unlock` (drapeau `armory_first_unlock_seen`) et la première ouverture de l'armurerie le dialogue `armory_intro` ([Progression](/documentation/development/models/progression-model/#settingsdata)).
 
 ## Persistance
 

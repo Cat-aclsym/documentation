@@ -16,6 +16,8 @@ L'éditeur Godot peut installer et lancer le jeu directement sur un téléphone 
 - Le projet ouvert dans Godot
 - L'[export Android](/documentation/setup/exporting/#exporter-pour-android) configuré
 
+Le déploiement utilise le preset **Android**: l'APK ne contient que l'architecture `arm64-v8a`, le téléphone doit donc être un appareil arm64.
+
 ## Mode développeur
 
 Activer le mode développeur sur le téléphone:
@@ -55,6 +57,16 @@ Avec ADB, activer le partage de fichiers via la connexion USB du téléphone n'e
 :::note
 Il se peut que l'application ne soit plus lançable une fois déconnectée du câble USB, il faudra alors la réinstaller depuis un export.
 :::
+
+## Installer l'APK de la CI
+
+L'artefact `Cataclysm-android` du workflow ([Intégration continue](/documentation/setup/ci/#job-export)) s'installe avec ADB:
+
+```bash
+adb install Cataclysm.apk
+```
+
+La console de debug est absente d'un APK exporté en release (`Global.debug` vaut `false`).
 
 ## Problèmes courants
 

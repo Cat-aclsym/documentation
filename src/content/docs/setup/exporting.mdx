@@ -1,6 +1,6 @@
 ---
 title: Exporter le jeu
-description: Exporter le jeu pour Android et Windows
+description: Exporter le jeu pour Android et Windows avec les presets du projet
 sidebar:
   label: Export
   order: 5
@@ -8,7 +8,7 @@ sidebar:
 
 import {Steps} from '@astrojs/starlight/components';
 
-Le projet contient deux presets d'export (`export_presets.cfg`): **Android** et **Windows Desktop**. Il n'existe pas de preset iOS ni Web.
+Le projet contient deux presets d'export (`export_presets.cfg`): **Android** et **Windows Desktop**. Il n'existe pas de preset iOS ni Web. Les deux presets partagent le même filtre d'exclusion, `*.aseprite, *.md, *.txt, tools/*, tests/*, addons/gdUnit4/*`: les sources Aseprite, les fichiers texte, les scènes de [vérification headless](/documentation/development/guides/debugging/#vérifications-headless) (`tools/`), les suites de [tests](/documentation/development/guides/testing/) (`tests/`) et le framework gdUnit4 ne sont pas dans les exports. Les sorties vont dans `exports/`, dossier ignoré par Git.
 
 ## Exporter pour Android
 
@@ -18,22 +18,52 @@ Installer d'abord les outils nécessaires:
 
 1. Installer [Android Studio](https://developer.android.com/studio).
 2. Installer Java 17 ou plus récent.
-3. Installer le SDK Android 34.0.0 ou plus récent, attention à bien vérifier le support de la version par Godot 4.4.
-4. Installer CMake 3.10.2 et NDK 23.2 ou plus récent.
-5. Configurer les chemins vers ces outils dans Godot dans `Editor` > `Editor Settings` > `Export` > `Android`.
+3. Installer le SDK Android, CMake et le NDK dans les versions demandées par le [tutoriel officiel](https://docs.godotengine.org/en/4.7/tutorials/export/exporting_for_android.html) de Godot 4.7.
+4. Configurer les chemins vers ces outils dans Godot dans `Editor` > `Editor Settings` > `Export` > `Android`.
 
 </Steps>
 
-Le preset **Android** exporte vers `exports/Cat-aclsym_Claw_of_the_dead.apk`, sans build Gradle, pour les architectures `arm64-v8a` et `x86_64`.
+Le preset **Android**:
 
-Ensuite, ouvrir `Project` > `Export`, sélectionner le preset Android et exporter. Tutoriel officiel: [Exporter pour Android](https://docs.godotengine.org/en/4.4/tutorials/export/exporting_for_android.html).
+| Réglage | Valeur |
+| --- | --- |
+| Sortie | `exports/android/Cataclysm.apk` |
+| Build Gradle | désactivé (`gradle_build/use_gradle_build=false`), export APK |
+| Architecture | `arm64-v8a` seulement (`armeabi-v7a`, `x86` et `x86_64` désactivées) |
+| Identifiant | `package/unique_name` = `fr.a7studio.cataclysm`, nom `Cataclysm` |
+| Signature | `package/signed=true` |
+| Icône de lanceur | `launcher_icons/main_192x192` = `res://assets/ui/branding/app_icon.jpg` |
+| Mode immersif | activé |
+
+Les icônes adaptatives (`adaptive_foreground_432x432`, `adaptive_background_432x432`, `adaptive_monochrome_432x432`) ne sont pas renseignées. Un APK arm64 ne s'installe pas sur un émulateur `x86_64`.
+
+Ensuite, ouvrir `Project` > `Export`, sélectionner le preset Android et exporter. Tutoriel officiel: [Exporter pour Android](https://docs.godotengine.org/en/4.7/tutorials/export/exporting_for_android.html).
+
+### Signature de release
+
+Un export release signe avec le keystore de release. Godot le lit dans les variables d'environnement `GODOT_ANDROID_KEYSTORE_RELEASE_PATH`, `GODOT_ANDROID_KEYSTORE_RELEASE_USER` et `GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD`: le preset ne contient aucun chemin ni mot de passe de keystore. La CI les renseigne à partir de ses secrets ([Intégration continue](/documentation/setup/ci/#job-export)). Un export debug utilise le keystore debug de l'éditeur.
+
+### Format APK et AAB
+
+Le preset produit un APK. L'AAB demandé par le Play Store n'est pas possible avec ce preset car il exige un build Gradle (`gradle_build/use_gradle_build=true`), qui n'est pas en place. Il est suivi dans l'issue [#298](https://github.com/Cat-aclsym/Cat-aclsym_Claw_of_the_dead/issues/298) du dépôt du jeu.
 
 ## Exporter pour Windows
 
-Le preset **Windows Desktop** exporte vers `exports/Cat-aclsym_Claw_of_the_dead.exe`, en `x86_64` avec le `.pck` embarqué.
+Le preset **Windows Desktop** exporte vers `exports/windows/Cataclysm.exe`, en `x86_64` avec le `.pck` embarqué (`binary_format/embed_pck=true`). L'icône est `res://assets/ui/branding/logo_cat.png`, la société `A7 Studio` et le produit `Cataclysm`.
 
-Ouvrir `Project` > `Export`, sélectionner le preset Windows Desktop puis exporter. Tutoriel officiel: [Exporter pour Windows](https://docs.godotengine.org/en/4.4/tutorials/export/exporting_for_windows.html).
+Ouvrir `Project` > `Export`, sélectionner le preset Windows Desktop puis exporter. Tutoriel officiel: [Exporter pour Windows](https://docs.godotengine.org/en/4.7/tutorials/export/exporting_for_windows.html).
 
-## Build CI Android
+## Export en ligne de commande
 
-Un workflow GitHub Actions construit, patche et signe l'APK à chaque push sur `main`, `develop` et `feature/workflow`. Les étapes et les secrets sont décrits dans [Intégration continue](/documentation/setup/ci/).
+Les commandes de la CI s'exécutent aussi en local, après un import (`godot --headless --path . --import`):
+
+```bash
+godot --headless --path . --export-release "Windows Desktop" exports/windows/Cataclysm.exe
+godot --headless --path . --export-debug "Android" exports/android/Cataclysm.apk
+```
+
+Le dossier de sortie doit exister (la CI le crée avec `mkdir -p`).
+
+## Build CI
+
+Un workflow GitHub Actions exporte Windows et Android après les vérifications, sur chaque push vers `main` et `develop`. Les étapes et les secrets sont décrits dans [Intégration continue](/documentation/setup/ci/).
