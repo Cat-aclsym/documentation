@@ -1,6 +1,6 @@
 ---
 title: Outils de debug
-description: Ce qui n'existe qu'en debug, les vérifications headless, les widgets de visualisation et les raccourcis pour tester un niveau
+description: Ce qui n'existe qu'en debug, les vérifications headless, les écrans de test et les raccourcis pour tester un niveau
 sidebar:
   label: Outils de debug
   order: 13
@@ -12,7 +12,6 @@ Les outils de debug dépendent tous de `Global.debug`, qui vaut `OS.has_feature(
 |---|---|
 | [Console](/documentation/development/guides/console/) | La scène se supprime au démarrage |
 | `Log.trace` au niveau `DEBUG` | Le message est ignoré ([Logs](/documentation/development/guides/logger/#niveaux)) |
-| `Watcher` | Le nœud se libère dans `_ready()` |
 | Bouton `debug: stats icons` du menu d'accueil | Reste masqué |
 
 ## Vérifications headless
@@ -58,21 +57,11 @@ Après un renommage ou un déplacement d'assets, `.godot/uid_cache.bin` peut ass
 
 Les suites gdUnit4 de `tests/` se lancent avec `GdUnitCmdTool.gd` (étape « Unit tests » de la CI). `tools/golden_run.tscn` (digest JSON déterministe d'un niveau, pour vérifier qu'un refactor ne change pas le comportement) et `tools/bench_combat.tscn` (médiane et écart-type du temps de script d'un combat chargé) servent aux refactors et aux optimisations. Tout est décrit dans [Tests unitaires et outils de mesure](/documentation/development/guides/testing/).
 
-## Watcher
-
-`Watcher` (`debug/watcher/watcher.tscn`) est un `PanelContainer` qui affiche en continu la valeur d'une propriété d'un nœud. Il est marqué `@experimental` et aucune scène du projet n'en contient.
-
-| Export | Rôle |
-|---|---|
-| `node: Node` | Nœud observé (obligatoire) |
-| `property: StringName` | Propriété affichée (obligatoire) |
-| `physics: bool` | Met à jour dans `_physics_process` au lieu de `_process` |
-
-Instancier `watcher.tscn` dans la scène à inspecter, puis renseigner `node` et `property` dans l'inspecteur.
-
 ## Écrans de test
 
 **Icônes de stats** (`debug/stats_icons_debug.tscn`): depuis le menu d'accueil, le bouton `debug: stats icons` ouvre la liste (ou la grille) de toutes les icônes de stats avec leur clé. Utile pour vérifier une nouvelle stat dans `StatBar`. Pour tester une tour ou un ennemi isolé, lancer un niveau avec `load_level` puis utiliser les commandes ci-dessous.
+
+**Galerie des boutons** (`debug/game_button_gallery.tscn`): affiche chaque forme de `GameButton` avec chaque palette, les boutons textuels, les bascules, les états désactivés et tous les glyphes de `GameIcon`. Elle se lance seule (`godot --path . res://debug/game_button_gallery.tscn`), voir [Boutons](/documentation/development/guides/ui/#boutons-gamebutton).
 
 ## Tester un niveau
 

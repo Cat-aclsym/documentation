@@ -48,7 +48,7 @@ Un groupe sans bus (nom inconnu ou bus absent de la disposition) écrit un avert
 
 ## SoundEntity
 
-`SoundEntity` (`game/sound_entity/sound_entity.tscn`) est un `AudioStreamPlayer`. Son export `group` vaut `sfx`, `music` ou `gui`. Il appelle `SoundManager.register()` dans `_ready()` pour être routé vers le bon bus. Le volume propre du nœud (`volume_db`) reste libre: il s'ajoute à celui du bus.
+`SoundEntity` (`game/sound_entity/sound_entity.gd`) est un script `class_name SoundEntity extends AudioStreamPlayer`, sans scène: on l'attache à un nœud `AudioStreamPlayer` de la scène qui joue le son. Son export `group` vaut `sfx`, `music` ou `gui`. Il appelle `SoundManager.register()` dans `_ready()` pour être routé vers le bon bus. Le volume propre du nœud (`volume_db`) reste libre: il s'ajoute à celui du bus. Le nœud `BackgroundMusic` de `game/level/i_level.tscn` est le seul usage: un `AudioStreamPlayer` avec ce script et `group = "music"`.
 
 ## Réglages du joueur
 
@@ -60,7 +60,7 @@ SoundManager.set_group_enabled("sfx", data.parameters.sound_enabled)
 SoundManager.set_group_enabled("gui", data.parameters.sound_enabled)
 ```
 
-`apply_settings()` s'exécute au chargement de la sauvegarde, à sa réinitialisation et à chaque bascule des boutons musique et son du menu options. Les boutons musique et son du menu pause n'ont pas d'action.
+`apply_settings()` s'exécute au chargement de la sauvegarde, à sa réinitialisation et à chaque bascule des boutons musique et son du menu options et du menu pause ([Interface](/documentation/development/guides/ui/#pause)).
 
 ## Fichiers audio
 
@@ -78,7 +78,7 @@ Les canaux audio de Dialogic ont leurs propres réglages dans `project.godot` (c
 ## Ajouter un son
 
 1. Placer le fichier dans `assets/audio/` (`music/` pour une musique, un dossier `sounds/` à créer pour les effets sonores), nom en `snake_case`.
-2. Ajouter un `SoundEntity` à la scène, choisir son `group` et son flux.
+2. Ajouter un nœud `AudioStreamPlayer` à la scène, lui attacher `sound_entity.gd` (`SoundEntity`), choisir son `group` et son flux.
 3. Appeler `play()` et `stop()` depuis le script de la scène.
 
 Le volume et le mode muet du groupe s'appliquent sans autre code.

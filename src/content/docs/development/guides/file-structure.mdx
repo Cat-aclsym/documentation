@@ -23,7 +23,11 @@ import {FileTree} from '@astrojs/starlight/components';
   - shaders/ fichiers `.gdshader`
   - sprites/ `enemies/`, `towers/`, `traps/` et `projectiles/`
   - translations/ translations.csv
-  - ui/ `backgrounds/`, `branding/`, `buttons/`, `cards/`, `hud/`, `icons/`, `level_selection/` et `stats/`
+  - ui/ `backgrounds/`, `branding/`, `cards/`, `hud/`, `icons/`, `level_selection/` et `stats/`
+    - buttons/ art des `GameButton`
+      - bases/ bases grises `rect.png`, `rect_short.png`, `hexa.png`, `panel.png` et `banner.png`
+      - palette.png une ligne de couleurs par `GameButton.Palette`
+      - icons.png atlas des glyphes de `GameIcon` (cellules de 64 px)
 - autoloads/ services globaux (`Global`, `StatsDB`, `ProgressionManager`...)
 - core/ logique sans scène
   - challenges/ classe `Challenge` et `logics/cha.XXX.gd`
@@ -37,9 +41,10 @@ import {FileTree} from '@astrojs/starlight/components';
   - challenges/
   - levels/
   - stats.json stats de tous les ennemis, tours, pièges, projectiles et améliorations
-- debug/ console, widget de debug et scène des icônes de stats
+- debug/ console, galerie des boutons et scène des icônes de stats
   - console/ `console.tscn`, `icommand.gd` et `commands/`
-  - watcher/
+  - game_button_gallery.tscn et game_button_gallery.gd aperçu de toutes les formes et palettes de `GameButton`
+  - stats_icons_debug.tscn et stats_icons_debug.gd icônes de stats avec leur clé
 - game/ gameplay, chaque scène avec son script
   - buildings/ `i_building.gd`, `placement/`, `towers/` et `traps/`
   - camera/
@@ -47,7 +52,7 @@ import {FileTree} from '@astrojs/starlight/components';
   - level/ `i_level.tscn`, `levels/lev.XX.tscn` et `wave/`
   - map/ `i_map.tscn`, `tile_map_*.tscn`, `tiles/` et `maps/` (`arc_01/map_0X.tscn`)
   - projectiles/
-  - sound_entity/
+  - sound_entity/ `sound_entity.gd` (`SoundEntity`), script attaché au nœud `BackgroundMusic` de `ILevel`, sans scène
 - reports/ rapports gdUnit4 (`report_N/`), ignoré par Git
 - tests/ suites gdUnit4, même arborescence que les sources
   - autoloads/
@@ -58,7 +63,8 @@ import {FileTree} from '@astrojs/starlight/components';
   - ui/
 - tools/ vérifications headless (`check_scripts.tscn`, `smoke_test.tscn`), run déterministe (`golden_run.tscn`), benchmark (`bench_combat.tscn`) et `tool_buildings.gd`
 - ui/ interface
-  - components/ `button_effects.gd`, `sprite_preview.gd` et `styled_button.tscn`
+  - components/ `button_effects.gd`, `sprite_preview.gd` et `game_button/`
+    - game_button/ `game_button.tscn`, `game_button.gd`, `game_icon.gd` et `palette_swap.gdshader`
   - hud/
   - menus/ `home/`, `options/`, `pause/`, `end_game/`, `armory/`, `tower_upgrade/`, `level_selection/`, `build_selection/`, `encyclopedia/` et `challenges/`
   - popups/
@@ -91,11 +97,12 @@ Le workflow CI est dans `.github/workflows/build.yml`.
 |---|---|
 | `autoloads/` | Services globaux, voir [Architecture](/documentation/development/guides/architecture/). |
 | `core/` | Logique sans scène: `challenges/` (classe `Challenge` et logiques dans `logics/cha.XXX.gd`), `log/`, `narrative/` (`Narrative`, `narrative.gd`: choix de la timeline par langue et dialogues joués une seule fois), `progression/`, `state_machine/` et `utilities/`. |
-| `game/` | Le gameplay: `buildings/` (`i_building.gd`, `placement/`, `towers/`, `traps/`), `camera/`, `enemies/`, `level/` (`ILevel`, `levels/` et `wave/`), `map/` (`IMap`, `tiles/` et `maps/`), `projectiles/` et `sound_entity/`. |
-| `ui/` | `ui.tscn`, `components/` (widgets partagés), `hud/`, `menus/`, `popups/`, `tutorial/` et `theme/` (`generic.tres`, thème par défaut du projet), voir [Interface](/documentation/development/guides/ui/). |
-| `debug/` | `console/` et ses `commands/` ([Console de debug](/documentation/development/guides/console/)), `watcher/` et `stats_icons_debug.tscn`. |
+| `game/` | Le gameplay: `buildings/` (`i_building.gd`, `placement/`, `towers/`, `traps/`), `camera/`, `enemies/`, `level/` (`ILevel`, `levels/` et `wave/`), `map/` (`IMap`, `tiles/` et `maps/`), `projectiles/` et `sound_entity/` (le script `sound_entity.gd`, voir [Audio](/documentation/development/guides/audio/#soundentity)). |
+| `ui/` | `ui.tscn`, `components/` (widgets partagés: `ButtonEffects`, `SpritePreview` et `game_button/` pour `GameButton`, `GameIcon` et le shader de palette), `hud/`, `menus/`, `popups/`, `tutorial/` et `theme/` (`generic.tres`, thème par défaut du projet), voir [Interface](/documentation/development/guides/ui/). |
+| `debug/` | `console/` et ses `commands/` ([Console de debug](/documentation/development/guides/console/)), `game_button_gallery.tscn` (galerie des boutons) et `stats_icons_debug.tscn` ([Outils de debug](/documentation/development/guides/debugging/#écrans-de-test)). |
 | `data/` | `stats.json`, la source des stats ([Statistiques](/documentation/development/models/stats-model/)), `levels/` (`lev.01.json` à `lev.08.json`), `challenges/` (`cha.XXX.json`) et `armory/armory.json`. Il n'y a pas de dossier `arcs/`: les arcs sont dans `level_selection_menu.tscn` ([Créer un niveau](/documentation/development/guides/levels-and-arcs/#arcs)). |
 | `assets/` | Ressources artistiques et audio. |
+| `assets/ui/buttons/` | Art des `GameButton`: `bases/` (une base grise par forme), `palette.png` (une ligne par palette) et `icons.png` (atlas des glyphes), voir [Boutons](/documentation/development/guides/ui/#boutons-gamebutton). `cat_button.png` et `coin_button.png` (HUD) sont dans `assets/ui/icons/`. |
 | `assets/narrative/` | Timelines `<nom>.<locale>.dtl` (une par langue), `character1.dch` et `style.tres`, voir [Dialogic](/documentation/development/guides/dialogic-guide/). |
 | `assets/translations/` | `translations.csv` (clés `TOWER.*`, `TRAP.*`, `ENEMY.*`, `LEVEL.LEV_0X.*`, `ARC.0X.TITLE`, `STAT.*`, `TILE.*`, `CHALLENGE.CHA.*`), voir [Traductions](/documentation/development/guides/i18n/). |
 | `tools/` | Scènes et scripts lancés en ligne de commande sans interface: `check_scripts`, `smoke_test`, `golden_run`, `bench_combat` et le helper `tool_buildings.gd`. Exclu des exports. |

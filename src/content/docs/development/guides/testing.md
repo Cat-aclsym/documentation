@@ -27,8 +27,10 @@ Les suites de `tests/` reprennent l'arborescence des sources: `autoloads/global.
 | `tests/game/enemies/` | `test_big_daddy_signals`, `test_enemy_health_bar` |
 | `tests/game/level/` | `test_level_flow`, `test_level_pause`, `test_wave_tick_timer` |
 | `tests/game/projectiles/` | `test_instant_lightning`, `test_level_end_gate` |
-| `tests/ui/components/` | `test_button_effects` |
-| `tests/ui/menus/` | `test_pause_menu` |
+| `tests/ui/components/` | `test_button_effects`, `test_game_button`, `test_game_icon` ([Boutons](/documentation/development/guides/ui/#boutons-gamebutton)) |
+| `tests/ui/hud/` | `test_hud` |
+| `tests/ui/menus/` | `test_armory_item`, `test_build_selection`, `test_options_menu`, `test_pause_menu`, `test_tower_upgrade_menu` |
+| `tests/ui/popups/` | `test_popup_spawner` |
 | `tests/support/` | `test_enemies.gd` et `test_dialogic.gd`, des helpers sans cas de test |
 
 `tests/support/test_enemies.gd` (`TestEnemies`) fait apparaître un ennemi sur un chemin droit, sans niveau:
