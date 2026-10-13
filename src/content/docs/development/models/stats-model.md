@@ -133,7 +133,11 @@ Les pièges sont décrits dans [Piège](/documentation/development/models/trap-m
 
 Il n'y a pas de `get_tower_name` ni de `get_trap_name`: les noms passent par `name_key()` et `tr()`.
 
-`apply_fields` écrit chaque entrée de `values` dans la propriété de `target` qui porte le même nom, convertie au type de cette propriété (`type_convert`). Une clé sans propriété correspondante est ignorée avec un log `WARN`.
+`apply_fields` écrit chaque entrée de `values` dans la variable de script de `target` qui porte le même nom (variables héritées comprises), convertie au type déclaré de cette variable (`type_convert`). Chaque clé refusée est ignorée avec un log `ERROR`:
+- une clé sans variable de script typée (les propriétés de `Node` comme `position`, `scale` ou `name` ne sont jamais écrites);
+- une variable sans type, ou une cible sans script;
+- une valeur texte pour une variable numérique (un enum s'écrit avec sa valeur entière);
+- `speed` sur un `IEnemy`: la vitesse passe par la clé `speed` de premier niveau, qui alimente `base_speed`.
 
 ```gdscript
 StatsDB.apply_fields(trap, StatsDB.get_trap("bat_04")["base"])

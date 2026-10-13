@@ -78,7 +78,7 @@ Chaque sprite est la première image de l'animation `idle` de la scène. `bat_09
 
 ## Tour Inferno
 
-`InfernoTower` (`inferno_tower.gd`, `bat_09`) tire un faisceau continu (`InfernoBeam`) par cible: avec `projectile_count > 1` (upgrade `bat_09_b_04`, 4), elle garde un faisceau sur chacune des premières cibles à portée. Pour une cible qu'un faisceau brûle déjà, la tour n'instancie pas de nouveau faisceau (`_handle_custom_fire` relance seulement le timer de cadence). Les faisceaux sont libérés quand la tour est désactivée, et un faisceau n'inflige plus de dégâts pendant une pause, y compris celle de fin de niveau (`Global.paused`). L'upgrade `bat_09_a_04` fait « charger » le faisceau: les dégâts doublent chaque seconde de verrouillage sur la même cible (`charge_speed`), plafonnés par `max_damage_multiplier`, soit x8 dans `stats.json`.
+`InfernoTower` (`inferno_tower.gd`, `bat_09`) tire un faisceau continu (`InfernoBeam`) par cible: avec `projectile_count > 1` (upgrade `bat_09_b_04`, 4), elle garde un faisceau sur chacune des premières cibles à portée. Pour une cible qu'un faisceau brûle déjà, la tour n'instancie pas de nouveau faisceau (`_handle_custom_fire` relance seulement le timer de cadence). Les faisceaux sont libérés quand la tour est désactivée, et un faisceau s'estompe sans infliger de dégâts dès que le jeu est en pause, y compris à la fin du niveau (`Global.paused`). L'upgrade `bat_09_a_04` fait « charger » le faisceau: les dégâts doublent chaque seconde de verrouillage sur la même cible (`charge_speed`), plafonnés par `max_damage_multiplier`, soit x8 dans `stats.json`.
 
 ## Upgrades de projectile
 

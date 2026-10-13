@@ -30,7 +30,7 @@ Dans `assets/resources/configs/stats.json`, chaque piège expose:
 
 Il n'y a pas de champ `name`: le libellé vient de la clé de traduction `TRAP.<ID>.NAME` (`StatsDB.name_key("TRAP", trap_id)`, par exemple `TRAP.BAT_04.NAME`).
 
-`apply_stats_from_db()` applique `base` avec `StatsDB.apply_fields(self, base)` quand `trap_id` est renseigné: chaque clé écrit la propriété du même nom, convertie à son type. Une sous-classe n'a donc rien à surcharger: elle déclare une propriété par clé (`var slow_amount: float` pour `slow_amount`). Une clé sans propriété est ignorée avec un log `WARN` ([Statistiques](/documentation/development/models/stats-model/#api-statsdb)).
+`apply_stats_from_db()` applique `base` avec `StatsDB.apply_fields(self, base)` quand `trap_id` est renseigné: chaque clé écrit la propriété du même nom, convertie à son type. Une sous-classe n'a donc rien à surcharger: elle déclare une variable typée par clé (`var slow_amount: float` pour `slow_amount`). Une clé sans variable typée est ignorée avec un log `ERROR` ([Statistiques](/documentation/development/models/stats-model/#api-statsdb)).
 
 ## Catalogue
 
