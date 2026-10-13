@@ -10,8 +10,8 @@ Une commande de la [console de debug](/documentation/development/guides/console/
 
 ## Emplacement des scripts
 
-- Interface de base: `res://scenes/utilities/console/icommand.gd`
-- Implémentations: `res://scripts/commands/`
+- Interface de base: `res://debug/console/icommand.gd`
+- Implémentations: `res://debug/console/commands/`
 
 Le nom du fichier est le token de commande tapé en jeu : `set_money.gd` expose la commande `set_money`, `debug_tower_placement.gd` la commande `debug_tower_placement` (nom en `snake_case`, sans tiret). La console charge tous les scripts du dossier au premier usage (`Console.get_commands()`), crée une seule instance par commande et la réutilise: une commande ne garde donc pas d'état entre deux exécutions sans le vouloir.
 
@@ -60,7 +60,7 @@ Chaque commande:
 
 ## Exemple
 
-Extrait réel de `scripts/commands/set_money.gd`:
+Extrait réel de `debug/console/commands/set_money.gd`:
 
 ```gdscript
 ## © [2026] A7 Studio. All rights reserved. Trademark.
@@ -129,8 +129,8 @@ Clés d'un argument:
 | `ARG_STRING` | toute chaîne | aucune |
 | `ARG_ENUM` | une valeur de `enum_values` (toute chaîne si la liste est vide) | les valeurs de `enum_values` |
 | `ARG_COMMAND` | toute chaîne | les commandes disponibles |
-| `ARG_LEVEL` | toute chaîne | les niveaux de `resources/levels/` |
-| `ARG_CHALLENGE` | toute chaîne | les défis de `resources/challenges/` |
+| `ARG_LEVEL` | toute chaîne | les niveaux de `data/levels/` |
+| `ARG_CHALLENGE` | toute chaîne | les défis de `data/challenges/` |
 | `ARG_ENEMY` | toute chaîne | les ennemis de `StatsDB` |
 | `ARG_TOWER` | toute chaîne | les tours de `StatsDB` |
 | `ARG_INGAME_TOWER` | toute chaîne | les tours posées sur la carte du niveau en cours |
@@ -151,7 +151,7 @@ Les arguments sont des chaînes: `ARG_INT` et `ARG_FLOAT` valident le format, la
 ## Arguments dynamiques (sous-commandes)
 
 Quand les arguments dépendent des précédents (`progression unlock tower ...`), surcharger `get_args_dynamic(current_args: Array) -> Array[Dictionary]`. Par défaut, elle renvoie `get_args()`.
-Extrait de `scripts/commands/progression.gd`:
+Extrait de `debug/console/commands/progression.gd`:
 
 ```gdscript
 func get_args_dynamic(current_args: Array) -> Array[Dictionary]:

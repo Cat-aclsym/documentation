@@ -12,19 +12,24 @@ Les tests unitaires utilisent [gdUnit4](https://github.com/godot-gdunit-labs/gdU
 
 ## Organisation
 
-Les suites de `tests/` reprennent l'arborescence des sources: `scripts/autoloads/global.gd` est testé par `tests/autoloads/test_global_pause.gd`. Le résumé `Overall Summary` de chaque exécution donne le nombre de cas.
+Les suites de `tests/` reprennent l'arborescence des sources: `autoloads/global.gd` est testé par `tests/autoloads/test_global_pause.gd`. Le résumé `Overall Summary` de chaque exécution donne le nombre de cas.
 
 | Dossier | Suites |
 |---|---|
 | `tests/autoloads/` | `test_global_pause`, `test_progression_manager`, `test_stats_db` |
 | `tests/data/` | `test_levels_data`, `test_translations` |
-| `tests/narrative/` | `test_narrative` |
-| `tests/progression/` | `test_settings_data` |
-| `tests/scenes/gameplay/entities/` | `test_entity_stats`, `test_level_end_gate`, `test_tower_signals` |
-| `tests/scenes/gameplay/world/level/` | `test_level_flow`, `test_level_pause` |
-| `tests/ui/` | `test_button_effects`, `test_pause_menu` |
-| `tests/utilities/` | `test_json_util`, `test_state_machine`, `signals/test_signal_util` |
-| `tests/support/` | `test_enemies.gd`, un helper sans cas de test |
+| `tests/core/narrative/` | `test_narrative`, `test_narrative_characters` |
+| `tests/core/progression/` | `test_settings_data` |
+| `tests/core/utilities/` | `test_json_util`, `test_state_machine`, `signals/test_signal_util` |
+| `tests/game/` | `test_entity_stats` |
+| `tests/game/buildings/towers/` | `test_inferno_tower`, `test_tower_signals` |
+| `tests/game/buildings/traps/` | `test_trap_lifecycle` |
+| `tests/game/enemies/` | `test_big_daddy_signals`, `test_enemy_health_bar` |
+| `tests/game/level/` | `test_level_flow`, `test_level_pause`, `test_wave_tick_timer` |
+| `tests/game/projectiles/` | `test_instant_lightning`, `test_level_end_gate` |
+| `tests/ui/components/` | `test_button_effects` |
+| `tests/ui/menus/` | `test_pause_menu` |
+| `tests/support/` | `test_enemies.gd` et `test_dialogic.gd`, des helpers sans cas de test |
 
 `tests/support/test_enemies.gd` (`TestEnemies`) fait apparaître un ennemi sur un chemin droit, sans niveau:
 
@@ -67,7 +72,7 @@ func test_clear_pauses_releases_every_source() -> void:
 	assert_bool(get_tree().paused).is_false()
 ```
 
-Un cas qui attend des images ou des signaux est asynchrone (`await`). Extrait de `tests/scenes/gameplay/entities/test_entity_stats.gd`:
+Un cas qui attend des images ou des signaux est asynchrone (`await`). Extrait de `tests/game/test_entity_stats.gd`:
 
 ```gdscript
 func test_every_trap_scene_gets_its_stats_from_the_json() -> void:
@@ -116,7 +121,7 @@ godot --headless --path . -s res://addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://
 Une seule suite ou un seul dossier: remplacer `-a res://tests` par son chemin.
 
 ```bash
-godot --headless --path . -s res://addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests/utilities/test_state_machine.gd -c --ignoreHeadlessMode -rd res://reports
+godot --headless --path . -s res://addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests/core/utilities/test_state_machine.gd -c --ignoreHeadlessMode -rd res://reports
 godot --headless --path . -s res://addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests/autoloads -c --ignoreHeadlessMode -rd res://reports
 ```
 

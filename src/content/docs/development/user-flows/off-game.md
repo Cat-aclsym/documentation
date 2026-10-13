@@ -42,7 +42,7 @@ Quand le tutoriel n'est pas terminé, « Jouer » lance `lev.01` directement, sa
 - **Options**: ouvre le menu des options, fermé par son bouton de fermeture.
 - Un bouton de debug des icônes de statistiques s'ajoute dans les builds de debug.
 
-Le retour à l'accueil depuis un niveau passe par `ScenesLoader.go_home()`, qui relâche toutes les pauses et recharge `scenes/main.tscn`.
+Le retour à l'accueil depuis un niveau passe par `ScenesLoader.go_home()`, qui relâche toutes les pauses et recharge `main.tscn`.
 
 ## Sélection de niveau
 

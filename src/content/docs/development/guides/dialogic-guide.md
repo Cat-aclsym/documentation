@@ -73,7 +73,7 @@ La traduction intégrée de Dialogic est désactivée dans `project.godot` (`tra
 
 ## Narrative
 
-`Narrative` (`scripts/narrative/narrative.gd`, un `RefCounted` avec des fonctions statiques) choisit le fichier selon la langue et joue les dialogues uniques.
+`Narrative` (`core/narrative/narrative.gd`, un `RefCounted` avec des fonctions statiques) choisit le fichier selon la langue et joue les dialogues uniques.
 
 ### Choisir la timeline
 

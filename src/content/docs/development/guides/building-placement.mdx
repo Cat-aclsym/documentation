@@ -41,7 +41,7 @@ sequenceDiagram
 
 ## BuildPlacement
 
-`BuildPlacement` (`scenes/gameplay/entities/building_placement/`) s'enregistre dans `Global.cursor` à son `_ready()`. Il ignore les entrées pendant une pause (`Global.paused`). Son énumération `CursorState` a deux valeurs:
+`BuildPlacement` (`game/buildings/placement/`) s'enregistre dans `Global.cursor` à son `_ready()`. Il ignore les entrées pendant une pause (`Global.paused`). Son énumération `CursorState` a deux valeurs:
 
 | État | Signal émis à l'entrée | Usage |
 |---|---|---|
@@ -114,7 +114,7 @@ Les tuiles apparaissent avec une animation (`play_special_tiles_intro_sequence()
 
 ## Menu de construction
 
-Le bouton du HUD instancie `BuildSelection` (`scenes/ui/menus/building_selection/`) sous `Global.ui`. Il contient une `BuildCard` par bâtiment (`build_card_bat_01` à `build_card_bat_09`) et deux onglets, `Tab.TOWERS` et `Tab.TRAPS`.
+Le bouton du HUD instancie `BuildSelection` (`ui/menus/build_selection/`) sous `Global.ui`. Il contient une `BuildCard` par bâtiment (`build_card_bat_01` à `build_card_bat_09`) et deux onglets, `Tab.TOWERS` et `Tab.TRAPS`.
 
 `BuildCard` a un export `entity: PackedScene` (la scène de la tour ou du piège). À son `_ready()`, elle l'instancie, applique les stats de `StatsDB` et, pour une tour, les bonus de l'armurerie. Elle lit ensuite le coût sur l'instance.
 

@@ -84,7 +84,7 @@ Autres membres du `ChallengeManager`:
 
 ## Données JSON associées
 
-Chaque défi est décrit par un JSON dans `res://resources/challenges`:
+Chaque défi est décrit par un JSON dans `res://data/challenges`:
 
 ```json
 {
@@ -92,11 +92,11 @@ Chaque défi est décrit par un JSON dans `res://resources/challenges`:
   "name": "CHALLENGE.CHA.000.NAME",
   "description": "CHALLENGE.CHA.000.DESC",
   "difficulty": "Easy",
-  "script": "res://scripts/challenges/logics/cha.000.gd"
+  "script": "res://core/challenges/logics/cha.000.gd"
 }
 ```
 
-Le champ `script` pointe vers la logique du défi. Les 17 défis ont leur propre `cha.XXX.gd` dans `scripts/challenges/logics/`: il n'existe pas de logique `impossible.gd`. Un identifiant de niveau sans fichier JSON de défi est ignoré avec un log `WARN`.
+Le champ `script` pointe vers la logique du défi. Les 17 défis ont leur propre `cha.XXX.gd` dans `core/challenges/logics/`: il n'existe pas de logique `impossible.gd`. Un identifiant de niveau sans fichier JSON de défi est ignoré avec un log `WARN`.
 
 ## Défis du jeu
 
@@ -127,7 +127,7 @@ Les défis attribués à chaque niveau sont listés dans [Créer un niveau](/doc
 - `ChallengeManager`
 - `ILevel.current_level`
 - `ProgressionManager`
-- Scripts de `res://scripts/challenges/logics/*.gd`
+- Scripts de `res://core/challenges/logics/*.gd`
 
 ## Points de vigilance
 

@@ -11,7 +11,7 @@ sidebar:
 
 ### Où placer un nouveau script?
 
-Un script spécifique à une scène reste à côté d'elle dans `scenes/...`, un script transverse va dans `scripts/...` et un service global dans `scripts/autoloads/...`. Voir [Structure du projet](/documentation/development/guides/file-structure/).
+Un script spécifique à une scène reste à côté d'elle (dans `game/...` ou `ui/...`). Une logique sans scène va dans `core/...` ou `ui/components/...`, et un service global dans `autoloads/...`. Voir [Structure du projet](/documentation/development/guides/file-structure/).
 
 ### Comment vérifier que le projet compile et démarre?
 
@@ -23,7 +23,7 @@ Un `.godot/uid_cache.bin` périmé associe des uids à d'anciens chemins. Le dé
 
 ### Comment ajouter une commande de debug?
 
-Créer un script dans `res://scripts/commands/` qui étend `ICommand`: [Créer une commande](/documentation/development/guides/console-commands/).
+Créer un script dans `res://debug/console/commands/` qui étend `ICommand`: [Créer une commande](/documentation/development/guides/console-commands/).
 
 ### Comment logger un événement?
 

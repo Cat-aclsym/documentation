@@ -31,7 +31,7 @@ sidebar:
 
 ## Sous-classes
 
-Scènes et scripts dans `scenes/gameplay/entities/bullet/`. Les constantes de gameplay propres à un projectile sont dans la section `bullets` de `stats.json` ([Statistiques](/documentation/development/models/stats-model/)), lues avec `StatsDB.get_bullet(id)`:
+Scènes et scripts dans `game/projectiles/`. Les constantes de gameplay propres à un projectile sont dans la section `bullets` de `stats.json` ([Statistiques](/documentation/development/models/stats-model/)), lues avec `StatsDB.get_bullet(id)`:
 
 | Projectile | Scène | Comportement | Stats |
 |---|---|---|---|
@@ -56,8 +56,8 @@ La brûlure est un état du `FireArrow`, pas de l'ennemi. Les dégâts de brûlu
 
 | Sprite | Fichier | Utilisé par |
 |---|---|---|
-| ![Flèche](/documentation/game/sprites/sprite-projectile-arrow.png) | `assets/gameplay/bullet/arrow.png` | `base_arrow`, `aoe_arrow`, `fire_arrow` et `piercing_arrow` |
-| ![Projectile ennemi](/documentation/game/sprites/sprite-projectile-jedo.png) | `assets/gameplay/bullet/jedo.png` | `enemy_projectile` |
+| ![Flèche](/documentation/game/sprites/sprite-projectile-arrow.png) | `assets/sprites/projectiles/arrow.png` | `base_arrow`, `aoe_arrow`, `fire_arrow` et `piercing_arrow` |
+| ![Projectile ennemi](/documentation/game/sprites/sprite-projectile-jedo.png) | `assets/sprites/projectiles/jedo.png` | `enemy_projectile` |
 
 `smoke.png` et `trail.png` sont les textures des particules de `i_bullet` (fumée d'impact et traînée).
 

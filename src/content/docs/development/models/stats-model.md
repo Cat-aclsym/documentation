@@ -6,7 +6,7 @@ sidebar:
   order: 70
 ---
 
-`StatsDB` (autoload) charge `res://assets/resources/configs/stats.json` au démarrage avec `JsonUtil.load_dict()` et expose les statistiques des tours, pièges, ennemis, projectiles et upgrades.
+`StatsDB` (autoload) charge `res://data/stats.json` au démarrage avec `JsonUtil.load_dict()` et expose les statistiques des tours, pièges, ennemis, projectiles et upgrades.
 
 **Règle:** ne jamais écrire de valeur de stat dans le GDScript. Toute valeur de combat passe par `stats.json`.
 
@@ -37,7 +37,7 @@ Les entrées n'ont pas de champ `"name"`: le nom affiché vient de la traduction
       "spread_angle": 15
     },
     "level": 1,
-    "scene": "res://scenes/gameplay/entities/tower/towers/bat_01.tscn",
+    "scene": "res://game/buildings/towers/bat_01.tscn",
     "upgrades": ["bat_01_02"]
   }
 }
@@ -52,7 +52,7 @@ Une upgrade contient `bullet_stats` et `tower_stats` (des deltas ajoutés aux st
 ```json
 {
   "bat_01_a_04": {
-    "bullet_scene_path": "res://scenes/gameplay/entities/bullet/piercing_arrow.tscn",
+    "bullet_scene_path": "res://game/projectiles/piercing_arrow.tscn",
     "bullet_stats": { "damage": 27, "pierce_count": 1, "pierce_reduction": 10, "speed": -200 },
     "changes": { "bullet_model": true, "bullet_stat": true, "tower_stat": true },
     "next": ["bat_01_a_05"],
@@ -70,7 +70,7 @@ Une upgrade contient `bullet_stats` et `tower_stats` (des deltas ajoutés aux st
     "escape_damage": 5,
     "max_health": 50,
     "reward": 20,
-    "scene": "res://scenes/gameplay/entities/enemy/enemies/ene.01.tscn",
+    "scene": "res://game/enemies/default_zombie.tscn",
     "speed": 35
   },
   "big_daddy": {
@@ -78,7 +78,7 @@ Une upgrade contient `bullet_stats` et `tower_stats` (des deltas ajoutés aux st
     "extra": { "attack_cooldown": 5, "attack_duration": 1, "post_attack_delay": 1, "pre_attack_delay": 1, "shoot_range": 100, "tower_disable_duration": 3 },
     "max_health": 700,
     "reward": 400,
-    "scene": "res://scenes/gameplay/entities/enemy/enemies/big_daddy.tscn",
+    "scene": "res://game/enemies/big_daddy.tscn",
     "speed": 20
   }
 }

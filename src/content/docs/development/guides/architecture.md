@@ -31,8 +31,8 @@ Le niveau en cours est accessible par la variable statique `ILevel.current_level
 
 `ScenesLoader` est le seul point d'entrée pour changer de niveau:
 
-- `start_level(level_id: String) -> ILevel`: charge `scenes/gameplay/world/level/levels/<level_id>.tscn`, libère le niveau précédent, ajoute le nouveau à la racine, appelle `ILevel.start_level()` puis `Global.ui.start_level()`. Renvoie `null` si la scène n'existe pas. Toutes les pauses sont levées avant le changement.
-- `go_home()`: libère le niveau en cours et recharge `res://scenes/main.tscn`. Toutes les pauses sont levées.
+- `start_level(level_id: String) -> ILevel`: charge `game/level/levels/<level_id>.tscn`, libère le niveau précédent, ajoute le nouveau à la racine, appelle `ILevel.start_level()` puis `Global.ui.start_level()`. Renvoie `null` si la scène n'existe pas. Toutes les pauses sont levées avant le changement.
+- `go_home()`: libère le niveau en cours et recharge `res://main.tscn`. Toutes les pauses sont levées.
 
 Le menu de sélection, le menu de pause, l'écran de fin et l'écran d'accueil passent par ces deux méthodes.
 
@@ -52,7 +52,7 @@ flowchart TB
 |---|---|
 | `stats.json` | `StatsDB` ([Statistiques](/documentation/development/models/stats-model/)) |
 | `armory.json` | `ArmoryManager` ([Armurerie](/documentation/development/models/armory-model/)) |
-| `resources/challenges/cha.XXX.json` et clé `challenges` des JSON de niveaux | `ChallengeManager` |
+| `data/challenges/cha.XXX.json` et clé `challenges` des JSON de niveaux | `ChallengeManager` |
 | JSON de niveaux (clés `start_coins`, `max_health`, `waves`) | `ILevel` ([Vagues](/documentation/development/models/wave-model/)) |
 | Sauvegarde | `ProgressionManager` |
 
@@ -98,7 +98,7 @@ Les systèmes de gameplay (ennemis, tours, pièges, projectiles, caméra, curseu
 
 ## Observer
 
-Les composants communiquent par signaux Godot, connectés avec `SignalUtil.connects` (`scripts/utilities/signals/signal_util.gd`). Aucun code du projet n'appelle `.connect()` directement:
+Les composants communiquent par signaux Godot, connectés avec `SignalUtil.connects` (`core/utilities/signals/signal_util.gd`). Aucun code du projet n'appelle `.connect()` directement:
 
 ```gdscript
 SignalUtil.connects([

@@ -10,13 +10,13 @@ L'interface se compose du menu d'accueil, de ses sous-menus et, en niveau, du HU
 
 ## Racine: UI et HUD
 
-- `UI` (`scenes/ui/ui.gd`, un `CanvasLayer`) s'enregistre dans `Global.ui`. Il contient le `HUD`, un rideau de fondu (`IngameFadeColorRect`) et le `TutorialManager` ([Tutoriel](/documentation/development/guides/tutorial/)).
+- `UI` (`ui/ui.gd`, un `CanvasLayer`) s'enregistre dans `Global.ui`. Il contient le `HUD`, un rideau de fondu (`IngameFadeColorRect`) et le `TutorialManager` ([Tutoriel](/documentation/development/guides/tutorial/)).
 - `UI.start_level()` charge le HUD (`hud.load_ui()`), prévient le tutoriel et joue le fondu d'entrée. `UI.end_level()` décharge le HUD, prévient le tutoriel et sauvegarde la progression.
 - `UI.notify_new_enemy_reveal(enemy_id, texture, scale)` met en file l'animation de découverte d'un ennemi.
 - Les menus ouverts en niveau sont ajoutés comme enfants de `Global.ui` (menu de construction, pause, défis, fin de partie).
-- `ScenesLoader.go_home()` libère le niveau en cours, relâche toutes les pauses (`Global.clear_pauses()`) et recharge `scenes/main.tscn`. `ScenesLoader.start_level(level_id)` remplace le niveau en cours par une nouvelle instance de `lev.XX`, relâche les pauses, démarre le niveau et le HUD, et renvoie `null` quand la scène ne se charge pas. L'accueil, la sélection de niveau, la pause et l'écran de fin passent tous par ces deux fonctions.
+- `ScenesLoader.go_home()` libère le niveau en cours, relâche toutes les pauses (`Global.clear_pauses()`) et recharge `main.tscn`. `ScenesLoader.start_level(level_id)` remplace le niveau en cours par une nouvelle instance de `lev.XX`, relâche les pauses, démarre le niveau et le HUD, et renvoie `null` quand la scène ne se charge pas. L'accueil, la sélection de niveau, la pause et l'écran de fin passent tous par ces deux fonctions.
 
-`HUD` (`scenes/ui/menus/hud/hud.gd`) s'enregistre dans `Global.hud` et se met à jour à chaque `stats_updated` du niveau:
+`HUD` (`ui/hud/hud.gd`) s'enregistre dans `Global.hud` et se met à jour à chaque `stats_updated` du niveau:
 
 | Élément | Comportement |
 |---|---|
@@ -33,15 +33,15 @@ Le bouton d'accélération passe `Engine.time_scale` de `DEFAULT_TIME_SCALE` (1)
 
 | Menu | Scène | Rôle |
 |---|---|---|
-| Accueil | `menus/home/home.tscn` | Jouer, armurerie, encyclopédie, options |
-| Sélection de niveau | `menus/level_selection/` | [Créer un niveau](/documentation/development/guides/levels-and-arcs/#menu-de-sélection) |
-| Options | `menus/options/options.tscn` | Musique, sons, langue, liens (Instagram, X, Discord, contact) |
-| Armurerie | `menus/armory/armory.tscn` | [Armurerie](/documentation/development/models/armory-model/) |
-| Pause | `menus/pause/pause.tscn` | Reprendre, recommencer, retour à l'accueil, encyclopédie |
-| Fin de partie | `menus/end_game/end_game.tscn` | Victoire ou défaite, défis, rejouer, niveau suivant |
-| Défis | `menus/hud/challenges_menu.tscn` | Panneau latéral des défis du niveau |
-| Info d'une tour | `menus/tower_upgrade/tower_info.tscn` | Statistiques courantes de la tour |
-| Amélioration | `menus/tower_upgrade/tower_upgrade_menu.tscn` | Choix et confirmation d'une amélioration |
+| Accueil | `ui/menus/home/home.tscn` | Jouer, armurerie, encyclopédie, options |
+| Sélection de niveau | `ui/menus/level_selection/` | [Créer un niveau](/documentation/development/guides/levels-and-arcs/#menu-de-sélection) |
+| Options | `ui/menus/options/options.tscn` | Musique, sons, langue, liens (Instagram, X, Discord, contact) |
+| Armurerie | `ui/menus/armory/armory.tscn` | [Armurerie](/documentation/development/models/armory-model/) |
+| Pause | `ui/menus/pause/pause.tscn` | Reprendre, recommencer, retour à l'accueil, encyclopédie |
+| Fin de partie | `ui/menus/end_game/end_game.tscn` | Victoire ou défaite, défis, rejouer, niveau suivant |
+| Défis | `ui/menus/challenges/challenges_menu.tscn` | Panneau latéral des défis du niveau |
+| Info d'une tour | `ui/menus/tower_upgrade/tower_info.tscn` | Statistiques courantes de la tour |
+| Amélioration | `ui/menus/tower_upgrade/tower_upgrade_menu.tscn` | Choix et confirmation d'une amélioration |
 
 Un sous-menu de l'accueil masque le conteneur principal, puis émet `menu_close` pour le restaurer. Tant que le tutoriel n'est pas terminé, le bouton jouer lance `lev.01` directement et les boutons armurerie et encyclopédie sont verrouillés (`?`). Un bouton de debug des icônes de statistiques s'ajoute quand `Global.debug` est vrai.
 
@@ -71,10 +71,10 @@ Ces deux sources ne sont ni dans `Global.TREE_PAUSING_SOURCES` ni dans `Global.T
 
 ## Widgets
 
-- `ButtonEffects.apply(button)` (`scripts/ui/button_effects.gd`, un `RefCounted` statique): réduit le bouton à 95 % (`CLICK_SCALE`) pendant l'appui, avec un `process_mode` toujours actif pour fonctionner en pause, et centre le pivot avec `pivot_offset_ratio = Vector2(0.5, 0.5)` (`PIVOT_RATIO`), qui suit la taille du bouton sans code de recentrage. Les scènes qui animent l'échelle d'un contrôle (libellé de pièces du HUD, bandeau de vague) posent aussi `pivot_offset_ratio` dans le `.tscn` au lieu de calculer `pivot_offset` en code. L'appel est idempotent: la méta `APPLIED_META_KEY` (`&"button_effects"`) marque le bouton, une seconde application ne fait rien. Chaque bouton peut donc l'appeler dans son `_ready()` sans risque de double connexion.
-- `StyledButton` (`scenes/ui/styled_button.tscn`): un `Button` qui applique `ButtonEffects` à lui-même dans `_ready()`. Les boutons de l'accueil, de l'armurerie et du menu d'amélioration en sont des instances.
-- Thème global: `assets/resources/themes/generic.tres` (`gui/theme/custom` dans `project.godot`). Police: `dotgothic16_regular.ttf` (`assets/ui/fonts/dotgothic/`).
-- `SpritePreview` (`scripts/ui/sprite_preview.gd`, un `RefCounted`): `SpritePreview.from_scene(scene)` instancie la scène d'une tour, d'un piège ou d'un ennemi et lit son sprite (`texture`, `frames`, `animation`, `fps`, `scale`, `modulate`). La recherche essaie les nœuds `Sprite`, `AnimatedSprite2D` et `Sprite2D`, puis le premier `AnimatedSprite2D` ou `Sprite2D` de la scène. Elle renvoie un aperçu vide quand la scène est nulle ou sans sprite. L'armurerie et l'encyclopédie l'utilisent toutes les deux.
+- `ButtonEffects.apply(button)` (`ui/components/button_effects.gd`, un `RefCounted` statique): réduit le bouton à 95 % (`CLICK_SCALE`) pendant l'appui, avec un `process_mode` toujours actif pour fonctionner en pause, et centre le pivot avec `pivot_offset_ratio = Vector2(0.5, 0.5)` (`PIVOT_RATIO`), qui suit la taille du bouton sans code de recentrage. Les scènes qui animent l'échelle d'un contrôle (libellé de pièces du HUD, bandeau de vague) posent aussi `pivot_offset_ratio` dans le `.tscn` au lieu de calculer `pivot_offset` en code. L'appel est idempotent: la méta `APPLIED_META_KEY` (`&"button_effects"`) marque le bouton, une seconde application ne fait rien. Chaque bouton peut donc l'appeler dans son `_ready()` sans risque de double connexion.
+- `StyledButton` (`ui/components/styled_button.tscn`): un `Button` qui applique `ButtonEffects` à lui-même dans `_ready()`. Les boutons de l'accueil, de l'armurerie et du menu d'amélioration en sont des instances.
+- Thème global: `ui/theme/generic.tres` (`gui/theme/custom` dans `project.godot`). Police: `dotgothic16_regular.ttf` (`assets/fonts/dotgothic/`).
+- `SpritePreview` (`ui/components/sprite_preview.gd`, un `RefCounted`): `SpritePreview.from_scene(scene)` instancie la scène d'une tour, d'un piège ou d'un ennemi et lit son sprite (`texture`, `frames`, `animation`, `fps`, `scale`, `modulate`). La recherche essaie les nœuds `Sprite`, `AnimatedSprite2D` et `Sprite2D`, puis le premier `AnimatedSprite2D` ou `Sprite2D` de la scène. Elle renvoie un aperçu vide quand la scène est nulle ou sans sprite. L'armurerie et l'encyclopédie l'utilisent toutes les deux.
 
 ### Variations de thème
 
@@ -95,7 +95,7 @@ Le style d'un bouton se règle par ces variations, pas par des `theme_override_*
 
 ## Popups
 
-`PopupSpawner` (`scenes/ui/popup/popup_spawner.gd`, un `Marker2D` porté par `ILevel` et par les ennemis) crée les textes flottants:
+`PopupSpawner` (`ui/popups/popup_spawner.gd`, un `Marker2D` porté par `ILevel` et par les ennemis) crée les textes flottants:
 
 - `display_damage(amount: float, color: Color = Color.WHITE, tower: ITower = null, is_critical: bool = false)`: dégâts. Quand `tower` est valide, sa couleur de `TOWER_COLORS` (par `tower_id`) remplace `color`, et une tour avec `use_accumulative_popups` additionne les coups dans un seul `DamagePopup`. `IEnemy.take_damage()` passe la tour qui a porté le coup.
 - `score(text)`: texte qui monte de 16 px.
@@ -103,7 +103,7 @@ Le style d'un bouton se règle par ces variations, pas par des `theme_override_*
 
 ## Effets d'écran
 
-| Shader (`assets/resources/shaders/`) | Utilisation |
+| Shader (`assets/shaders/`) | Utilisation |
 |---|---|
 | `health_bar_scaling.gdshader` | Barre de vie du HUD |
 | `low_health_vignette.gdshader` | `LowHealthIndicator`: vignette rouge pulsante quand la vie passe à 25 % ou moins |
@@ -114,7 +114,7 @@ Le style d'un bouton se règle par ces variations, pas par des `theme_override_*
 
 ## Encyclopédie
 
-`Encyclopedia` (`scenes/ui/menus/hud/encyclopedia.gd`) est ouverte depuis l'accueil et depuis le menu pause. Elle a deux catégories, `ENEMIES` et `TOWERS`, et tourne les pages avec précédent et suivant.
+`Encyclopedia` (`ui/menus/encyclopedia/encyclopedia.gd`) est ouverte depuis l'accueil et depuis le menu pause. Elle a deux catégories, `ENEMIES` et `TOWERS`, et tourne les pages avec précédent et suivant.
 
 - Les entrées viennent de `StatsDB.get_tower_ids()` et `get_enemy_ids()`: scène, stats ([Statistiques](/documentation/development/models/stats-model/)). Le nom est la clé `StatsDB.name_key("TOWER", id)` ou `name_key("ENEMY", id)`. Une entrée dont la scène n'existe pas est ignorée avec un avertissement.
 - Ennemis: vie, récompense, vitesse, plus les champs de `extra` (portée, cadence, durée d'étourdissement, délais d'attaque). Tours: coût, dégâts, cadence, portée. Les libellés sont les clés `ENCYCLOPEDIA.STATS.*`.

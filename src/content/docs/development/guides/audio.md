@@ -48,7 +48,7 @@ Un groupe sans bus (nom inconnu ou bus absent de la disposition) écrit un avert
 
 ## SoundEntity
 
-`SoundEntity` (`scenes/utilities/sound_entity/sound_entity.tscn`) est un `AudioStreamPlayer`. Son export `group` vaut `sfx`, `music` ou `gui`. Il appelle `SoundManager.register()` dans `_ready()` pour être routé vers le bon bus. Le volume propre du nœud (`volume_db`) reste libre: il s'ajoute à celui du bus.
+`SoundEntity` (`game/sound_entity/sound_entity.tscn`) est un `AudioStreamPlayer`. Son export `group` vaut `sfx`, `music` ou `gui`. Il appelle `SoundManager.register()` dans `_ready()` pour être routé vers le bon bus. Le volume propre du nœud (`volume_db`) reste libre: il s'ajoute à celui du bus.
 
 ## Réglages du joueur
 
@@ -77,7 +77,7 @@ Les canaux audio de Dialogic ont leurs propres réglages dans `project.godot` (c
 
 ## Ajouter un son
 
-1. Placer le fichier dans `assets/audio/music/` ou `assets/audio/sounds/` (nom en `snake_case`).
+1. Placer le fichier dans `assets/audio/` (`music/` pour une musique, un dossier `sounds/` à créer pour les effets sonores), nom en `snake_case`.
 2. Ajouter un `SoundEntity` à la scène, choisir son `group` et son flux.
 3. Appeler `play()` et `stop()` depuis le script de la scène.
 

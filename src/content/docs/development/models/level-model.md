@@ -55,7 +55,7 @@ La carte est faite de `TileMapLayer`: `tilemap` est le calque racine du terrain,
 
 ## Démarrage et données du JSON
 
-`ILevel.start_level()` lit `res://resources/levels/<level_id>.json` avec `JsonUtil.load_dict()`. Les clés `waves`, `start_coins` et `max_health` sont obligatoires (un `assert` échoue sinon): `coins` reçoit `start_coins`, `max_health` et `health` reçoivent `max_health`, et chaque entrée de `waves` devient une `Wave`. La clé `challenges` est lue par `ChallengeManager.start_level_challenges(level_id)`.
+`ILevel.start_level()` lit `res://data/levels/<level_id>.json` avec `JsonUtil.load_dict()`. Les clés `waves`, `start_coins` et `max_health` sont obligatoires (un `assert` échoue sinon): `coins` reçoit `start_coins`, `max_health` et `health` reçoivent `max_health`, et chaque entrée de `waves` devient une `Wave`. La clé `challenges` est lue par `ChallengeManager.start_level_challenges(level_id)`.
 
 ## Stats joueur
 

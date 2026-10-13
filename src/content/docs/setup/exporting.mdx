@@ -32,7 +32,7 @@ Le preset **Android**:
 | Architecture | `arm64-v8a` seulement (`armeabi-v7a`, `x86` et `x86_64` désactivées) |
 | Identifiant | `package/unique_name` = `fr.a7studio.cataclysm`, nom `Cataclysm` |
 | Signature | `package/signed=true` |
-| Icône de lanceur | `launcher_icons/main_192x192` = `res://assets/ui/icons/logo_chat_vert_clair_fond_fonce_100.jpg` |
+| Icône de lanceur | `launcher_icons/main_192x192` = `res://assets/ui/branding/app_icon.jpg` |
 | Mode immersif | activé |
 
 Les icônes adaptatives (`adaptive_foreground_432x432`, `adaptive_background_432x432`, `adaptive_monochrome_432x432`) ne sont pas renseignées. Un APK arm64 ne s'installe pas sur un émulateur `x86_64`.
@@ -49,7 +49,7 @@ Le preset produit un APK. L'AAB demandé par le Play Store n'est pas possible av
 
 ## Exporter pour Windows
 
-Le preset **Windows Desktop** exporte vers `exports/windows/Cataclysm.exe`, en `x86_64` avec le `.pck` embarqué (`binary_format/embed_pck=true`). L'icône est `res://assets/ui/icons/logo_chat_vert_fonce.png`, la société `A7 Studio` et le produit `Cataclysm`.
+Le preset **Windows Desktop** exporte vers `exports/windows/Cataclysm.exe`, en `x86_64` avec le `.pck` embarqué (`binary_format/embed_pck=true`). L'icône est `res://assets/ui/branding/logo_cat.png`, la société `A7 Studio` et le produit `Cataclysm`.
 
 Ouvrir `Project` > `Export`, sélectionner le preset Windows Desktop puis exporter. Tutoriel officiel: [Exporter pour Windows](https://docs.godotengine.org/en/4.7/tutorials/export/exporting_for_windows.html).
 

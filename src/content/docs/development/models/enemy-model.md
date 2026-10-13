@@ -78,25 +78,25 @@ Les teintes visuelles (ralenti, poison, stun, faisceau de l'Inferno) s'empilent 
 
 ## Source des stats
 
-Les stats runtime viennent de `assets/resources/configs/stats.json` via `StatsDB` ([Statistiques](/documentation/development/models/stats-model/)). Champs: `max_health`, `speed`, `reward`, `escape_damage`, `scene` et `extra` (optionnel, comportement spécifique).
+Les stats runtime viennent de `data/stats.json` via `StatsDB` ([Statistiques](/documentation/development/models/stats-model/)). Champs: `max_health`, `speed`, `reward`, `escape_damage`, `scene` et `extra` (optionnel, comportement spécifique).
 
 Au `_ready()`, `IEnemy` lit l'entrée dont la clé est son export `enemy_id` (une erreur est loguée si la clé manque) et applique `max_health`, `speed` (vers `base_speed`), `reward` et `escape_damage`. Les clés de `extra` sont ensuite écrites par `StatsDB.apply_fields(self, extra)` dans la propriété du même nom, convertie au type de cette propriété (`trap_disable_duration` pour tous les ennemis, `spawn_count` pour `SplitterZombie`, `shoot_range` et les délais pour `BigDaddy`). Une clé sans propriété correspondante est ignorée avec un log `WARN`: une nouvelle clé d'`extra` demande une propriété du même nom dans le script de l'ennemi ([Statistiques](/documentation/development/models/stats-model/#application-des-stats)). L'`enemy_id` est le même partout: étape de vague, export de la scène et clé de `stats.json` (`default_zombie`).
 
 ## Catalogue
 
-Scènes de `scenes/gameplay/entities/enemy/enemies/`, toutes héritées de `i_enemy.tscn`. Le champ `scene` de `stats.json` désigne le fichier (`ene.01.tscn`, `ene.02.tscn` et `ene.03.tscn` gardent leurs noms historiques):
+Scènes de `game/enemies/`, toutes héritées de `i_enemy.tscn`. Le champ `scene` de `stats.json` désigne le fichier, dont le nom est la clé de l'ennemi (`default_zombie.tscn`, `damage_zombie.tscn`, `rat.tscn`...):
 
 | Sprite | Clé `stats.json` | Vie | Vitesse | `reward` | Particularité |
 |---|---|---|---|---|---|
-| ![Sprite du zombie de base](/documentation/game/sprites/sprite-enemy-default-zombie.png) | `default_zombie` | 50 | 35 | 20 | Ennemi de base (`ene.01`) |
-| ![Sprite du zombie à dégâts](/documentation/game/sprites/sprite-enemy-damage-zombie.png) | `damage_zombie` | 120 | 20 | 40 | `ene.02` |
-| ![Sprite du rat](/documentation/game/sprites/sprite-enemy-rat.png) | `rat` | 25 | 70 | 5 | `type = RAT` (`ene.03`) |
+| ![Sprite du zombie de base](/documentation/game/sprites/sprite-enemy-default-zombie.png) | `default_zombie` | 50 | 35 | 20 | Ennemi de base |
+| ![Sprite du zombie à dégâts](/documentation/game/sprites/sprite-enemy-damage-zombie.png) | `damage_zombie` | 120 | 20 | 40 | Feuille d'animation `zombie_lom_damage_sheet.png` |
+| ![Sprite du rat](/documentation/game/sprites/sprite-enemy-rat.png) | `rat` | 25 | 70 | 5 | `type = RAT` |
 | ![Sprite du zombie diviseur, teinté en rouge](/documentation/game/sprites/sprite-enemy-splitter-zombie.png) | `splitter_zombie` | 150 | 35 | 5 | `SplitterZombie`: teinté en rouge, à sa mort fait apparaître `extra.spawn_count` (4) petits zombies près de sa position sur le chemin |
 | ![Sprite du petit zombie, teinté en rose](/documentation/game/sprites/sprite-enemy-small-zombie.png) | `small_zombie` | 25 | 70 | 10 | `SmallZombie`: teinté en rose, échelle 0,6, apparaît avec une animation |
-| ![Sprite du démineur, teinté en vert](/documentation/game/sprites/sprite-enemy-minesweeper.png) | `minesweeper` | 70 | 45 | 12 | Scène héritée de `ene.02`, teintée en vert, sans script. `extra.trap_disable_duration` (5) désamorce les pièges qu'il croise |
+| ![Sprite du démineur, teinté en vert](/documentation/game/sprites/sprite-enemy-minesweeper.png) | `minesweeper` | 70 | 45 | 12 | Scène héritée de `damage_zombie.tscn`, teintée en vert, sans script. `extra.trap_disable_duration` (5) désamorce les pièges qu'il croise |
 | ![Sprite de Big Daddy](/documentation/game/sprites/sprite-enemy-big-daddy.png) | `big_daddy` | 700 | 20 | 400 | `BigDaddy`, `type = BIG_DADDY`, voir [Big Daddy](#big-daddy) |
 
-Tous ont `escape_damage = 5`. Chaque sprite est la première image de la feuille d'animation de la scène, avec la teinte de la scène. `default_zombie`, `splitter_zombie` et `small_zombie` partagent la feuille `Zombie_lOM_Base-Sheet.png`, `damage_zombie` et `minesweeper` la feuille `Zombie_lOM_Damage-Sheet.png`.
+Tous ont `escape_damage = 5`. Chaque sprite est la première image de la feuille d'animation de la scène, avec la teinte de la scène. `default_zombie`, `splitter_zombie` et `small_zombie` partagent la feuille `zombie_lom_base_sheet.png`, `damage_zombie` et `minesweeper` la feuille `zombie_lom_damage_sheet.png` (dans `assets/sprites/enemies/`).
 
 Le type `BIG_DADDY` secoue la caméra à l'apparition ([Caméra](/documentation/development/guides/camera/)).
 
@@ -111,7 +111,7 @@ Le type `BIG_DADDY` secoue la caméra à l'apparition ([Caméra](/documentation/
 
 ## Big Daddy
 
-`BigDaddy` (`scenes/gameplay/entities/enemy/enemies/big_daddy.gd`) attaque les tours à portée. Ses stats viennent de `extra` dans `stats.json`, écrites par `StatsDB.apply_fields` dans les propriétés du même nom: `shoot_range`, `tower_disable_duration`, `pre_attack_delay`, `attack_duration`, `post_attack_delay` et `attack_cooldown`. Les signaux `body_entered` et `body_exited` de sa zone de portée (`RangeArea`) sont connectés dans `_ready()`.
+`BigDaddy` (`game/enemies/big_daddy.gd`) attaque les tours à portée. Ses stats viennent de `extra` dans `stats.json`, écrites par `StatsDB.apply_fields` dans les propriétés du même nom: `shoot_range`, `tower_disable_duration`, `pre_attack_delay`, `attack_duration`, `post_attack_delay` et `attack_cooldown`. Les signaux `body_entered` et `body_exited` de sa zone de portée (`RangeArea`) sont connectés dans `_ready()`.
 
 - Le cycle d'attaque est `PRE_ATTACK`, `ATTACKING`, `POST_ATTACK` puis `COOLDOWN`. Il s'arrête de marcher pendant les trois premières phases.
 - Une attaque touche une seule fois: le premier projectile de la fenêtre `ATTACKING` est le coup réel, il désactive la tour touchée pendant `tower_disable_duration` secondes (`ITower.disable_tower_for`). Les projectiles suivants de la fenêtre (un toutes les 0,02 s, `STREAM_INTERVAL`) forment un flux purement visuel, sans collision ni effet ([Projectile](/documentation/development/models/projectile-model/#enemyprojectile)).

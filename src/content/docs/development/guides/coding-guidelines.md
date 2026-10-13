@@ -38,7 +38,7 @@ Ordre des sections, avec un tri alphabétique dans chacune:
 9. Fonctions publiques
 10. Fonctions privées
 
-Les sections de fonctions sont séparées par des commentaires. Le code existant utilise `# Public functions` et `# Private functions` (par exemple `scripts/commands/set_money.gd`), ou `# core`, `# public` et `# private` (par exemple `global.gd`). Les [snippets](/documentation/setup/snippets/) génèrent la première variante.
+Les sections de fonctions sont séparées par des commentaires. Le code existant utilise `# Public functions` et `# Private functions` (par exemple `debug/console/commands/set_money.gd`), ou `# core`, `# public` et `# private` (par exemple `global.gd`). Les [snippets](/documentation/setup/snippets/) génèrent la première variante.
 
 ## Nommage
 
@@ -90,7 +90,7 @@ Préférer `await get_tree().process_frame` ou `await get_tree().create_timer(se
 
 ## Signaux
 
-Toute connexion passe par `SignalUtil.connects`, jamais par `.connect()` directement (`scripts/utilities/signals/signal_util.gd`). Les clés sont `SignalUtil.WHO` (émetteur), `SignalUtil.WHAT` (nom du signal, en chaîne) et `SignalUtil.TO` (callable):
+Toute connexion passe par `SignalUtil.connects`, jamais par `.connect()` directement (`core/utilities/signals/signal_util.gd`). Les clés sont `SignalUtil.WHO` (émetteur), `SignalUtil.WHAT` (nom du signal, en chaîne) et `SignalUtil.TO` (callable):
 
 ```gdscript
 SignalUtil.connects([

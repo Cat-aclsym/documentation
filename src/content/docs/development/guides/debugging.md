@@ -42,8 +42,8 @@ Le code de sortie est le nombre d'échecs. L'avertissement `untyped_declaration`
 `tools/smoke_test.gd` joue le jeu quelques secondes en accéléré:
 
 1. Il désactive la sauvegarde (`ProgressionManager.persistence_enabled = false`), marque le tutoriel comme terminé et plafonne le jeu à 60 images par seconde.
-2. Il instancie `res://scenes/main.tscn` et attend 120 images.
-3. Il charge chaque scène `lev.*.tscn` de `res://scenes/gameplay/world/level/levels`, lance le niveau (`start_level()` puis `Global.ui.start_level()`, comme le menu de sélection et la commande `load_level`), le fait tourner 240 images avec `Engine.time_scale = 8.0`, puis le libère.
+2. Il instancie `res://main.tscn` et attend 120 images.
+3. Il charge chaque scène `lev.*.tscn` de `res://game/level/levels`, lance le niveau (`start_level()` puis `Global.ui.start_level()`, comme le menu de sélection et la commande `load_level`), le fait tourner 240 images avec `Engine.time_scale = 8.0`, puis le libère.
 4. Il compte chaque erreur journalisée par le moteur grâce à un `Logger` (`OS.add_logger`): `push_error`, chargement raté, erreur de script ou de shader. Les avertissements sont ignorés, ainsi que l'erreur `not supported in Dummy renderer` que chaque shader produit en `--headless`.
 
 La sortie résume le run (`Smoke test: 8 levels, 0 errors.`), après avoir listé au plus 20 erreurs (`ERROR: fichier:ligne @ fonction: ...`). Le code de sortie est le nombre d'erreurs, plafonné à 255.
@@ -60,7 +60,7 @@ Les suites gdUnit4 de `tests/` se lancent avec `GdUnitCmdTool.gd` (étape « Uni
 
 ## Watcher
 
-`Watcher` (`scenes/watcher/watcher.tscn`) est un `PanelContainer` qui affiche en continu la valeur d'une propriété d'un nœud. Il est marqué `@experimental` et aucune scène du projet n'en contient.
+`Watcher` (`debug/watcher/watcher.tscn`) est un `PanelContainer` qui affiche en continu la valeur d'une propriété d'un nœud. Il est marqué `@experimental` et aucune scène du projet n'en contient.
 
 | Export | Rôle |
 |---|---|
@@ -72,7 +72,7 @@ Instancier `watcher.tscn` dans la scène à inspecter, puis renseigner `node` et
 
 ## Écrans de test
 
-**Icônes de stats** (`scenes/ui/debug/stats_icons_debug.tscn`): depuis le menu d'accueil, le bouton `debug: stats icons` ouvre la liste (ou la grille) de toutes les icônes de stats avec leur clé. Utile pour vérifier une nouvelle stat dans `StatBar`. Pour tester une tour ou un ennemi isolé, lancer un niveau avec `load_level` puis utiliser les commandes ci-dessous.
+**Icônes de stats** (`debug/stats_icons_debug.tscn`): depuis le menu d'accueil, le bouton `debug: stats icons` ouvre la liste (ou la grille) de toutes les icônes de stats avec leur clé. Utile pour vérifier une nouvelle stat dans `StatBar`. Pour tester une tour ou un ennemi isolé, lancer un niveau avec `load_level` puis utiliser les commandes ci-dessous.
 
 ## Tester un niveau
 

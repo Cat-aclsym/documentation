@@ -14,9 +14,9 @@ Le jeu contient un tutoriel guidé sur `lev.01` et un dialogue d'introduction à
 
 ### Composants
 
-- `TutorialManager` (`scenes/ui/tutorial/tutorial_manager.gd`): enfant de la scène `ui.tscn`, il orchestre les dialogues et les objectifs.
-- `TutorialOverlay` (`scenes/ui/tutorial/tutorial_overlay.gd`): flèche animée qui pointe un contrôle de l'interface ou un élément du monde.
-- `TutorialPlacementHint` (`scenes/gameplay/world/level/tutorial_placement_hint.gd`): indicateur de la tuile à utiliser pendant l'étape de placement.
+- `TutorialManager` (`ui/tutorial/tutorial_manager.gd`): enfant de la scène `ui.tscn`, il orchestre les dialogues et les objectifs.
+- `TutorialOverlay` (`ui/tutorial/tutorial_overlay.gd`): flèche animée qui pointe un contrôle de l'interface ou un élément du monde.
+- `TutorialPlacementHint` (`game/level/tutorial_placement_hint.gd`): indicateur de la tuile à utiliser pendant l'étape de placement.
 - Timelines: `res://assets/narrative/tutorial_level_01.en.dtl` et `tutorial_level_01.fr.dtl`, choisies par `Narrative.timeline_path(TIMELINE_BASE)` (`TIMELINE_BASE = "tutorial_level_01"`, repli sur l'anglais).
 
 ### Déclenchement

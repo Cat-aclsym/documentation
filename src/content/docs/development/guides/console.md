@@ -21,7 +21,7 @@ La console n'existe qu'en debug : au démarrage, la scène se supprime si `Globa
 - La commande `help` liste les commandes disponibles avec leur signature ; `help <commande>` détaille une commande et ses sous-commandes. La console lance `help` à son démarrage.
 - Les logs du jeu (voir [Logs](/documentation/development/guides/logger/)) s'affichent aussi dans la console.
 
-Le nom d'une commande est le nom de son fichier dans `res://scripts/commands/`, sans `.gd`. Le fichier `set_money.gd` donne la commande `set_money`. La console instancie chaque script une seule fois, à la première utilisation, et les trie par nom.
+Le nom d'une commande est le nom de son fichier dans `res://debug/console/commands/`, sans `.gd`. Le fichier `set_money.gd` donne la commande `set_money`. La console instancie chaque script une seule fois, à la première utilisation, et les trie par nom.
 
 ## Commandes disponibles
 

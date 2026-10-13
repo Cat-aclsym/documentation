@@ -6,7 +6,7 @@ sidebar:
   order: 42
 ---
 
-La caméra est la classe `Camera` (`scripts/camera/camera.gd`, un `Camera2D`). Chaque carte en contient une (`Camera2D` de `i_map.tscn`), qui s'enregistre dans `Global.camera` à son `_ready()`. `IMap` règle ses limites d'après la `TileMapLayer` racine de la carte (marge de 64 px) et sa position initiale (`initial_camera_position`, voir [Créer un niveau](/documentation/development/guides/levels-and-arcs/#1-la-carte)).
+La caméra est la classe `Camera` (`game/camera/camera.gd`, un `Camera2D`). Chaque carte en contient une (`Camera2D` de `i_map.tscn`), qui s'enregistre dans `Global.camera` à son `_ready()`. `IMap` règle ses limites d'après la `TileMapLayer` racine de la carte (marge de 64 px) et sa position initiale (`initial_camera_position`, voir [Créer un niveau](/documentation/development/guides/levels-and-arcs/#1-la-carte)).
 
 ## Contrôles
 

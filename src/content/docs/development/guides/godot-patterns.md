@@ -40,7 +40,7 @@ func set_target(target: Node2D) -> void:
 - Ressources dynamiques, dont le chemin est déterminé à l'exécution: `load()`
 
 ```gdscript
-const SMALL_ZOMBIE_SCENE: PackedScene = preload("res://scenes/gameplay/entities/enemy/enemies/small_zombie.tscn")
+const SMALL_ZOMBIE_SCENE: PackedScene = preload("res://game/enemies/small_zombie.tscn")
 
 func load_skin(path: String) -> Texture2D:
 	return load(path) as Texture2D
@@ -48,7 +48,7 @@ func load_skin(path: String) -> Texture2D:
 
 ## Accès au `Global`
 
-L'autoload `Global` (`scripts/autoloads/global.gd`) expose les références `camera`, `console`, `cursor`, `hud` et `ui`, la variable `debug` et la pause par source.
+L'autoload `Global` (`autoloads/global.gd`) expose les références `camera`, `console`, `cursor`, `hud` et `ui`, la variable `debug` et la pause par source.
 
 - Les références valent `null` tant que leur nœud n'est pas prêt, et peuvent pointer vers un nœud libéré après un changement de scène: vérifier avec `is_instance_valid()` avant usage.
 - `Global.debug` vaut `OS.has_feature("debug")`: voir [Logs, niveaux](/documentation/development/guides/logger/#niveaux).

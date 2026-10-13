@@ -31,13 +31,13 @@ Ces paramètres sont déjà enregistrés dans `project.godot`. Ils s'éditent da
 | Paramètre | Valeur | Rôle |
 | --- | --- | --- |
 | `application/config/features` | `"4.7"`, `"Forward Plus"` | Version de Godot (4.7.2) et moteur de rendu Forward Plus |
-| `application/run/main_scene` | `res://scenes/main.tscn` | Scène lancée avec `F5` |
+| `application/run/main_scene` | `res://main.tscn` | Scène lancée avec `F5` |
 | `debug/gdscript/warnings/untyped_declaration` | `1` (avertissement) | Signale toute variable, constante ou paramètre sans type explicite |
 | `display/window/stretch/mode` | `canvas_items` | Mode d'étirement de la fenêtre |
 | `display/window/stretch/aspect` | `expand` | Conserve le ratio en étendant la zone visible |
 | `rendering/textures/canvas_textures/default_texture_filter` | `0` (`Nearest`) | Filtrage des textures 2D sans lissage (pixel art) |
 | `input_devices/pointing/emulate_touch_from_mouse` | activé | La souris émule le tactile |
-| `gui/theme/custom` | `res://assets/resources/themes/generic.tres` | Thème d'interface par défaut |
+| `gui/theme/custom` | `res://ui/theme/generic.tres` | Thème d'interface par défaut |
 | `internationalization/locale/translations` | `translations.en.translation`, `translations.fr.translation` | Traductions générées à l'import depuis `translations.csv` |
 
 Aucune langue de test (`internationalization/locale/test`) n'est définie et la pseudo-localisation n'est pas activée: la langue est celle des paramètres de la progression (`fr` par défaut), appliquée par `ProgressionManager.apply_settings()` ([Traductions et langues](/documentation/development/guides/i18n/)). Les fichiers `.translation` sont ignorés par Git: après une modification de `assets/translations/translations.csv`, l'import (`godot --headless --path . --import` ou l'éditeur) les régénère.

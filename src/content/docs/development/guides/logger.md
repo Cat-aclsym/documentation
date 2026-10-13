@@ -6,7 +6,7 @@ sidebar:
   order: 10
 ---
 
-Le système de logs est la classe statique `Log` (`res://scripts/log/log.gd`, `class_name Log`). Ce n'est pas un autoload. Elle remplace `print()` pour tout message technique.
+Le système de logs est la classe statique `Log` (`res://core/log/log.gd`, `class_name Log`). Ce n'est pas un autoload. Elle remplace `print()` pour tout message technique.
 
 ```gdscript
 Log.trace(Log.Level.INFO, "Wave started")

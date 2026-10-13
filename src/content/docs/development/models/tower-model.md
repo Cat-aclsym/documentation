@@ -65,7 +65,7 @@ Au tir, `_apply_projectile_config()` copie sur le projectile les clés de `bulle
 
 ## Catalogue
 
-Stats de base de `stats.json` (niveau 1), scènes dans `scenes/gameplay/entities/tower/towers/`. Les noms viennent des clés `TOWER.<ID>.NAME`:
+Stats de base de `stats.json` (niveau 1), scènes dans `game/buildings/towers/`. Les noms viennent des clés `TOWER.<ID>.NAME`:
 
 | Sprite | Clé | Nom | Coût | Cadence (`fire_rate`) | Portée | Dégâts |
 |---|---|---|---|---|---|---|
@@ -94,7 +94,7 @@ Les achats de l'[armurerie](/documentation/development/models/armory-model/) mod
 
 ## Source des stats
 
-Les stats de base et les upgrades viennent de `assets/resources/configs/stats.json` via `StatsDB` ([Statistiques](/documentation/development/models/stats-model/)):
+Les stats de base et les upgrades viennent de `data/stats.json` via `StatsDB` ([Statistiques](/documentation/development/models/stats-model/)):
 
 - `towers.<tower_id>.base`
 - `towers.<tower_id>.upgrades`

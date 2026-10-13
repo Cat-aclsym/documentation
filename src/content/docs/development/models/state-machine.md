@@ -6,7 +6,7 @@ sidebar:
   order: 15
 ---
 
-`StateMachine` (`scripts/state_machine/state_machine.gd`) est une machine d'états à transitions explicites: passer d'un état à un autre exige une transition déclarée avec `allow`. C'est une seule classe `RefCounted` qui porte les états et les transitions elle-même: ce n'est pas un nœud, elle est libérée avec sa dernière référence. Seul `ILevel` l'utilise, pour le déroulement des vagues.
+`StateMachine` (`core/state_machine/state_machine.gd`) est une machine d'états à transitions explicites: passer d'un état à un autre exige une transition déclarée avec `allow`. C'est une seule classe `RefCounted` qui porte les états et les transitions elle-même: ce n'est pas un nœud, elle est libérée avec sa dernière référence. Seul `ILevel` l'utilise, pour le déroulement des vagues.
 
 ```mermaid
 classDiagram
@@ -89,4 +89,4 @@ Il n'y a pas de méthodes `ILevel.pause()` ni `resume_from_pause()`. `ILevel` é
 
 ## Tests
 
-`tests/utilities/test_state_machine.gd` couvre la machine seule et `tests/scenes/gameplay/world/level/test_level_flow.gd` le déroulement d'un niveau ([Tests](/documentation/development/guides/testing/)).
+`tests/core/utilities/test_state_machine.gd` couvre la machine seule et `tests/game/level/test_level_flow.gd` le déroulement d'un niveau ([Tests](/documentation/development/guides/testing/)).

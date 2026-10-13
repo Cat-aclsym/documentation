@@ -13,7 +13,7 @@ L'armurerie est la méta-progression basée sur les étoiles gagnées via les d�
 - des effets appliqués au jeu (`effects`)
 - des verrous d'upgrade (`upgrade_gates`)
 
-La source de vérité est `res://resources/armory/armory.json`.
+La source de vérité est `res://data/armory/armory.json`.
 
 ```mermaid
 flowchart TB

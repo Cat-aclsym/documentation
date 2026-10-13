@@ -10,7 +10,7 @@ Le modèle de piège a deux couches: les stats gameplay de `stats.json` (runtime
 
 ## Stats runtime
 
-Dans `assets/resources/configs/stats.json`, chaque piège expose:
+Dans `data/stats.json`, chaque piège expose:
 
 ```json
 {
@@ -20,7 +20,7 @@ Dans `assets/resources/configs/stats.json`, chaque piège expose:
       "slow_amount": 0.3,
       "trap_type": 0
     },
-    "scene": "res://scenes/gameplay/entities/trap/traps/bat_04.tscn"
+    "scene": "res://game/buildings/traps/bat_04.tscn"
   }
 }
 ```
