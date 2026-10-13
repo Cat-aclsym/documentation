@@ -238,7 +238,7 @@ godot --path . res://debug/game_button_gallery.tscn
 
 ### Ajouter une icône
 
-1. Dessiner le glyphe dans une cellule libre de 64 px de `assets/ui/buttons/icons.png` (512 x 256 px, 32 cellules), blanc pour un glyphe à une couleur (gris clair en plus pour l'ombrage). Un glyphe en couleurs va aussi dans `GameIcon.MULTICOLOR`.
+1. Dessiner le glyphe dans une cellule libre de 64 px de `assets/ui/buttons/icons.png` (512 x 256 px, 32 cellules), blanc pour un glyphe à une couleur (gris clair en plus pour l'ombrage). Un glyphe en couleurs va aussi dans `GameIcon.MULTICOLOR`. Le bouton centre la cellule, donc le glyphe est centré horizontalement dans sa cellule (à un demi pixel près): sur son cadre, ou sur sa masse pour un triangle comme `PLAY` et `FAST_FORWARD` (centrage optique). Les glyphes restent un peu au-dessus du centre, comme la face des bases dont l'ombre occupe le bas.
 2. Ajouter l'id à la fin de l'enum `GameIcon.Id`, dans l'ordre des cellules: insérer au milieu décalerait toutes les cellules suivantes et les valeurs numériques déjà enregistrées dans les `.tscn`.
 3. Ajouter les lignes `BUTTON.<ID>` (en, fr) à `translations.csv`, puis lancer l'import headless pour régénérer les `.translation`.
 4. Lancer les tests: `test_translations.gd` vérifie que chaque `BUTTON.<ID>` a un texte anglais et français non vide, `test_game_icon.gd` que chaque cellule est dessinée, distincte et dans l'atlas.
