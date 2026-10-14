@@ -131,6 +131,8 @@ Le tutoriel n'utilise pas `play_once`: il démarre sa timeline lui-même et gèr
 
 Le `TutorialManager` règle le layout Dialogic au démarrage du tutoriel: `process_mode` à `PROCESS_MODE_ALWAYS`, puis si c'est un `CanvasLayer`, `layer = 100`, sinon `z_index = 9000`. Il est ainsi affiché au-dessus de l'interface du niveau.
 
+Le layout de `style.tres` garde `follow_viewport` à `false` (la valeur par défaut de Dialogic): la boîte de dialogue et la zone qui capte les clics pour avancer restent fixes à l'écran. Avec `true`, elles suivraient le zoom et le déplacement de la caméra du niveau, et un dialogue lancé après un déplacement de la caméra sortirait de l'écran sans pouvoir avancer, le jeu restant en pause.
+
 Écoute des signaux, comme dans `TutorialManager`:
 
 ```gdscript
